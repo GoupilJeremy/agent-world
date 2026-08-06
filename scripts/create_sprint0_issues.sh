@@ -123,7 +123,7 @@ Permettre aux utilisateurs de choisir un dossier de sortie pour les fichiers gé
 create_issue \
     "[FEAT] [Files] Noms de fichiers intelligents" \
     "## 🎯 Description
-Générer des noms de fichiers basés sur le contenu (ex: `resume_analysis_20260806.md`).
+Générer des noms de fichiers basés sur le contenu (ex: resume_analysis_20260806.md).
 
 ---
 
