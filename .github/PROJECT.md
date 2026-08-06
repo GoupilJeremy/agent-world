@@ -15,6 +15,19 @@
 9. [🤖 Configuration des Bots](#-configuration-des-bots)
 10. [📜 Checklist de Configuration](#-checklist-de-configuration)
 
+
+---
+
+## 📜 **Scripts de Configuration**
+
+Pour faciliter la configuration, des scripts Bash ont été générés dans le dossier `scripts/` :
+- [`create_github_labels.sh`](scripts/create_github_labels.sh) : Crée les 28 labels.
+- [`create_github_milestones.sh`](scripts/create_github_milestones.sh) : Crée les 6 milestones.
+- [`create_github_project.sh`](scripts/create_github_project.sh) : Crée le projet Kanban.
+- [`create_sprint0_issues.sh`](scripts/create_sprint0_issues.sh) : Crée les 5 issues du Sprint 0.
+
+> ⚠️ **Note** : Si les appels API GitHub sont bloqués dans votre environnement, utilisez les étapes manuelles décrites ci-dessous.
+
 ---
 
 ## 🎯 **Introduction**

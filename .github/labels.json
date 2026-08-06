@@ -1,0 +1,177 @@
+[
+  {
+    "name": "bug",
+    "description": "Bug à corriger",
+    "color": "d73a4a"
+  },
+  {
+    "name": "enhancement",
+    "description": "Nouvelle fonctionnalité",
+    "color": "0075ca"
+  },
+  {
+    "name": "question",
+    "description": "Question ou demande de clarification",
+    "color": "cc317c"
+  },
+  {
+    "name": "documentation",
+    "description": "Mise à jour de la documentation",
+    "color": "0075ca"
+  },
+  {
+    "name": "technical-debt",
+    "description": "Tâche technique (refactorisation, etc.)",
+    "color": "f9c514"
+  },
+  {
+    "name": "design",
+    "description": "Proposition ou tâche liée au design",
+    "color": "a4a9ad"
+  },
+  {
+    "name": "priority: high",
+    "description": "Priorité élevée (P0 - Must Have)",
+    "color": "d73a4a"
+  },
+  {
+    "name": "priority: medium",
+    "description": "Priorité moyenne (P1 - Should Have)",
+    "color": "f9c514"
+  },
+  {
+    "name": "priority: low",
+    "description": "Priorité basse (P2 - Could Have)",
+    "color": "0e8a16"
+  },
+  {
+    "name": "epic: mvp",
+    "description": "Épic 1 : MVP",
+    "color": "0075ca"
+  },
+  {
+    "name": "epic: vs-code",
+    "description": "Épic 2 : Intégration VS Code",
+    "color": "0075ca"
+  },
+  {
+    "name": "epic: files",
+    "description": "Épic 3 : Gestion des Fichiers",
+    "color": "0075ca"
+  },
+  {
+    "name": "epic: history",
+    "description": "Épic 4 : Historique et Versioning",
+    "color": "0075ca"
+  },
+  {
+    "name": "epic: templates",
+    "description": "Épic 5 : Templates et Personnalisation",
+    "color": "0075ca"
+  },
+  {
+    "name": "epic: collaboration",
+    "description": "Épic 6 : Collaboration",
+    "color": "0075ca"
+  },
+  {
+    "name": "epic: integrations",
+    "description": "Épic 7 : Intégrations Externes",
+    "color": "0075ca"
+  },
+  {
+    "name": "epic: performance",
+    "description": "Épic 8 : Performance et Scalabilité",
+    "color": "0075ca"
+  },
+  {
+    "name": "epic: ux",
+    "description": "Épic 9 : Expérience Utilisateur",
+    "color": "0075ca"
+  },
+  {
+    "name": "epic: security",
+    "description": "Épic 10 : Sécurité et Conformité",
+    "color": "0075ca"
+  },
+  {
+    "name": "component: backend",
+    "description": "Backend (Flask/FastAPI)",
+    "color": "0075ca"
+  },
+  {
+    "name": "component: frontend",
+    "description": "Frontend (React/Next.js)",
+    "color": "0075ca"
+  },
+  {
+    "name": "component: api",
+    "description": "API REST/GraphQL",
+    "color": "0075ca"
+  },
+  {
+    "name": "component: cli",
+    "description": "Interface en ligne de commande",
+    "color": "0075ca"
+  },
+  {
+    "name": "component: vs-code",
+    "description": "Extension VS Code",
+    "color": "0075ca"
+  },
+  {
+    "name": "component: database",
+    "description": "Base de données (PostgreSQL, MongoDB)",
+    "color": "0075ca"
+  },
+  {
+    "name": "component: models",
+    "description": "Modèles IA (Mistral, OpenAI, etc.)",
+    "color": "0075ca"
+  },
+  {
+    "name": "status: to do",
+    "description": "À faire",
+    "color": "fbca04"
+  },
+  {
+    "name": "status: in progress",
+    "description": "En cours",
+    "color": "0075ca"
+  },
+  {
+    "name": "status: review",
+    "description": "En revue",
+    "color": "f9c514"
+  },
+  {
+    "name": "status: done",
+    "description": "Terminé",
+    "color": "0e8a16"
+  },
+  {
+    "name": "status: blocked",
+    "description": "Bloqué",
+    "color": "d73a4a"
+  },
+  {
+    "name": "pr: needs-review",
+    "description": "Pull Request en attente de revue",
+    "color": "f9c514"
+  },
+  {
+    "name": "pr: approved",
+    "description": "Pull Request approuvée",
+    "color": "0e8a16"
+  },
+  {
+    "name": "pr: changes-requested",
+    "description": "Pull Request avec des changements demandés",
+    "color": "d73a4a"
+  },
+  {
+    "name": "pr: work-in-progress",
+    "description": "Pull Request en cours de développement",
+    "color": "fbca04"
+  }
+]
