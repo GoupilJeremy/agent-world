@@ -1,0 +1,168 @@
+# 🚫 Agent World - .gitignore
+# Fichiers et dossiers à exclure de Git
+
+---
+
+## 📁 Dossiers
+
+# Environnements virtuels Python
+venv/
+.env/
+.venv/
+
+# Dossier des dépendances Node.js
+frontend/node_modules/
+node_modules/
+
+# Dossier des builds
+build/
+dist/
+
+# Dossier des logs
+logs/
+*.log
+
+# Dossier des fichiers temporaires
+tmp/
+.temp/
+
+# Dossier des fichiers générés par les agents
+outputs/
+agents_output/
+
+# Dossier des données locales (SQLite, etc.)
+data/
+*.db
+*.sqlite
+
+# Dossier des caches
+.cache/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Dossier des IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Dossier des OS
+.DS_Store
+Thumbs.db
+
+---
+
+## 📄 Fichiers
+
+# Fichiers d'environnement
+.env
+.env.local
+.env.*.local
+
+# Fichiers de configuration locale
+config.local.json
+config.local.yml
+
+# Fichiers de secrets
+*.secret
+*.key
+*.pem
+*.crt
+
+# Fichiers de base de données locale
+*.db
+*.sqlite
+
+# Fichiers de logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Fichiers de build
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Fichiers de cache
+*.cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Fichiers de documentation générés
+*.md~ 
+*.md.bak
+
+# Fichiers de test
+.coverage
+.coverage.*
+
+# Fichiers de dépendances
+Pipfile.lock
+poetry.lock
+
+# Fichiers de Docker
+.docker/
+
+---
+
+## 📦 Extensions de Fichiers
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# JavaScript/TypeScript
+*.js.map
+*.ts.map
+
+# CSS
+*.css.map
+
+# Images et médias (si non nécessaires)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+*.mp4
+*.mov
+
+---
+
+## 🔧 Outils Spécifiques
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.nfs*
+
+---
+
+## 📝 Notes
+
+- Les fichiers **`.env`** ne doivent **jamais** être commités (ils contiennent des secrets).
+- Les dossiers **`node_modules/`** et **`venv/`** sont exclus car ils peuvent être régénérés.
+- Les fichiers de **logs** et **cache** sont exclus pour éviter le bruit.
+- Les fichiers de **build** sont exclus car ils sont générés automatiquement.
+
+---
+
+*Document généré le 06 août 2026.*
