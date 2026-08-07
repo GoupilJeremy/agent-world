@@ -11,8 +11,9 @@ Ce service contient la logique pour interagir avec les différents modèles IA
 
 import os
 import time
-from typing import Optional, Dict, Any, List, Union
 from enum import Enum
+from typing import Any, Dict, List, Optional, Union
+
 from ..models.base import db
 
 

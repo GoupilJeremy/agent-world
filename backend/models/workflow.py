@@ -10,7 +10,8 @@ Un workflow est une séquence d'étapes que l'agent doit suivre.
 """
 
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
+
 from .base import BaseModel, db
 
 

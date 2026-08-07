@@ -9,8 +9,9 @@ Ce module contient tous les endpoints REST pour la gestion des agents IA.
 Il implémente les opérations CRUD de base.
 """
 
-from flask import request, jsonify
+from flask import jsonify, request
 from flask_restful import Resource, reqparse
+
 from ..models.agent import Agent
 from ..models.base import db
 from ..services.agent_service import AgentService

@@ -9,8 +9,10 @@ Ces tests vérifient le bon fonctionnement de l'API REST
 pour la gestion des agents IA.
 """
 
-import pytest
 import json
+
+import pytest
+
 from backend.app import create_app
 from backend.models.base import db
 

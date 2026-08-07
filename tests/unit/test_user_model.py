@@ -10,9 +10,10 @@ et de ses méthodes.
 """
 
 import pytest
+
 from backend.app import create_app
-from backend.models.user import User
 from backend.models.base import db
+from backend.models.user import User
 
 
 @pytest.fixture

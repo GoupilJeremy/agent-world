@@ -13,9 +13,10 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
+
 from .config.settings import Config
-from .routes import agents_bp, register_resources
 from .models.base import db, init_db
+from .routes import agents_bp, register_resources
 from .services.agent_service import AgentService
 from .services.ai_service import AIService
 

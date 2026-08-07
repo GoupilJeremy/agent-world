@@ -63,7 +63,7 @@ def init_db(app):
     db.init_app(app)
 
     # Import all models to register them with SQLAlchemy
-    from . import agent, user, workflow, execution
+    from . import agent, execution, user, workflow
 
     # Create tables (only in development, use migrations in production)
     if app.config.get("ENV", "development") == "development":

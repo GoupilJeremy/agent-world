@@ -4,6 +4,7 @@
 """Routes package for Agent World API."""
 
 from flask import Blueprint
+
 from .agents import register_resources
 
 # Créer un blueprint pour les routes des agents

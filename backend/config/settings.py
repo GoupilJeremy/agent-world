@@ -10,6 +10,7 @@ Ce fichier contient toutes les configurations pour les différents environnement
 """
 
 import os
+
 from dotenv import load_dotenv
 
 # Charger les variables d'environnement

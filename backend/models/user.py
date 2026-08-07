@@ -10,8 +10,10 @@ Les utilisateurs peuvent créer, gérer et exécuter des agents IA.
 """
 
 from datetime import datetime
-from typing import Optional, List
-from werkzeug.security import generate_password_hash, check_password_hash
+from typing import List, Optional
+
+from werkzeug.security import check_password_hash, generate_password_hash
+
 from .base import BaseModel, db
 
 

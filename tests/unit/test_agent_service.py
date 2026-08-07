@@ -9,6 +9,7 @@ Ces tests vérifient le bon fonctionnement du service de gestion des agents.
 """
 
 import pytest
+
 from backend.app import create_app
 from backend.models.agent import Agent
 from backend.models.base import db

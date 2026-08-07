@@ -9,10 +9,11 @@ Ce service contient la logique métier pour la gestion des agents IA.
 Il fait le lien entre les modèles de données et les contrôleurs.
 """
 
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
+
 from ..models.agent import Agent
-from ..models.execution import Execution, ExecutionStatus
 from ..models.base import db
+from ..models.execution import Execution, ExecutionStatus
 
 
 class AgentService:

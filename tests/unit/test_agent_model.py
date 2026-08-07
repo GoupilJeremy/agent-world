@@ -9,8 +9,10 @@ Ces tests vérifient le bon fonctionnement du modèle Agent
 et de ses méthodes.
 """
 
-import pytest
 from datetime import datetime
+
+import pytest
+
 from backend.app import create_app
 from backend.models.agent import Agent
 from backend.models.base import db

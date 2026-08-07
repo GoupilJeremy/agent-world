@@ -16,12 +16,12 @@ Usage:
 """
 
 import argparse
-import sys
 import json
-from typing import Optional, List, Dict, Any
+import sys
+from typing import Any, Dict, List, Optional
 
-from ..models.base import db
 from ..models.agent import Agent
+from ..models.base import db
 from ..models.execution import Execution
 from ..services.agent_service import AgentService
 
