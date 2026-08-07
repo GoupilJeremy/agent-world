@@ -198,6 +198,7 @@ class TestUserModel:
             user.update(first_name="New", last_name="Name", password="newpassword")
 
             updated_user = User.get_by_id(user.id)
+            assert updated_user is not None
             assert updated_user.first_name == "New"
             assert updated_user.last_name == "Name"
             assert updated_user.check_password("newpassword") is True

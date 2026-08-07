@@ -9,14 +9,16 @@ Ce fichier contient la classe de base pour tous les modèles de données.
 Il initialise SQLAlchemy et fournit des fonctionnalités communes.
 """
 
+from typing import Any
+
 from flask_sqlalchemy import SQLAlchemy
 
 # Initialize SQLAlchemy without binding to any app
 # The app will be bound in the factory function
-db = SQLAlchemy()
+db = SQLAlchemy()  # type: ignore[name-defined]
 
 
-class BaseModel(db.Model):
+class BaseModel(db.Model):  # type: ignore[name-defined]
     """
     Base model class that all models should inherit from.
 
@@ -26,18 +28,18 @@ class BaseModel(db.Model):
 
     __abstract__ = True
 
-    def save(self):
+    def save(self) -> None:
         """Save the current instance to the database."""
         db.session.add(self)
         db.session.commit()
 
-    def save_and_flush(self):
+    def save_and_flush(self) -> None:
         """Save and flush the current instance."""
         db.session.add(self)
         db.session.flush()
 
     @classmethod
-    def delete_all(cls):
+    def delete_all(cls) -> None:
         """Delete all instances of this model."""
         cls.query.delete()
         db.session.commit()
@@ -45,10 +47,10 @@ class BaseModel(db.Model):
     @classmethod
     def count(cls) -> int:
         """Count all instances of this model."""
-        return cls.query.count()
+        return cls.query.count()  # type: ignore[no-any-return]
 
     @classmethod
-    def exists(cls, **filters) -> bool:
+    def exists(cls, **filters: Any) -> bool:
         """Check if any instance exists with the given filters."""
         return cls.query.filter_by(**filters).first() is not None
 
@@ -63,7 +65,7 @@ def init_db(app):
     db.init_app(app)
 
     # Import all models to register them with SQLAlchemy
-    from . import agent, execution, user, workflow
+    from . import agent, execution, user, workflow  # noqa: F401
 
     # Create tables (only in development, use migrations in production)
     if app.config.get("ENV", "development") == "development":

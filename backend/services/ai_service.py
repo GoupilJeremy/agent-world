@@ -12,9 +12,7 @@ Ce service contient la logique pour interagir avec les différents modèles IA
 import os
 import time
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
-
-from ..models.base import db
+from typing import Any, Dict, List, Optional
 
 
 class AIModelType(str, Enum):
@@ -89,7 +87,7 @@ class AIService:
     def generate(
         self,
         prompt: str,
-        model: str = None,
+        model: Optional[str] = None,
         configuration: Optional[Dict[str, Any]] = None,
         max_tokens: int = 1000,
         temperature: float = 0.7,
@@ -152,7 +150,7 @@ class AIService:
     def chat(
         self,
         messages: List[Dict[str, Any]],
-        model: str = None,
+        model: Optional[str] = None,
         configuration: Optional[Dict[str, Any]] = None,
         max_tokens: int = 1000,
         temperature: float = 0.7,
@@ -161,7 +159,8 @@ class AIService:
         Generate a chat completion using the specified AI model.
 
         Args:
-            messages: List of message dictionaries (role: 'user' or 'assistant', content: str)
+            messages: List of message dictionaries
+                (role: 'user' or 'assistant', content: str)
             model: Model identifier (default: self.default_model)
             configuration: Optional model configuration
             max_tokens: Maximum number of tokens to generate (default: 1000)
@@ -302,7 +301,10 @@ class MistralConnector(BaseAIConnector):
         if not self.api_key:
             return {
                 "error": "MISTRAL_API_KEY not configured",
-                "text": "Mistral API is not configured. Please set MISTRAL_API_KEY environment variable.",
+                "text": (
+                    "Mistral API is not configured. "
+                    "Please set MISTRAL_API_KEY environment variable."
+                ),
                 "tokens_used": 0,
             }
 
@@ -336,7 +338,10 @@ class MistralConnector(BaseAIConnector):
         return {
             "message": {
                 "role": "assistant",
-                "content": f"[Mock Mistral {model} chat response]\n\nI'm a helpful AI assistant.",
+                "content": (
+                    f"[Mock Mistral {model} chat response]\n\n"
+                    "I'm a helpful AI assistant."
+                ),
             },
             "tokens_used": 20,
             "finish_reason": "stop",
@@ -361,7 +366,10 @@ class OpenAIConnector(BaseAIConnector):
         if not self.api_key:
             return {
                 "error": "OPENAI_API_KEY not configured",
-                "text": "OpenAI API is not configured. Please set OPENAI_API_KEY environment variable.",
+                "text": (
+                    "OpenAI API is not configured. "
+                    "Please set OPENAI_API_KEY environment variable."
+                ),
                 "tokens_used": 0,
             }
 
@@ -394,7 +402,10 @@ class OpenAIConnector(BaseAIConnector):
         return {
             "message": {
                 "role": "assistant",
-                "content": f"[Mock OpenAI {model} chat response]\n\nI'm a helpful AI assistant.",
+                "content": (
+                    f"[Mock OpenAI {model} chat response]\n\n"
+                    "I'm a helpful AI assistant."
+                ),
             },
             "tokens_used": 25,
             "finish_reason": "stop",
@@ -452,7 +463,10 @@ class AnthropicConnector(BaseAIConnector):
         return {
             "message": {
                 "role": "assistant",
-                "content": f"[Mock Anthropic {model} chat response]\n\nI am a helpful AI assistant.",
+                "content": (
+                    f"[Mock Anthropic {model} chat response]\n\n"
+                    "I am a helpful AI assistant."
+                ),
             },
             "tokens_used": 18,
             "finish_reason": "end_turn",

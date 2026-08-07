@@ -9,12 +9,11 @@ Ce module contient tous les endpoints REST pour la gestion des agents IA.
 Il implémente les opérations CRUD de base.
 """
 
-from flask import jsonify, request
+from flask import request
 from flask_restful import Resource, reqparse
 
 from ..models.agent import Agent
 from ..models.base import db
-from ..services.agent_service import AgentService
 
 # Initialize parser for request parsing
 parser = reqparse.RequestParser()
@@ -266,7 +265,7 @@ class AgentRunResource(Resource):
           400:
             description: Invalid input
         """
-        from ..models.execution import Execution, ExecutionStatus
+        from ..models.execution import Execution
 
         agent = Agent.get_by_id(agent_id)
         if not agent:

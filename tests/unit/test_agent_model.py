@@ -9,8 +9,6 @@ Ces tests vérifient le bon fonctionnement du modèle Agent
 et de ses méthodes.
 """
 
-from datetime import datetime
-
 import pytest
 
 from backend.app import create_app
@@ -137,7 +135,7 @@ class TestAgentModel:
 
             # Refresh from database
             updated_agent = Agent.get_by_id(agent.id)
-
+            assert updated_agent is not None
             assert updated_agent.name == "Updated Agent"
             assert updated_agent.description == "Updated description"
 

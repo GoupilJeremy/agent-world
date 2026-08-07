@@ -21,8 +21,6 @@ import sys
 from typing import Any, Dict, List, Optional
 
 from ..models.agent import Agent
-from ..models.base import db
-from ..models.execution import Execution
 from ..services.agent_service import AgentService
 
 
@@ -449,7 +447,9 @@ class AgentWorldCLI:
             print(f"   Created: {agent.created_at}")
             print(f"   Updated: {agent.updated_at}")
 
-    def print_table(self, data: List[Dict[str, Any]], title: str = None) -> None:
+    def print_table(
+        self, data: List[Dict[str, Any]], title: Optional[str] = None
+    ) -> None:
         """Print data as a formatted table."""
         if not data:
             print("🔍 No data to display")
@@ -486,7 +486,7 @@ class AgentWorldCLI:
                 row.append(f"{str(value):15}")
             print(" | ".join(row))
 
-    def print_dict(self, data: Dict[str, Any], title: str = None) -> None:
+    def print_dict(self, data: Dict[str, Any], title: Optional[str] = None) -> None:
         """Print dictionary as formatted output."""
         if title:
             print(f"\n{title}")

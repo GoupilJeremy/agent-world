@@ -12,10 +12,9 @@ Il initialise Flask, configure les extensions, et enregistre les routes.
 from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
-from flask_sqlalchemy import SQLAlchemy
 
 from .config.settings import Config
-from .models.base import db, init_db
+from .models.base import init_db
 from .routes import agents_bp, register_resources
 from .services.agent_service import AgentService
 from .services.ai_service import AIService
@@ -81,7 +80,10 @@ def create_app(config_class=Config):
         return {
             "name": "Agent World API",
             "version": "0.1.0",
-            "description": "Open-source platform for creating, managing, and deploying AI agents",
+            "description": (
+                "Open-source platform for creating, managing, "
+                "and deploying AI agents"
+            ),
             "docs": "/api/docs",
             "health": "/health",
         }, 200
