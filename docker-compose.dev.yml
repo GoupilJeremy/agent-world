@@ -1,0 +1,106 @@
+# 🐳 Agent World - Docker Compose (Development)
+# Version: 0.1.0 (MVP)
+# Description: Configuration Docker Compose pour le développement
+
+version: '3.8'
+
+services:
+  # Backend service with development configuration
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agent-world-backend-dev
+    restart: unless-stopped
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - DATABASE_URL=postgresql://agent_world:agent_world@db:5432/agent_world_dev
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REDIS_URL=redis://redis:6379/0
+      - LOG_LEVEL=DEBUG
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app/backend:ro
+      - ./tests:/app/tests:ro
+      - ./outputs:/app/outputs
+      - ./logs:/app/logs
+    networks:
+      - agent-world-network
+    command: ["python", "run.py", "--host", "0.0.0.0", "--debug"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Database service (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: agent-world-db-dev
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=agent_world
+      - POSTGRES_PASSWORD=agent_world
+      - POSTGRES_DB=agent_world_dev
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - agent-world-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent_world"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis service for caching
+  redis:
+    image: redis:7-alpine
+    container_name: agent-world-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_dev:/data
+    networks:
+      - agent-world-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: agent-world-pgadmin-dev
+    restart: unless-stopped
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@agent-world.dev
+      - PGADMIN_DEFAULT_PASSWORD=admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - agent-world-network
+
+networks:
+  agent-world-network:
+    driver: bridge
+
+volumes:
+  postgres_data_dev:
+  redis_data_dev:

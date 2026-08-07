@@ -9,6 +9,8 @@
 venv/
 .env/
 .venv/
+ENV/
+env/
 
 # Dossier des dépendances Node.js
 frontend/node_modules/
@@ -38,8 +40,9 @@ data/
 # Dossier des caches
 .cache/
 __pycache__/
-*.py[cod]
-*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Dossier des IDEs
 .idea/
@@ -51,6 +54,12 @@ __pycache__/
 # Dossier des OS
 .DS_Store
 Thumbs.db
+
+# Dossier de Docker
+.docker/
+
+# Dossiers de distribution
+*.egg-info/
 
 ---
 
@@ -89,9 +98,8 @@ yarn-error.log*
 
 # Fichiers de cache
 *.cache
-.pytest_cache/
 .coverage
-htmlcov/
+.coverage.*
 
 # Fichiers de documentation générés
 *.md~ 
@@ -107,6 +115,11 @@ poetry.lock
 
 # Fichiers de Docker
 .docker/
+
+# Fichiers de distribution
+dist/
+*.egg-info/
+*.egg
 
 ---
 
@@ -154,6 +167,19 @@ $RECYCLE.BIN/
 *~
 .nfs*
 
+# Editeurs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environnements virtuels
+venv/
+ENV/
+env/
+.venv/
+
 ---
 
 ## 📝 Notes
@@ -165,4 +191,4 @@ $RECYCLE.BIN/
 
 ---
 
-*Document généré le 06 août 2026.*
+*Document généré le 07 août 2026.*
