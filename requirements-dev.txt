@@ -1,16 +1,14 @@
-# 🛠️ Agent World - Development Dependencies
+# Agent World - Development Dependencies
 # Python 3.10+
 
---- 
-
-## 🔍 Linting & Formatting
+# Linting & Formatting
 black==24.1.1
 flake8==6.1.0
 isort==5.13.2
 mypy==1.8.0
 pylint==3.0.3
 
-## 🧪 Testing
+# Testing
 pytest==8.0.0
 pytest-cov==4.1.0
 pytest-flask==1.3.0
@@ -18,20 +16,20 @@ pytest-mock==3.12.0
 factory-boy==3.3.0
 coverage==7.4.0
 
-## 📦 Build & Package
+# Build & Package
 setuptools==69.0.2
 wheel==0.42.0
 twine==5.0.0
 
-## 📝 Documentation
+# Documentation
 mkdocs==1.5.3
 mkdocs-material==9.5.6
 pymdown-extensions==10.7.1
 
-## 🔄 Git & Versioning
+# Git & Versioning
 gitpython==3.1.40
 bumpversion==0.6.0
 
-## 🛠️ Misc
+# Misc
 pre-commit==3.6.0
 tox==4.12.1
