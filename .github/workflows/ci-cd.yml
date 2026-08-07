@@ -67,7 +67,7 @@ jobs:
           POSTGRES_DB: agent_world_test
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready -U agent_world --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd "pg_isready -U agent_world" --health-interval 10s --health-timeout 5s --health-retries 5
     
     steps:
       - name: Set up Node.js
@@ -118,7 +118,7 @@ jobs:
           POSTGRES_DB: agent_world_test
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready -U agent_world --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd "pg_isready -U agent_world" --health-interval 10s --health-timeout 5s --health-retries 5
       
       redis:
         image: redis:7-alpine
