@@ -6,4 +6,4 @@
 from .agent_service import AgentService
 from .ai_service import AIService
 
-__all__ = ['AgentService', 'AIService']
+__all__ = ["AgentService", "AIService"]

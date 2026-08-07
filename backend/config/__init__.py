@@ -5,4 +5,4 @@
 
 from .settings import Config, DevelopmentConfig, TestingConfig, ProductionConfig
 
-__all__ = ['Config', 'DevelopmentConfig', 'TestingConfig', 'ProductionConfig']
+__all__ = ["Config", "DevelopmentConfig", "TestingConfig", "ProductionConfig"]

@@ -25,54 +25,56 @@ from .services.ai_service import AIService
 def create_app(config_class=Config):
     """
     Factory function to create and configure the Flask application.
-    
+
     Args:
         config_class: Configuration class to use (default: Config)
-        
+
     Returns:
         Flask app instance
     """
     # Create Flask application
     app = Flask(__name__)
-    
+
     # Load configuration
     app.config.from_object(config_class)
-    app.config['SQLALCHEMY_DATABASE_URI'] = config_class.SQLALCHEMY_DATABASE_URI
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = config_class.SQLALCHEMY_TRACK_MODIFICATIONS
-    
+    app.config["SQLALCHEMY_DATABASE_URI"] = config_class.SQLALCHEMY_DATABASE_URI
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = (
+        config_class.SQLALCHEMY_TRACK_MODIFICATIONS
+    )
+
     # Initialize extensions
     CORS(app, resources={r"/api/*": {"origins": "*"}})
     api = Api(app, prefix="/api")
-    
+
     # Initialize database
     init_db(app)
-    
+
     # Register Flask-RESTful resources
     register_resources(api)
-    
+
     # Register blueprints
     app.register_blueprint(agents_bp)
-    
+
     # Initialize services
     agent_service = AgentService()
     ai_service = AIService()
-    
+
     # Register services with app context
-    app.extensions['agent_service'] = agent_service
-    app.extensions['ai_service'] = ai_service
-    
+    app.extensions["agent_service"] = agent_service
+    app.extensions["ai_service"] = ai_service
+
     # Health check endpoint
-    @app.route('/health')
+    @app.route("/health")
     def health_check():
         """Health check endpoint for monitoring."""
         return {
             "status": "healthy",
             "version": "0.1.0",
-            "service": "agent-world-backend"
+            "service": "agent-world-backend",
         }, 200
-    
+
     # Root endpoint
-    @app.route('/')
+    @app.route("/")
     def index():
         """Root endpoint with API information."""
         return {
@@ -80,9 +82,9 @@ def create_app(config_class=Config):
             "version": "0.1.0",
             "description": "Open-source platform for creating, managing, and deploying AI agents",
             "docs": "/api/docs",
-            "health": "/health"
+            "health": "/health",
         }, 200
-    
+
     return app
 
 
@@ -90,5 +92,5 @@ def create_app(config_class=Config):
 app = create_app()
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
