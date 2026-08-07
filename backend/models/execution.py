@@ -66,11 +66,11 @@ class Execution(BaseModel):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     # Relationships
-    agent = db.relationship("Agent", backref=db.backref("executions", lazy=True))
-    workflow = db.relationship("Workflow", backref=db.backref("executions", lazy=True))
+    agent = db.relationship("Agent", back_populates="executions")
+    workflow = db.relationship("Workflow", back_populates="executions")
     executor = db.relationship(
         "User",
-        backref=db.backref("user_executions", lazy=True),
+        back_populates="executions",
         foreign_keys=[executed_by],
     )
 

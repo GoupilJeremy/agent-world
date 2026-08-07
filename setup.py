@@ -15,18 +15,21 @@ Usage:
     python setup.py develop    # Mode développement
 """
 
-from setuptools import setup, find_packages
+import re
 from pathlib import Path
+
+from setuptools import find_packages, setup
 
 # Lire la description depuis le README
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 # Lire la version depuis pyproject.toml
-import re
-version_match = re.search(r"^version = ["']([^"']+)['"]", 
-                          (this_directory / "pyproject.toml").read_text(), 
-                          re.M)
+version_match = re.search(
+    r"^version = ['\"]([^'\"]+)['\"]",
+    (this_directory / "pyproject.toml").read_text(),
+    re.M,
+)
 version = version_match.group(1) if version_match else "0.1.0"
 
 
@@ -55,6 +58,7 @@ setup(
         "Flask>=3.0.0",
         "Flask-RESTful>=0.3.10",
         "Flask-CORS>=4.0.0",
+        "Flask-SQLAlchemy>=3.1.1",
         "python-dotenv>=1.0.0",
         
         # Database

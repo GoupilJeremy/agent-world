@@ -12,6 +12,7 @@ et de ses méthodes.
 import pytest
 
 from backend.app import create_app
+from backend.config.settings import TestingConfig
 from backend.models.agent import Agent
 from backend.models.base import db
 
@@ -19,10 +20,7 @@ from backend.models.base import db
 @pytest.fixture
 def app():
     """Create and configure a new app instance for each test."""
-    app = create_app()
-    app.config["TESTING"] = True
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app = create_app(TestingConfig)
 
     with app.app_context():
         db.create_all()

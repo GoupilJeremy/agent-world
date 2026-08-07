@@ -258,6 +258,8 @@ class AgentRunResource(Resource):
                   properties:
                     execution_id:
                       type: integer
+                    agent_id:
+                      type: integer
                     message:
                       type: string
           404:
@@ -274,7 +276,7 @@ class AgentRunResource(Resource):
         if not agent.is_active:
             return {"error": f"Agent with ID {agent_id} is not active"}, 400
 
-        data = request.get_json()
+        data = request.get_json(silent=True)
         if not data or "input" not in data:
             return {"error": "Input is required"}, 400
 
@@ -299,6 +301,7 @@ class AgentRunResource(Resource):
 
             return {
                 "execution_id": execution.id,
+                "agent_id": agent_id,
                 "message": f"Agent {agent.name} execution started",
                 "status": execution.status.value,
             }, 200

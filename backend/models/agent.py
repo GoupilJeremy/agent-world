@@ -47,13 +47,15 @@ class Agent(BaseModel):
     )
 
     # Relationships
-    user = db.relationship("User", backref=db.backref("agents", lazy=True))
+    creator = db.relationship(
+        "User", back_populates="agents", foreign_keys=[created_by]
+    )
     workflows = db.relationship(
-        "Workflow", backref=db.backref("agent", lazy=True), cascade="all, delete-orphan"
+        "Workflow", back_populates="agent", cascade="all, delete-orphan"
     )
     executions = db.relationship(
         "Execution",
-        backref=db.backref("agent", lazy=True),
+        back_populates="agent",
         cascade="all, delete-orphan",
     )
 

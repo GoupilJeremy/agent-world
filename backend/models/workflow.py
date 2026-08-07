@@ -48,15 +48,15 @@ class Workflow(BaseModel):
     )
 
     # Relationships
-    agent = db.relationship("Agent", backref=db.backref("workflows", lazy=True))
+    agent = db.relationship("Agent", back_populates="workflows")
     creator = db.relationship(
         "User",
-        backref=db.backref("created_workflows", lazy=True),
+        back_populates="workflows",
         foreign_keys=[created_by],
     )
     executions = db.relationship(
         "Execution",
-        backref=db.backref("workflow", lazy=True),
+        back_populates="workflow",
         cascade="all, delete-orphan",
     )
 

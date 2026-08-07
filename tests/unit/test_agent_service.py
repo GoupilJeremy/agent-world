@@ -11,6 +11,7 @@ Ces tests vérifient le bon fonctionnement du service de gestion des agents.
 import pytest
 
 from backend.app import create_app
+from backend.config.settings import TestingConfig
 from backend.models.agent import Agent
 from backend.models.base import db
 from backend.services.agent_service import AgentService
@@ -19,10 +20,7 @@ from backend.services.agent_service import AgentService
 @pytest.fixture
 def app():
     """Create and configure a new app instance for each test."""
-    app = create_app()
-    app.config["TESTING"] = True
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app = create_app(TestingConfig)
 
     with app.app_context():
         db.create_all()

@@ -52,17 +52,17 @@ class User(BaseModel):
     # Relationships
     agents = db.relationship(
         "Agent",
-        backref=db.backref("creator", lazy=True),
+        back_populates="creator",
         foreign_keys="Agent.created_by",
     )
     workflows = db.relationship(
         "Workflow",
-        backref=db.backref("creator", lazy=True),
+        back_populates="creator",
         foreign_keys="Workflow.created_by",
     )
     executions = db.relationship(
         "Execution",
-        backref=db.backref("executor", lazy=True),
+        back_populates="executor",
         foreign_keys="Execution.executed_by",
     )
 
