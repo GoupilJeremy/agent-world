@@ -34,7 +34,7 @@ structlog==23.2.0
 python-json-logger==2.0.7
 
 # Documentation
-flasgger==0.9.7.0
+flasgger==0.9.7.1
 
 # Development
 black==24.1.1
