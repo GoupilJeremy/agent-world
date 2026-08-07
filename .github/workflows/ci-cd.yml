@@ -59,6 +59,9 @@ jobs:
     needs: lint-and-quality
     
     services:
+      docker:
+        image: docker:dind
+        privileged: true
       postgres:
         image: postgres:15-alpine
         env:
@@ -110,6 +113,9 @@ jobs:
     needs: unit-tests
     
     services:
+      docker:
+        image: docker:dind
+        privileged: true
       postgres:
         image: postgres:15-alpine
         env:
