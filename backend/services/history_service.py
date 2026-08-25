@@ -16,6 +16,7 @@ Il permet de :
 """
 
 import uuid
+import logging
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
@@ -25,6 +26,8 @@ from ..models.agent_history import ActionType, AgentHistory
 from ..models.base import db
 from ..models.execution import Execution, ExecutionStatus
 from ..models.user import User
+
+logger = logging.getLogger(__name__)
 
 
 class HistoryFilter(str, Enum):
@@ -715,3 +718,106 @@ class HistoryService:
             "status_counts": status_counts,
             "average_duration_ms": avg_duration,
         }
+
+    # ========================================================================
+    # Notification Integration Methods (US-031)
+    # ========================================================================
+
+    def notify_execution_failure(
+        self,
+        user_id: int,
+        agent_id: int,
+        execution_id: int,
+        error_message: str,
+        send_immediately: bool = True,
+    ) -> Optional[Any]:
+        """
+        Create a notification for an execution failure.
+        
+        This method integrates with the NotificationService to send
+        notifications when executions fail.
+        
+        Args:
+            user_id: ID of the user to notify
+            agent_id: ID of the agent that failed
+            execution_id: ID of the failed execution
+            error_message: The error message
+            send_immediately: Whether to send immediately
+            
+        Returns:
+            The created notification, or None if failed
+        """
+        try:
+            from .notification_service import notification_service
+            return notification_service.create_execution_failure_notification(
+                user_id=user_id,
+                agent_id=agent_id,
+                execution_id=execution_id,
+                error_message=error_message,
+            )
+        except Exception as e:
+            logger.error(f"Failed to create execution failure notification: {str(e)}")
+            return None
+
+    def notify_execution_success(
+        self,
+        user_id: int,
+        agent_id: int,
+        execution_id: int,
+        duration: float,
+        send_immediately: bool = True,
+    ) -> Optional[Any]:
+        """
+        Create a notification for a successful execution.
+        
+        Args:
+            user_id: ID of the user to notify
+            agent_id: ID of the agent
+            execution_id: ID of the execution
+            duration: Execution duration in seconds
+            send_immediately: Whether to send immediately
+            
+        Returns:
+            The created notification, or None if failed
+        """
+        try:
+            from .notification_service import notification_service
+            return notification_service.create_execution_success_notification(
+                user_id=user_id,
+                agent_id=agent_id,
+                execution_id=execution_id,
+                duration=duration,
+            )
+        except Exception as e:
+            logger.error(f"Failed to create execution success notification: {str(e)}")
+            return None
+
+    def notify_agent_modification(
+        self,
+        user_id: int,
+        agent_id: int,
+        action: str,
+        send_immediately: bool = True,
+    ) -> Optional[Any]:
+        """
+        Create a notification for an agent modification.
+        
+        Args:
+            user_id: ID of the user to notify
+            agent_id: ID of the agent
+            action: The action performed (created, updated, deleted)
+            send_immediately: Whether to send immediately
+            
+        Returns:
+            The created notification, or None if failed
+        """
+        try:
+            from .notification_service import notification_service
+            return notification_service.create_agent_modification_notification(
+                user_id=user_id,
+                agent_id=agent_id,
+                action=action,
+            )
+        except Exception as e:
+            logger.error(f"Failed to create agent modification notification: {str(e)}")
+            return None

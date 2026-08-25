@@ -129,7 +129,7 @@
 | US-028   | Comparaison de versions            | Comparer deux versions d'un agent (diff visuel).                                                 | 6h             | P1           | ✅ Done    | ✅ Affichage des différences, ✅ Export du diff.                                                  |
 | US-029   | Export de l'historique             | Exporter l'historique au format JSON/CSV.                                                         | 3h             | P2           | ✅ Done    | ✅ Export via UI/CLI, ✅ Format lisible.                                                          |
 | US-030   | Recherche dans l'historique        | Rechercher des événements spécifiques dans l'historique.                                       | 4h             | P2           | ✅ Done    | ✅ Barre de recherche, ✅ Filtres avancés.                                                        |
-| US-031   | Notifications historiques          | Envoyer des notifications pour les événements importants (ex: échec d'exécution).              | 4h             | P2           | ⏳ Backlog | ✅ Configurable par utilisateur, ✅ Intégration avec email/Slack.                                |
+| US-031   | Notifications historiques          | Envoyer des notifications pour les événements importants (ex: échec d'exécution).              | 4h             | P2           | ✅ Done    | ✅ Configurable par utilisateur, ✅ Intégration avec email/Slack.                                |
 | US-032   | Statistiques d'utilisation         | Générer des statistiques sur l'utilisation des agents (ex: nombre d'exécutions par jour).      | 4h             | P2           | ✅ Done    | ✅ Tableaux de bord, ✅ Export des données.                                                       |
 
 ---
@@ -368,6 +368,10 @@
 | US-026   | Historique des exécutions          | History        | 6h         | ✅ Done        |
 | US-027   | Restauration de versions            | History        | 5h         | ✅ Done        |
 | US-028   | Comparaison de versions            | History        | 6h         | ✅ Done        |
+| US-029   | Export de l'historique             | History        | 3h         | ✅ Done        |
+| US-030   | Recherche dans l'historique        | History        | 4h         | ✅ Done        |
+| US-031   | Notifications historiques          | History        | 4h         | ✅ Done        |
+| US-032   | Statistiques d'utilisation         | History        | 4h         | ✅ Done        |
 | US-033   | Création de templates              | Templates      | 6h         | ✅ Done        |
 | US-034   | Bibliothèque de templates           | Templates      | 8h         | ✅ Done        |
 | US-035   | Import/Export de templates          | Templates      | 4h         | ✅ Done        |

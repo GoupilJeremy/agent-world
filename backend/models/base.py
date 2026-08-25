@@ -70,6 +70,7 @@ def init_db(app):
         agent_history,
         execution,
         generated_file,
+        history_notification,
         template,
         template_share,
         user,
