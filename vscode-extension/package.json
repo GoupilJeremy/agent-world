@@ -1,0 +1,161 @@
+{
+  "name": "agent-world-vscode",
+  "displayName": "Agent World",
+  "description": "Visualisez les agents Agent World directement dans VS Code.",
+  "version": "0.2.0",
+  "publisher": "agent-world",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GoupilJeremy/agent-world.git",
+    "directory": "vscode-extension"
+  },
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=18.0.0"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "La consultation des agents reste disponible, mais l’ouverture programmatique de fichiers est désactivée.",
+      "restrictedConfigurations": [
+        "agentWorld.apiUrl"
+      ]
+    }
+  },
+  "categories": [
+    "Machine Learning",
+    "Other"
+  ],
+  "keywords": [
+    "agents",
+    "ai",
+    "dashboard"
+  ],
+  "activationEvents": [
+    "onView:agentWorld.agentsView",
+    "onCommand:agentWorld.openDashboard",
+    "onCommand:agentWorld.refreshAgents",
+    "onCommand:agentWorld.openAgentDetail",
+    "onCommand:agentWorld.openGeneratedFile"
+  ],
+  "main": "./src/extension.js",
+  "scripts": {
+    "check": "node --check src/extension.js && node --check src/apiClient.js && node --check src/agentTreeProvider.js && node --check src/fileCommands.js && node --check src/fileSecurity.js && node --check src/panels.js && node --check src/webviews.js",
+    "pretest": "npm run check",
+    "test": "node --test"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "agentWorld.openDashboard",
+        "title": "Ouvrir le dashboard",
+        "category": "Agent World",
+        "icon": "$(dashboard)"
+      },
+      {
+        "command": "agentWorld.refreshAgents",
+        "title": "Actualiser les agents",
+        "category": "Agent World",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "agentWorld.openAgentDetail",
+        "title": "Afficher le détail de l’agent",
+        "category": "Agent World",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "agentWorld.openGeneratedFile",
+        "title": "Ouvrir un fichier généré",
+        "category": "Agent World",
+        "icon": "$(folder-opened)"
+      }
+    ],
+    "configuration": {
+      "title": "Agent World",
+      "properties": {
+        "agentWorld.apiUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:5000",
+          "scope": "machine",
+          "tags": [
+            "usesOnlineServices"
+          ],
+          "description": "URL de base de l’API Agent World, sans /api/agents."
+        },
+        "agentWorld.requestTimeoutMs": {
+          "type": "number",
+          "default": 5000,
+          "minimum": 500,
+          "maximum": 60000,
+          "description": "Délai maximal des requêtes à l’API Agent World, en millisecondes."
+        },
+        "agentWorld.openFile.location": {
+          "type": "string",
+          "enum": [
+            "active",
+            "beside"
+          ],
+          "enumDescriptions": [
+            "Ouvrir dans le groupe d’éditeur actif.",
+            "Ouvrir dans un groupe d’éditeur adjacent."
+          ],
+          "default": "active",
+          "scope": "window",
+          "description": "Emplacement utilisé pour ouvrir un fichier généré."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "agentWorld",
+          "title": "Agent World",
+          "icon": "media/agent-world.svg"
+        }
+      ]
+    },
+    "views": {
+      "agentWorld": [
+        {
+          "id": "agentWorld.agentsView",
+          "name": "Agents"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "agentWorld.openDashboard",
+          "when": "view == agentWorld.agentsView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "agentWorld.refreshAgents",
+          "when": "view == agentWorld.agentsView",
+          "group": "navigation@2"
+        },
+        {
+          "command": "agentWorld.openGeneratedFile",
+          "when": "view == agentWorld.agentsView",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "agentWorld.openAgentDetail",
+          "when": "view == agentWorld.agentsView && viewItem == agentWorld.agent",
+          "group": "inline"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "agentWorld.openAgentDetail",
+          "when": "false"
+        }
+      ]
+    }
+  }
+}

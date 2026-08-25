@@ -1,5 +1,5 @@
 # 🗺️ **Agent World - Roadmap Produit**
-*Version : 1.0.0 - Dernière mise à jour : 06 août 2026*
+*Version : 1.0.0 - Dernière mise à jour : 25 août 2026*
 
 ---
 
@@ -26,7 +26,7 @@
 - **Modularité** : Architecture plug-and-play pour une extensibilité maximale.
 - **Collaboration** : Outils intégrés pour le travail d'équipe.
 - **Performance** : Optimisé pour des workflows rapides et scalables.
-- **Sécurité** : Conforme aux standards les plus strictes (RGPD, SOC 2).
+- **Sécurité** : Conforme aux standards les plus stricts (RGPD, SOC 2).
 
 ---
 
@@ -76,7 +76,7 @@ gantt
 **Objectif** : Atteindre **100+ utilisateurs actifs** et **50+ stars sur GitHub**.
 
 #### **🎯 Livrables**
-| **Moins**       | **Épics**               | **User Stories**                          | **Version** | **Date**       | **Statut**          |
+| **Mois**        | **Épics**               | **User Stories**                          | **Version** | **Date**       | **Statut**          |
 |-----------------|-------------------------|-------------------------------------------|-------------|----------------|---------------------|
 | **Juillet**     | MVP                     | US-001 à US-010                           | v0.1.0      | 06 août 2026   | ✅ **Terminé**       |
 | **Août**        | VS Code, Files          | US-011 à US-024                           | v0.2.0      | 12 août 2026   | ⏳ **En cours**      |
@@ -92,9 +92,9 @@ gantt
 
 ##### **🔹 Août 2026 (VS Code + Files)**
 - **Semaine 1 (Sprint 0)** :
-  - US-011 : Ouverture du dashboard VS Code (8h).
-  - US-012 : Thème automatique VS Code (4h).
-  - US-013 : Ouverture des fichiers dans VS Code (3h).
+  - US-011 : Ouverture du dashboard VS Code (8h) — ✅ **Terminé**.
+  - US-012 : Thème automatique VS Code (4h) — ✅ **Terminé**.
+  - US-013 : Ouverture des fichiers dans VS Code (3h) — ✅ **Terminé**.
   - **Total** : 15h → **Livraison partielle v0.2.0-alpha**.
 - **Semaine 2 (Sprint 0)** :
   - US-018 : Dossier de sortie personnalisé (2h).
@@ -122,7 +122,7 @@ gantt
 **Objectif** : Atteindre **500+ utilisateurs actifs** et **200+ stars sur GitHub**.
 
 #### **🎯 Livrables**
-| **Moins**       | **Épics**               | **User Stories**                          | **Version** | **Date**       | **Statut**          |
+| **Mois**        | **Épics**               | **User Stories**                          | **Version** | **Date**       | **Statut**          |
 |-----------------|-------------------------|-------------------------------------------|-------------|----------------|---------------------|
 | **Octobre**     | Collaboration           | US-040 à US-046                           | v0.4.0      | 30 octobre 2026 | ⏳ **À venir**       |
 | **Novembre**    | Integrations            | US-047 à US-053                           | v0.5.0      | 30 novembre 2026| ⏳ **À venir**       |
@@ -161,7 +161,7 @@ gantt
 **Objectif** : Atteindre **2000+ utilisateurs actifs** et **1000+ stars sur GitHub**.
 
 #### **🎯 Livrables**
-| **Moins**       | **Épics**               | **User Stories**                          | **Version** | **Date**       | **Statut**          |
+| **Mois**        | **Épics**               | **User Stories**                          | **Version** | **Date**       | **Statut**          |
 |-----------------|-------------------------|-------------------------------------------|-------------|----------------|---------------------|
 | **Janvier**     | UX, Security            | US-060 à US-070                           | v0.7.0      | 30 janvier 2027 | ⏳ **À venir**       |
 | **Février**     | Multi-Modèles           | US-071 à US-075                           | v0.8.0      | 28 février 2027 | ⏳ **À venir**       |
@@ -205,7 +205,7 @@ gantt
 **Objectif** : Atteindre **10 000+ utilisateurs actifs** et **5000+ stars sur GitHub**.
 
 #### **🎯 Livrables**
-| **Moins**       | **Épics**               | **User Stories**                          | **Version** | **Date**       | **Statut**          |
+| **Mois**        | **Épics**               | **User Stories**                          | **Version** | **Date**       | **Statut**          |
 |-----------------|-------------------------|-------------------------------------------|-------------|----------------|---------------------|
 | **Avril**       | Plateforme              | US-081 à US-085                           | v1.0.0      | 30 avril 2027  | ⏳ **À venir**       |
 | **Mai**         | Mobile                  | US-086 à US-090                           | v1.1.0      | 31 mai 2027    | ⏳ **À venir**       |
@@ -349,12 +349,12 @@ gantt
 ### **🎯 Sprint 0 (06-12 août 2026)**
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
-│                        SPINT 0 : VS CODE + FILES (v0.2.0)                        │
+│                        SPRINT 0 : VS CODE + FILES (v0.2.0)                       │
 ├───────────────────────────────────────────────────────────────────────────────┤
 │                                                                               │
-│  US-011 : VS Code Dashboard       [8h]  ⏳ To Do                              │
-│  US-012 : Auto Theme              [4h]  ⏳ To Do                              │
-│  US-013 : Open in VS Code         [3h]  ⏳ To Do                              │
+│  US-011 : VS Code Dashboard       [8h]  ✅ Done                               │
+│  US-012 : Auto Theme              [4h]  ✅ Done                               │
+│  US-013 : Open in VS Code         [3h]  ✅ Done                               │
 │  US-018 : Custom Output Dir       [2h]  ⏳ To Do                              │
 │  US-019 : Smart Filenames         [4h]  ⏳ To Do                              │
 │                                                                               │
@@ -370,7 +370,10 @@ gantt
 - Les versions **v0.x.x** sont des versions **bêta** (pour les early adopters).
 - La version **v1.0.0** marquera la **stabilité** de la plateforme.
 - Les fonctionnalités **P2 (Could Have)** peuvent être reportées si nécessaire.
+- **Dette MVP vérifiée le 25 août 2026** : les 57 tests backend passent, mais la
+  couverture globale reste à 55 % et les appels aux fournisseurs IA sont encore
+  simulés. Le seuil de 90 % et les connecteurs réels restent à traiter.
 
 ---
 
-*Document généré le 06 août 2026. Dernière mise à jour : [DATE]*
+*Document généré le 06 août 2026. Dernière mise à jour : 25 août 2026.*

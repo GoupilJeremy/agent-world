@@ -41,6 +41,10 @@ jobs:
       - name: Run mypy type checking
         run: mypy backend/ tests/ --ignore-missing-imports
 
+      - name: Run VS Code extension tests
+        working-directory: vscode-extension
+        run: npm test
+
       - name: Run all tests with coverage
         run: |
           pytest tests/ -v --cov=backend --cov-report=xml --cov-report=html --cov-fail-under=90

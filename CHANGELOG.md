@@ -27,33 +27,16 @@ Ce changelog suit les conventions de [Keep a Changelog](https://keepachangelog.c
 - Ajout de la structure complète du backlog (60+ user stories, 10 épics).
 - Création des fichiers de documentation (BACKLOG.md, ROADMAP.md, etc.).
 - Configuration GitHub (labels, milestones, projects).
+- Extension VS Code avec Activity Bar, liste des agents, dashboard et navigation
+  vers leur détail (US-011).
+- Adaptation automatique des vues aux couleurs du thème VS Code (US-012).
+- Ouverture d’un fichier généré via le sélecteur et les URI natives de VS Code
+  (US-013).
+- Tests Node sans dépendances pour le manifeste, l’API, les vues et les commandes.
 
 #### **Changed**
 - Mise à jour de la structure du repository.
-
----
-
-### **✅ [v0.2.0] - 12 août 2026**
-*Intégration VS Code + Gestion des Fichiers*
-
-#### **Added**
-- **VS Code Integration** :
-  - Extension VS Code pour interagir avec Agent World.
-  - Dashboard pour visualiser les agents depuis VS Code (US-011).
-  - Thème automatique adapté à VS Code (clair/sombre) (US-012).
-  - Ouverture des fichiers générés directement dans VS Code (US-013).
-  - Exécution de commandes VS Code depuis Agent World (US-014).
-- **Gestion des Fichiers** :
-  - Dossier de sortie personnalisé (US-018).
-  - Noms de fichiers intelligents basés sur le contenu (US-019).
-  - Organisation automatique en dossiers (US-020).
-
-#### **Changed**
-- Amélioration de l'API pour supporter les nouvelles fonctionnalités.
-- Mise à jour de la documentation (README.md, INSTALL.md).
-
-#### **Fixed**
-- Corrections mineures de bugs dans l'API et le CLI.
+- Exécution des tests de l’extension dans les workflows CI et pull request.
 
 ---
 
@@ -151,4 +134,4 @@ Ce changelog suit les conventions de [Keep a Changelog](https://keepachangelog.c
 
 ---
 
-*Document généré le 06 août 2026. Dernière mise à jour : [DATE]*
+*Document généré le 06 août 2026. Dernière mise à jour : 25 août 2026.*

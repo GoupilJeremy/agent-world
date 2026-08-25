@@ -79,6 +79,10 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 
+      - name: Run VS Code extension tests
+        working-directory: vscode-extension
+        run: npm test
+
       - name: Run unit tests
         run: |
           pytest tests/unit/ -v --cov=backend --cov-report=xml --cov-report=html -x

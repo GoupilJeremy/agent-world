@@ -29,7 +29,7 @@
 - **Modulaire** : Architecture plug-and-play pour une extensibilité maximale.
 - **Collaboratif** : Outils intégrés pour le travail d'équipe.
 - **Performant** : Optimisé pour des workflows rapides et scalables.
-- **Sécurisé** : Conforme aux standards les plus strictes (RGPD, SOC 2).
+- **Sécurisé** : Conforme aux standards les plus stricts (RGPD, SOC 2).
 
 ---
 
@@ -47,9 +47,9 @@
 ### **🔹 Intégration VS Code (v0.2.0)**
 | **Fonctionnalité**               | **Description**                                                                                     | **Statut**          | **Version** |
 |---------------------------------|-----------------------------------------------------------------------------------------------------|---------------------|-------------|
-| **Dashboard VS Code**           | Visualiser et gérer les agents directement depuis VS Code.                                       | ⏳ **En cours**      | v0.2.0      |
-| **Thème Automatique**           | Adaptation automatique au thème VS Code (clair/sombre).                                          | ⏳ **En cours**      | v0.2.0      |
-| **Ouverture de Fichiers**       | Ouvrir les fichiers générés dans VS Code.                                                        | ⏳ **En cours**      | v0.2.0      |
+| **Dashboard VS Code**           | Visualiser les agents et ouvrir leur détail directement depuis VS Code.                           | ✅ **Disponible**    | v0.2.0      |
+| **Thème Automatique**           | Adaptation automatique au thème VS Code (clair/sombre et contraste élevé).                       | ✅ **Disponible**    | v0.2.0      |
+| **Ouverture de Fichiers**       | Choisir et ouvrir un fichier généré avec le sélecteur natif de VS Code.                           | ✅ **Disponible**    | v0.2.0      |
 | **Exécution de Commandes**      | Exécuter des commandes VS Code depuis Agent World.                                               | ⏳ **À venir**       | v0.2.0      |
 | **Notifications**               | Recevoir des notifications dans VS Code.                                                         | ⏳ **À venir**       | v0.2.1      |
 
@@ -277,26 +277,28 @@ docker-compose up -d
 
 ### **🔹 Intégration VS Code**
 
-#### **1. Installer l'Extension**
-1. Ouvrez VS Code.
-2. Allez dans **Extensions** (Ctrl+Shift+X).
-3. Recherchez **Agent World** et installez-la.
+L’extension est actuellement disponible depuis les sources du dépôt. Consultez
+son [guide dédié](vscode-extension/README.md) pour le développement et les tests.
+
+#### **1. Lancer l'Extension en Développement**
+1. Démarrez le backend avec `python run.py` depuis la racine du dépôt.
+2. Ouvrez le dossier `vscode-extension/` dans VS Code.
+3. Appuyez sur **F5** et lancez un **Extension Development Host**.
 
 #### **2. Configurer l'Extension**
 1. Ouvrez les paramètres de l'extension (Ctrl+,).
 2. Configurez l'URL de l'API Agent World :
    ```json
    {
-     "agentWorld.apiUrl": "http://localhost:5000"
+     "agentWorld.apiUrl": "http://127.0.0.1:5000"
    }
    ```
-3. Authentifiez-vous avec votre clé API.
 
 #### **3. Utiliser l'Extension**
-- **Ouvrir le Dashboard** : Cliquez sur l'icône Agent World dans la barre latérale.
-- **Créer un Agent** : Cliquez sur **+ Nouveau Agent** et suivez les instructions.
-- **Exécuter un Agent** : Sélectionnez un agent et cliquez sur **Exécuter**.
-- **Ouvrir un Fichier** : Cliquez sur un fichier généré pour l'ouvrir dans VS Code.
+- **Afficher les agents** : ouvrez l'icône Agent World dans l’Activity Bar.
+- **Ouvrir le Dashboard** : utilisez l’action Dashboard dans l’en-tête de la vue.
+- **Voir un détail** : cliquez sur un agent dans l’arborescence.
+- **Ouvrir un fichier** : lancez `Agent World: Ouvrir un fichier généré`.
 
 ---
 
@@ -487,4 +489,4 @@ Un grand merci à :
 
 ---
 
-*Document généré le 06 août 2026. Dernière mise à jour : [DATE]*
+*Document généré le 06 août 2026. Dernière mise à jour : 25 août 2026.*

@@ -1,5 +1,5 @@
 # 📋 **Agent World - Backlog Produit Complet**
-*Version : 1.0.0 - Dernière mise à jour : 06 août 2026*
+*Version : 1.0.0 - Dernière mise à jour : 25 août 2026*
 
 ---
 
@@ -87,9 +87,9 @@
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
-| US-011   | Ouverture du dashboard VS Code     | Créer un dashboard pour visualiser les agents depuis VS Code.                                     | 8h             | P0           | ⏳ To Do    | ✅ Extension VS Code créée, ✅ Affichage des agents, ✅ Navigation basique.                        |
-| US-012   | Thème automatique VS Code          | Adapter le thème de VS Code à Agent World (clair/sombre).                                         | 4h             | P0           | ⏳ To Do    | ✅ Détection du thème VS Code, ✅ Application automatique.                                       |
-| US-013   | Ouverture des fichiers dans VS Code| Permettre d'ouvrir les fichiers générés par les agents directement dans VS Code.                 | 3h             | P0           | ⏳ To Do    | ✅ Commande "Ouvrir dans VS Code", ✅ Gestion des chemins.                                       |
+| US-011   | Ouverture du dashboard VS Code     | Créer un dashboard pour visualiser les agents depuis VS Code.                                     | 8h             | P0           | ✅ Done     | ✅ Extension VS Code créée, ✅ Affichage des agents, ✅ Navigation basique.                        |
+| US-012   | Thème automatique VS Code          | Adapter le thème de VS Code à Agent World (clair/sombre).                                         | 4h             | P0           | ✅ Done     | ✅ Détection du thème VS Code, ✅ Application automatique.                                       |
+| US-013   | Ouverture des fichiers dans VS Code| Permettre d'ouvrir les fichiers générés par les agents directement dans VS Code.                 | 3h             | P0           | ✅ Done     | ✅ Commande "Ouvrir dans VS Code", ✅ Gestion des chemins.                                       |
 | US-014   | Exécution de commandes VS Code     | Exécuter des commandes VS Code depuis Agent World (ex: formater le code).                         | 5h             | P0           | ⏳ Backlog | ✅ Intégration avec l'API VS Code, ✅ 3+ commandes supportées.                                   |
 | US-015   | Notifications VS Code              | Envoyer des notifications depuis Agent World vers VS Code.                                      | 4h             | P1           | ⏳ Backlog | ✅ Notifications pour les tâches terminées, ✅ Clic pour accéder à l'agent.                      |
 | US-016   | Debugging dans VS Code             | Permettre le debugging des agents directement dans VS Code.                                      | 8h             | P1           | ⏳ Backlog | ✅ Points d'arrêt, ✅ Inspection des variables.                                                   |
@@ -269,9 +269,9 @@
 
 | **ID**   | **Titre**                          | **Estimation** | **Assigné à** | **Statut** | **Priorité** |
 |----------|------------------------------------|----------------|---------------|------------|--------------|
-| US-011   | Ouverture du dashboard VS Code     | 8h             | -             | ⏳ To Do    | P0           |
-| US-012   | Thème automatique VS Code          | 4h             | -             | ⏳ To Do    | P0           |
-| US-013   | Ouverture des fichiers dans VS Code| 3h             | -             | ⏳ To Do    | P0           |
+| US-011   | Ouverture du dashboard VS Code     | 8h             | -             | ✅ Done     | P0           |
+| US-012   | Thème automatique VS Code          | 4h             | -             | ✅ Done     | P0           |
+| US-013   | Ouverture des fichiers dans VS Code| 3h             | -             | ✅ Done     | P0           |
 | US-018   | Dossier de sortie personnalisé     | 2h             | -             | ⏳ To Do    | P0           |
 | US-019   | Noms de fichiers intelligents      | 4h             | -             | ⏳ To Do    | P0           |
 
@@ -343,9 +343,9 @@
 | US-008   | Documentation MVP                  | MVP            | 4h         | ✅ Done         |
 | US-009   | Déploiement initial                | MVP            | 6h         | ✅ Done         |
 | US-010   | Feedback utilisateurs              | MVP            | 4h         | ✅ Done         |
-| US-011   | Ouverture du dashboard VS Code     | VS Code        | 8h         | ⏳ To Do        |
-| US-012   | Thème automatique VS Code          | VS Code        | 4h         | ⏳ To Do        |
-| US-013   | Ouverture des fichiers dans VS Code| VS Code        | 3h         | ⏳ To Do        |
+| US-011   | Ouverture du dashboard VS Code     | VS Code        | 8h         | ✅ Done         |
+| US-012   | Thème automatique VS Code          | VS Code        | 4h         | ✅ Done         |
+| US-013   | Ouverture des fichiers dans VS Code| VS Code        | 3h         | ✅ Done         |
 | US-018   | Dossier de sortie personnalisé     | Files          | 2h         | ⏳ To Do        |
 | US-019   | Noms de fichiers intelligents      | Files          | 4h         | ⏳ To Do        |
 
@@ -455,4 +455,4 @@
 
 ---
 
-*Document généré le 06 août 2026. Dernière mise à jour : [DATE]*
+*Document généré le 06 août 2026. Dernière mise à jour : 25 août 2026.*

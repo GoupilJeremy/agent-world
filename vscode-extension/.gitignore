@@ -1,0 +1,6 @@
+node_modules/
+coverage/
+*.vsix
+
+# Le dépôt racine ignore les SVG ; l’icône de l’Activity Bar doit être suivie.
+!media/agent-world.svg
