@@ -16,8 +16,11 @@ from flask_restful import Api
 from .config.settings import Config
 from .models.base import init_db
 from .routes import agents_bp, register_resources
+from .routes.share_auth import register_share_recipient_auth
 from .services.agent_service import AgentService
 from .services.ai_service import AIService
+from .services.auth_service import AuthService
+from .services.file_service import FileService
 
 # Global API instance will be created in create_app
 
@@ -43,7 +46,7 @@ def create_app(config_class=Config):
     )
 
     # Initialize extensions
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}})
     api = Api(app, prefix="/api")
 
     # Initialize database
@@ -58,10 +61,30 @@ def create_app(config_class=Config):
     # Initialize services
     agent_service = AgentService()
     ai_service = AIService()
+    auth_service = AuthService(
+        secret_key=app.config["SECRET_KEY"],
+        access_token_ttl_seconds=app.config["AUTH_ACCESS_TOKEN_TTL_SECONDS"],
+        issuer=app.config["AUTH_TOKEN_ISSUER"],
+    )
+    file_service = FileService(
+        output_dir=app.config["OUTPUT_DIR"],
+        preview_max_bytes=app.config["FILE_PREVIEW_MAX_BYTES"],
+        write_max_bytes=app.config["FILE_WRITE_MAX_BYTES"],
+        share_default_ttl_seconds=app.config["FILE_SHARE_DEFAULT_TTL_SECONDS"],
+        share_max_ttl_seconds=app.config["FILE_SHARE_MAX_TTL_SECONDS"],
+        cleanup_enabled=app.config["FILE_CLEANUP_ENABLED"],
+        cleanup_interval_seconds=app.config["FILE_CLEANUP_INTERVAL_SECONDS"],
+        temporary_ttl_hours=app.config["FILE_TEMPORARY_TTL_HOURS"],
+        obsolete_ttl_days=app.config["FILE_OBSOLETE_TTL_DAYS"],
+        keep_latest_versions=app.config["FILE_KEEP_LATEST_VERSIONS"],
+    )
 
     # Register services with app context
     app.extensions["agent_service"] = agent_service
     app.extensions["ai_service"] = ai_service
+    app.extensions["auth_service"] = auth_service
+    app.extensions["file_service"] = file_service
+    register_share_recipient_auth(app)
 
     # Health check endpoint
     @app.route("/health")

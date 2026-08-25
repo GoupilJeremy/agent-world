@@ -65,9 +65,10 @@ def init_db(app):
     db.init_app(app)
 
     # Import all models to register them with SQLAlchemy
-    from . import agent, execution, user, workflow  # noqa: F401
+    from . import agent, execution, generated_file, user, workflow  # noqa: F401
 
-    # Create tables (only in development, use migrations in production)
-    if app.config.get("ENV", "development") == "development":
+    # Development and tests may bootstrap ephemeral schemas. Production uses
+    # the versioned Alembic migrations shipped with the application.
+    if app.config.get("AUTO_CREATE_DB", False):
         with app.app_context():
             db.create_all()

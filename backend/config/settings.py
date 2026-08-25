@@ -22,6 +22,10 @@ class Config:
 
     # Flask settings
     SECRET_KEY = os.environ.get("SECRET_KEY") or "dev-secret-key-change-in-production"
+    AUTH_ACCESS_TOKEN_TTL_SECONDS = int(
+        os.environ.get("AUTH_ACCESS_TOKEN_TTL_SECONDS", "3600")
+    )
+    AUTH_TOKEN_ISSUER = os.environ.get("AUTH_TOKEN_ISSUER", "agent-world")
     DEBUG = False
     TESTING = False
     MAX_CONTENT_LENGTH = 1024 * 1024  # 1 MiB maximum request body
@@ -32,6 +36,9 @@ class Config:
         or "postgresql://user:password@localhost:5432/agent_world"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # Schema creation is convenient for local development and isolated tests.
+    # Deployed environments must apply the versioned Alembic migrations instead.
+    AUTO_CREATE_DB = False
 
     # API settings
     API_TITLE = "Agent World API"
@@ -58,6 +65,31 @@ class Config:
 
     # File output settings
     OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "outputs")
+    FILE_PREVIEW_MAX_BYTES = int(
+        os.environ.get("FILE_PREVIEW_MAX_BYTES", str(1024 * 1024))
+    )
+    FILE_WRITE_MAX_BYTES = int(os.environ.get("FILE_WRITE_MAX_BYTES", str(1024 * 1024)))
+    FILE_SHARE_DEFAULT_TTL_SECONDS = int(
+        os.environ.get("FILE_SHARE_DEFAULT_TTL_SECONDS", str(7 * 24 * 60 * 60))
+    )
+    FILE_SHARE_MAX_TTL_SECONDS = int(
+        os.environ.get("FILE_SHARE_MAX_TTL_SECONDS", str(30 * 24 * 60 * 60))
+    )
+    FILE_CLEANUP_ENABLED = os.environ.get("FILE_CLEANUP_ENABLED", "false").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    FILE_CLEANUP_INTERVAL_SECONDS = int(
+        os.environ.get("FILE_CLEANUP_INTERVAL_SECONDS", str(24 * 60 * 60))
+    )
+    FILE_TEMPORARY_TTL_HOURS = int(os.environ.get("FILE_TEMPORARY_TTL_HOURS", "24"))
+    FILE_OBSOLETE_TTL_DAYS = int(os.environ.get("FILE_OBSOLETE_TTL_DAYS", "30"))
+    FILE_KEEP_LATEST_VERSIONS = int(os.environ.get("FILE_KEEP_LATEST_VERSIONS", "3"))
+    # When unset, destructive cleanup remains available through FileService but
+    # its HTTP administration endpoints are disabled.
+    FILE_CLEANUP_TOKEN = os.environ.get("FILE_CLEANUP_TOKEN")
 
     # Logging
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
@@ -68,6 +100,7 @@ class DevelopmentConfig(Config):
     """Development configuration."""
 
     DEBUG = True
+    AUTO_CREATE_DB = True
     SQLALCHEMY_ECHO = True  # Log SQL queries
     LOG_LEVEL = "DEBUG"
 
@@ -76,6 +109,7 @@ class TestingConfig(Config):
     """Testing configuration."""
 
     TESTING = True
+    AUTO_CREATE_DB = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"  # In-memory database for tests
     SQLALCHEMY_ECHO = False
     CACHE_DEFAULT_TIMEOUT = 0  # Disable cache in tests

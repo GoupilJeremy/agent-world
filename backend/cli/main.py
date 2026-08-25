@@ -19,11 +19,13 @@ import argparse
 import json
 import os
 import sys
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from ..config.settings import Config
 from ..models.agent import Agent
 from ..services.agent_service import AgentService
+from ..services.file_naming import generate_filename, normalize_extension
 from ..services.output_manager import OutputConfigurationError, OutputManager
 
 
@@ -172,8 +174,30 @@ Examples:
     run_parser.add_argument("--model", "-m", help="Override the agent model")
     run_parser.add_argument("--output", "-o", help="Output file to save the result")
     run_parser.add_argument(
+        "--save",
+        action="store_true",
+        help="Save the result using an intelligent filename",
+    )
+    run_parser.add_argument(
+        "--output-format",
+        choices=["json", "md", "txt"],
+        help="Saved file format (inferred from --output or defaults to json)",
+    )
+    run_parser.add_argument(
+        "--name-prefix",
+        help="Prefix for an automatically generated filename",
+    )
+    run_parser.add_argument(
+        "--name-suffix",
+        help="Suffix for an automatically generated filename",
+    )
+    run_parser.add_argument(
         "--output-dir",
         help="Override the output directory for this execution",
+    )
+    run_parser.add_argument(
+        "--output-layout",
+        help="Override the automatic agent-directory layout for this execution",
     )
 
     # Config command
@@ -202,6 +226,48 @@ Examples:
         action="store_true",
         help="Restore the default output directory",
     )
+
+    output_layout_parser = config_subparsers.add_parser(
+        "output-layout",
+        help="View or update the automatic agent-directory layout",
+    )
+    output_layout_group = output_layout_parser.add_mutually_exclusive_group()
+    output_layout_group.add_argument(
+        "layout",
+        nargs="?",
+        help="Layout using the {agent_id} and {agent_name} placeholders",
+    )
+    output_layout_group.add_argument(
+        "--reset",
+        action="store_true",
+        help="Restore the default output layout",
+    )
+
+    files_parser = subparsers.add_parser(
+        "files",
+        help="Inspect or restore generated-file versions",
+    )
+    files_subparsers = files_parser.add_subparsers(
+        title="files",
+        dest="files_command",
+        required=True,
+    )
+    versions_parser = files_subparsers.add_parser(
+        "versions", help="List versions of a generated file"
+    )
+    versions_parser.add_argument("id", type=int, help="ID of the owning agent")
+    versions_parser.add_argument("filename", help="Generated filename")
+    versions_parser.add_argument("--output-dir", help="Output root override")
+    versions_parser.add_argument("--output-layout", help="Output layout override")
+
+    restore_parser = files_subparsers.add_parser(
+        "restore", help="Restore a version as a new current version"
+    )
+    restore_parser.add_argument("id", type=int, help="ID of the owning agent")
+    restore_parser.add_argument("filename", help="Generated filename")
+    restore_parser.add_argument("version", type=int, help="Version number to restore")
+    restore_parser.add_argument("--output-dir", help="Output root override")
+    restore_parser.add_argument("--output-layout", help="Output layout override")
 
     return parser
 
@@ -267,19 +333,26 @@ class AgentWorldCLI:
 
     def handle_config(self, args: argparse.Namespace) -> int:
         """Handle configuration commands."""
-        if args.config_command != "output-dir":
-            print(f"Unknown configuration command: {args.config_command}")
-            return 1
-
         try:
-            if args.reset:
-                output_directory = self.output_manager.reset_output_directory()
-            elif args.path is not None:
-                output_directory = self.output_manager.set_output_directory(args.path)
+            if args.config_command == "output-dir":
+                if args.reset:
+                    value: Any = self.output_manager.reset_output_directory()
+                elif args.path is not None:
+                    value = self.output_manager.set_output_directory(args.path)
+                else:
+                    value = self.output_manager.get_output_directory()
+                print(f"Output directory: {value}")
+            elif args.config_command == "output-layout":
+                if args.reset:
+                    value = self.output_manager.reset_output_layout()
+                elif args.layout is not None:
+                    value = self.output_manager.set_output_layout(args.layout)
+                else:
+                    value = self.output_manager.get_output_layout()
+                print(f"Output layout: {value}")
             else:
-                output_directory = self.output_manager.get_output_directory()
-
-            print(f"Output directory: {output_directory}")
+                print(f"Unknown configuration command: {args.config_command}")
+                return 1
             return 0
         except OutputConfigurationError as error:
             print(f"Error: {error}")
@@ -475,12 +548,56 @@ class AgentWorldCLI:
         """Handle the run command."""
         try:
             output_directory = getattr(args, "output_dir", None)
-            if args.output:
-                self.output_manager.resolve_output_path(
-                    args.output, output_dir=output_directory
+            output_layout = getattr(args, "output_layout", None)
+            save_requested = bool(args.save or args.output)
+            if args.output_format and not save_requested:
+                raise OutputConfigurationError(
+                    "An output format requires --save or --output"
                 )
-            elif output_directory:
-                self.output_manager.get_output_directory(override=output_directory)
+            if (args.name_prefix or args.name_suffix) and (
+                not args.save or args.output
+            ):
+                raise OutputConfigurationError(
+                    "Filename prefix and suffix require --save without --output"
+                )
+            if output_layout and not save_requested:
+                raise OutputConfigurationError(
+                    "An output layout requires --save or --output"
+                )
+
+            output_format = self._resolve_output_format(args)
+            output_filename = args.output
+
+            agent_name = f"agent-{args.id}"
+            if save_requested:
+                get_agent = getattr(self.agent_service, "get_agent", None)
+                if callable(get_agent):
+                    agent = get_agent(args.id)
+                    if agent is None:
+                        print(f"Agent with ID {args.id} not found")
+                        return 1
+                    candidate_name = getattr(agent, "name", None)
+                    if isinstance(candidate_name, str) and candidate_name.strip():
+                        agent_name = candidate_name
+
+            if output_filename:
+                self.output_manager.resolve_output_path(
+                    output_filename,
+                    output_dir=output_directory,
+                    agent_id=args.id,
+                    agent_name=agent_name,
+                    output_layout=output_layout,
+                )
+            elif save_requested:
+                # Validate the configured root and layout before starting the
+                # potentially expensive execution.  The intelligent filename
+                # itself is derived from the generated result below.
+                self.output_manager.get_agent_output_directory(
+                    args.id,
+                    agent_name,
+                    output_dir=output_directory,
+                    output_layout=output_layout,
+                )
 
             if self.verbose:
                 print(f"▶️  Running agent {args.id} with input: {args.input[:50]}...")
@@ -492,10 +609,34 @@ class AgentWorldCLI:
             if self.verbose:
                 print(f"✅ Execution completed in {result.get('duration_ms', 0)}ms")
 
-            if args.output:
-                written_path = self.output_manager.write_json(
-                    args.output, result, output_dir=output_directory
+            if args.save and output_filename is None:
+                output_filename = generate_filename(
+                    self._filename_content(result),
+                    extension=output_format,
+                    prefix=args.name_prefix,
+                    suffix=args.name_suffix,
                 )
+
+            if output_filename:
+                if output_format == "json":
+                    written = self.output_manager.write_versioned_json(
+                        output_filename,
+                        result,
+                        agent_id=args.id,
+                        agent_name=agent_name,
+                        output_dir=output_directory,
+                        output_layout=output_layout,
+                    )
+                else:
+                    written = self.output_manager.write_versioned_text(
+                        output_filename,
+                        self._result_as_text(result),
+                        agent_id=args.id,
+                        agent_name=agent_name,
+                        output_dir=output_directory,
+                        output_layout=output_layout,
+                    )
+                written_path = written.path
                 print(f"💾 Result saved to: {written_path}")
 
             if self.format == "json":
@@ -522,6 +663,110 @@ class AgentWorldCLI:
                 traceback.print_exc()
             print(f"❌ Unexpected error: {str(e)}")
             return 1
+
+    def handle_files(self, args: argparse.Namespace) -> int:
+        """Handle generated-file history and restoration commands."""
+
+        try:
+            agent = self.agent_service.get_agent(args.id)
+            if agent is None:
+                print(f"Agent with ID {args.id} not found")
+                return 1
+
+            common = {
+                "agent_id": args.id,
+                "agent_name": agent.name,
+                "output_dir": args.output_dir,
+                "output_layout": args.output_layout,
+            }
+            if args.files_command == "versions":
+                versions = self.output_manager.list_versions(args.filename, **common)
+                if self.format == "json":
+                    print(
+                        json.dumps(
+                            [version.to_dict() for version in versions],
+                            indent=2,
+                            ensure_ascii=False,
+                        )
+                    )
+                elif not versions:
+                    print(f"No versions found for {args.filename}")
+                else:
+                    for version in versions:
+                        restored_note = (
+                            f", restored from v{version.restored_from}"
+                            if version.restored_from is not None
+                            else ""
+                        )
+                        print(
+                            f"v{version.version}: {version.created_at}, "
+                            f"{version.size_bytes} bytes{restored_note}"
+                        )
+                return 0
+
+            if args.files_command == "restore":
+                restored_version = self.output_manager.restore_version(
+                    args.filename,
+                    args.version,
+                    **common,
+                )
+                print(
+                    f"Restored v{args.version} as v{restored_version.version}: "
+                    f"{restored_version.path}"
+                )
+                return 0
+
+            print(f"Unknown files command: {args.files_command}")
+            return 1
+        except OutputConfigurationError as error:
+            print(f"Error: {error}")
+            return 1
+        except Exception as error:
+            if self.verbose:
+                import traceback
+
+                traceback.print_exc()
+            print(f"Unexpected error: {error}")
+            return 1
+
+    @staticmethod
+    def _resolve_output_format(args: argparse.Namespace) -> str:
+        requested = (
+            normalize_extension(args.output_format) if args.output_format else None
+        )
+        if args.output:
+            extension = Path(args.output).suffix
+            if extension:
+                inferred = normalize_extension(extension)
+                if requested is not None and requested != inferred:
+                    raise OutputConfigurationError(
+                        "--output-format must match the --output filename extension"
+                    )
+                return inferred
+        return requested or "json"
+
+    @staticmethod
+    def _result_as_text(result: Dict[str, Any]) -> str:
+        output = result.get("output", result)
+        if isinstance(output, str):
+            return output
+        if isinstance(output, dict) and isinstance(output.get("result"), str):
+            return output["result"]
+        return json.dumps(output, indent=2, ensure_ascii=False, sort_keys=True)
+
+    @staticmethod
+    def _filename_content(result: Dict[str, Any]) -> str:
+        """Extract meaningful generated content for intelligent naming."""
+
+        output = result.get("output", result)
+        if isinstance(output, str):
+            return output
+        if isinstance(output, dict):
+            for key in ("title", "summary", "result", "answer"):
+                value = output.get(key)
+                if isinstance(value, str) and value.strip():
+                    return value
+        return json.dumps(output, ensure_ascii=False, sort_keys=True)
 
     def print_agent(self, agent: Agent) -> None:
         """Print agent information."""

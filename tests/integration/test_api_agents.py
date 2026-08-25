@@ -17,6 +17,7 @@ from backend.app import create_app
 from backend.config.settings import TestingConfig
 from backend.models.base import db
 from backend.models.execution import Execution, ExecutionStatus
+from backend.models.generated_file import GeneratedFile
 
 
 @pytest.fixture
@@ -228,6 +229,82 @@ class TestAgentsAPI:
         assert execution.status == ExecutionStatus.COMPLETED
         assert execution.completed_at is not None
         assert execution.output_data == data["output"]
+
+    def test_run_agent_can_catalog_a_smart_named_previewable_output(
+        self, app, client, tmp_path
+    ):
+        """A saved execution is immediately available through the file catalogue."""
+
+        app.extensions["file_service"].output_dir = tmp_path
+        create_response = client.post(
+            "/api/agents",
+            data=json.dumps({"name": "File Agent", "model": "mistral-tiny"}),
+            content_type="application/json",
+        )
+        agent_id = create_response.get_json()["id"]
+
+        response = client.post(
+            f"/api/agents/{agent_id}/run",
+            data=json.dumps(
+                {
+                    "input": "Analyse the report",
+                    "save": {"format": "md", "prefix": "Client"},
+                }
+            ),
+            content_type="application/json",
+        )
+
+        assert response.status_code == 200
+        payload = response.get_json()
+        file_data = payload["file"]
+        assert file_data["name"].startswith("client_mock_response_from_")
+        assert file_data["name"].endswith(".md")
+        assert file_data["execution_id"] == payload["execution_id"]
+        assert file_data["management_token"]
+
+        catalogued = db.session.get(GeneratedFile, file_data["id"])
+        assert catalogued is not None
+        assert catalogued.agent_id == agent_id
+        preview = client.get(
+            file_data["preview_url"],
+            headers={"X-Management-Token": file_data["management_token"]},
+        )
+        assert preview.status_code == 200
+        assert "Mock response" in preview.get_json()["html"]
+
+    def test_run_agent_rejects_invalid_save_options_before_execution(
+        self, app, client
+    ):
+        """Invalid file options never trigger the expensive execution."""
+
+        create_response = client.post(
+            "/api/agents",
+            data=json.dumps({"name": "Invalid Save Agent"}),
+            content_type="application/json",
+        )
+        agent_id = create_response.get_json()["id"]
+        calls = []
+
+        class StubAgentService:
+            def run_agent(self, **kwargs):
+                calls.append(kwargs)
+                raise AssertionError("execution must not start")
+
+        app.extensions["agent_service"] = StubAgentService()
+        response = client.post(
+            f"/api/agents/{agent_id}/run",
+            data=json.dumps(
+                {
+                    "input": "Do not run",
+                    "save": {"format": "json", "name": "report.md"},
+                }
+            ),
+            content_type="application/json",
+        )
+
+        assert response.status_code == 400
+        assert response.get_json()["code"] == "invalid_file"
+        assert calls == []
 
     def test_run_agent_delegates_to_registered_service(self, app, client):
         """Test that the API uses the application AgentService instance."""

@@ -5,7 +5,17 @@
 
 from .agent import Agent
 from .execution import Execution
+from .generated_file import FileShare, FileVersion, GeneratedFile, SharePermission
 from .user import User
 from .workflow import Workflow
 
-__all__ = ["Agent", "User", "Workflow", "Execution"]
+__all__ = [
+    "Agent",
+    "User",
+    "Workflow",
+    "Execution",
+    "GeneratedFile",
+    "FileVersion",
+    "FileShare",
+    "SharePermission",
+]

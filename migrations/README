@@ -1,0 +1,6 @@
+Agent World database migrations
+================================
+
+Run ``alembic upgrade head`` before starting a deployed application. The first
+revision is an adoptable baseline: it creates legacy tables when installing a
+fresh database and leaves already-existing legacy tables intact.

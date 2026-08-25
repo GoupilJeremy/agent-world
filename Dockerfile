@@ -46,5 +46,5 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Exposer le port de l'application
 EXPOSE 5000
 
-# Commande par défaut
-CMD ["python", "run.py", "--production"]
+# Appliquer les migrations avant de lancer le serveur de production.
+CMD ["sh", "-c", "alembic upgrade head && python run.py --production"]
