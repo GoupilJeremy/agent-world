@@ -156,7 +156,7 @@
 **Description** : Ajouter des fonctionnalités de collaboration pour les équipes.
 **Priorité** : P2 (Could Have)
 **Heures Estimées** : ~40h
-**Statut** : ✅ **Terminé** (Version v0.3.0 - 25 août 2026)
+**Statut** : ⏳ **À venir**
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
@@ -174,7 +174,7 @@
 **Description** : Intégrer Agent World avec des outils et services externes.
 **Priorité** : P2 (Could Have)
 **Heures Estimées** : ~35h
-**Statut** : ✅ **Terminé** (Version v0.3.0 - 25 août 2026)
+**Statut** : ⏳ **À venir**
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
@@ -254,7 +254,7 @@
 | **MVP**             | Épic 1                              | 06 août 2026          | v0.1.0      | ✅ **Terminé**       |
 | **VS Code**         | Épic 2                              | 12 août 2026          | v0.2.0      | ✅ **Terminé**       |
 | **Files**           | Épic 3                              | 25 août 2026          | v0.2.1      | ✅ **Terminé**       |
-| **History**         | Épic 4                              | 02 septembre 2026     | v0.3.0      | ⏳ **À venir**       |
+| **History**         | Épic 4                              | 25 août 2026          | v0.3.0      | ✅ **Terminé**       |
 | **Templates**       | Épic 5                              | 25 août 2026          | v0.3.1      | ✅ **Terminé**       |
 | **Collaboration**   | Épic 6                              | 30 septembre 2026     | v0.4.0      | ⏳ **À venir**       |
 
@@ -364,10 +364,10 @@
 **Statut** : ⏳ To Do
 
 | **ID**   | **Titre**                          | **Épic**       | **Heures** | **Statut**      |
-| US-025   | Historique des agents              | History        | 8h         | ⏳ To Do        |
-| US-026   | Historique des exécutions          | History        | 6h         | ⏳ To Do        |
-| US-027   | Restauration de versions            | History        | 5h         | ⏳ Backlog      |
-| US-028   | Comparaison de versions            | History        | 6h         | ⏳ Backlog      |
+| US-025   | Historique des agents              | History        | 8h         | ✅ Done        |
+| US-026   | Historique des exécutions          | History        | 6h         | ✅ Done        |
+| US-027   | Restauration de versions            | History        | 5h         | ✅ Done        |
+| US-028   | Comparaison de versions            | History        | 6h         | ✅ Done        |
 | US-033   | Création de templates              | Templates      | 6h         | ✅ Done        |
 | US-034   | Bibliothèque de templates           | Templates      | 8h         | ✅ Done        |
 | US-035   | Import/Export de templates          | Templates      | 4h         | ✅ Done        |
@@ -390,6 +390,9 @@
 
 | **ID**   | **Titre**                          | **Épic**         | **Heures** | **Statut**      |
 |----------|------------------------------------|------------------|------------|-----------------|
+| US-029   | Export de l'historique             | History         | 3h         | ✅ Done        |
+| US-030   | Recherche dans l'historique        | History         | 4h         | ✅ Done        |
+| US-032   | Statistiques d'utilisation         | History         | 4h         | ✅ Done        |
 | US-040   | Invitation d'utilisateurs          | Collaboration   | 5h         | ⏳ To Do        |
 | US-041   | Gestion des rôles                  | Collaboration   | 6h         | ⏳ To Do        |
 | US-042   | Partage de projets                 | Collaboration   | 4h         | ⏳ Backlog      |
