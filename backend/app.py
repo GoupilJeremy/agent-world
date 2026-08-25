@@ -21,6 +21,7 @@ from .services.agent_service import AgentService
 from .services.ai_service import AIService
 from .services.auth_service import AuthService
 from .services.file_service import FileService
+from .services.history_service import HistoryService
 
 # Global API instance will be created in create_app
 
@@ -59,7 +60,8 @@ def create_app(config_class=Config):
     app.register_blueprint(agents_bp)
 
     # Initialize services
-    agent_service = AgentService()
+    history_service = HistoryService()
+    agent_service = AgentService(history_service=history_service)
     ai_service = AIService()
     auth_service = AuthService(
         secret_key=app.config["SECRET_KEY"],
@@ -84,6 +86,7 @@ def create_app(config_class=Config):
     app.extensions["ai_service"] = ai_service
     app.extensions["auth_service"] = auth_service
     app.extensions["file_service"] = file_service
+    app.extensions["history_service"] = history_service
     register_share_recipient_auth(app)
 
     # Health check endpoint

@@ -7,5 +7,6 @@ from .agent_service import AgentService
 from .ai_service import AIService
 from .auth_service import AuthService
 from .file_service import FileService
+from .history_service import HistoryFilter, HistoryService
 
-__all__ = ["AgentService", "AIService", "AuthService", "FileService"]
+__all__ = ["AgentService", "AIService", "AuthService", "FileService", "HistoryService", "HistoryFilter"]

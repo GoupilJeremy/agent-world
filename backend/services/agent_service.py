@@ -12,6 +12,7 @@ Il fait le lien entre les modèles de données et les contrôleurs.
 from typing import Any, Dict, List, Optional
 
 from ..models.agent import Agent
+from ..models.agent_history import ActionType
 from ..models.base import db
 from ..models.execution import Execution, ExecutionStatus
 
@@ -24,9 +25,10 @@ class AgentService:
     creation, retrieval, update, deletion, and execution.
     """
 
-    def __init__(self):
+    def __init__(self, history_service=None):
         """Initialize the AgentService."""
         self.agent_model = Agent
+        self.history_service = history_service
 
     def create_agent(
         self,
@@ -67,7 +69,19 @@ class AgentService:
             "created_by": created_by,
         }
 
-        return self.agent_model.create(**agent_data)
+        agent = self.agent_model.create(**agent_data)
+
+        # Log the creation in history
+        if self.history_service:
+            self.history_service.log_agent_change(
+                agent_id=agent.id,
+                action_type=ActionType.CREATE,
+                author_id=created_by,
+                new_values=agent.to_dict(),
+                reason="Agent created",
+            )
+
+        return agent
 
     def get_agent(self, agent_id: int) -> Optional[Agent]:
         """
@@ -107,12 +121,13 @@ class AgentService:
             return self.agent_model.get_active()
         return self.agent_model.get_all()
 
-    def update_agent(self, agent_id: int, **kwargs) -> Optional[Agent]:
+    def update_agent(self, agent_id: int, author_id: Optional[int] = None, **kwargs) -> Optional[Agent]:
         """
         Update an agent.
 
         Args:
             agent_id: ID of the agent to update
+            author_id: Optional ID of the user performing the update
             **kwargs: Agent attributes to update
 
         Returns:
@@ -125,20 +140,36 @@ class AgentService:
         if not agent:
             return None
 
+        # Store old values for history
+        old_values = agent.to_dict()
+
         if "name" in kwargs:
             existing_agent = self.get_agent_by_name(kwargs["name"])
             if existing_agent and existing_agent.id != agent_id:
                 raise ValueError(f'Agent with name "{kwargs["name"]}" already exists')
 
         agent.update(**kwargs)
+
+        # Log the update in history
+        if self.history_service:
+            self.history_service.log_agent_change(
+                agent_id=agent.id,
+                action_type=ActionType.UPDATE,
+                author_id=author_id,
+                old_values=old_values,
+                new_values=agent.to_dict(),
+                reason="Agent updated",
+            )
+
         return agent
 
-    def delete_agent(self, agent_id: int) -> bool:
+    def delete_agent(self, agent_id: int, author_id: Optional[int] = None) -> bool:
         """
         Delete an agent.
 
         Args:
             agent_id: ID of the agent to delete
+            author_id: Optional ID of the user performing the deletion
 
         Returns:
             True if deleted successfully, False otherwise
@@ -146,6 +177,19 @@ class AgentService:
         agent = self.get_agent(agent_id)
         if not agent:
             return False
+
+        # Store agent data for history before deletion
+        old_values = agent.to_dict()
+
+        # Log the deletion in history
+        if self.history_service:
+            self.history_service.log_agent_change(
+                agent_id=agent.id,
+                action_type=ActionType.DELETE,
+                author_id=author_id,
+                old_values=old_values,
+                reason="Agent deleted",
+            )
 
         agent.delete()
         return True

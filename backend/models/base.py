@@ -65,7 +65,7 @@ def init_db(app):
     db.init_app(app)
 
     # Import all models to register them with SQLAlchemy
-    from . import agent, execution, generated_file, user, workflow  # noqa: F401
+    from . import agent, agent_history, execution, generated_file, user, workflow  # noqa: F401
 
     # Development and tests may bootstrap ephemeral schemas. Production uses
     # the versioned Alembic migrations shipped with the application.
