@@ -58,6 +58,43 @@ Ce changelog suit les conventions de [Keep a Changelog](https://keepachangelog.c
 
 ---
 
+### **✅ [v0.2.1] - 25 août 2026**
+*Épic 3 : Gestion des Fichiers (Complète)*
+
+#### **Added**
+- **Gestion avancée des fichiers** :
+  - Organisation automatique en dossiers (`/agents/{name}/outputs/`) (US-020).
+  - Versioning des fichiers avec historique et restauration (US-021).
+  - Nettoyage automatique des fichiers temporaires/obsolètes (US-022).
+  - Partage de fichiers avec permissions (lecture/écriture) (US-023).
+  - Prévisualisation des fichiers (Markdown, JSON, TXT) (US-024).
+
+#### **Changed**
+- Correction du test `test_cleanup_restores_staged_files_when_database_commit_fails`.
+
+#### **Fixed**
+- Amélioration de la robustesse du système de fichiers.
+
+---
+
+### **✅ [v0.2.0] - 12 août 2026**
+*Épic 2 : Intégration VS Code + Épic 3 (partielle)*
+
+#### **Added**
+- **Extension VS Code** :
+  - Dashboard pour visualiser les agents (US-011).
+  - Thème automatique (clair/sombre) (US-012).
+  - Ouverture des fichiers dans VS Code (US-013).
+  - Exécution de commandes VS Code (US-014).
+  - Notifications (US-015).
+  - Debugging des agents (US-016).
+  - Intégration Git (US-017).
+- **Gestion des fichiers** :
+  - Dossier de sortie personnalisé via CLI (US-018).
+  - Noms de fichiers intelligents (US-019).
+
+---
+
 ### **✅ [v0.1.0] - 06 août 2026**
 *Minimum Viable Product (MVP)*
 
@@ -106,8 +143,8 @@ Ce changelog suit les conventions de [Keep a Changelog](https://keepachangelog.c
 |-------------|----------------|------------------------|------------------------------------|---------------------|
 | v0.0.1      | 01 juillet 2026| Pre-Alpha             | -                                  | ✅ **Terminé**       |
 | v0.1.0      | 06 août 2026   | MVP                    | Épic 1                              | ✅ **Terminé**       |
-| v0.2.0      | 12 août 2026   | VS Code + Files       | Épic 2, Épic 3                     | ⏳ **En cours**      |
-| v0.2.1      | 19 août 2026   | Files Advanced        | Épic 3                              | ⏳ **À venir**       |
+| v0.2.0      | 12 août 2026   | VS Code + Files       | Épic 2, Épic 3 (partielle)          | ✅ **Terminé**      |
+| v0.2.1      | 25 août 2026   | Files Complete        | Épic 3 (complète)                  | ✅ **Terminé**       |
 | v0.3.0      | 30 septembre 2026| History + Templates   | Épic 4, Épic 5                     | ⏳ **À venir**       |
 | v0.4.0      | 30 octobre 2026| Collaboration         | Épic 6                              | ⏳ **À venir**       |
 | v0.5.0      | 30 novembre 2026| Integrations         | Épic 7                              | ⏳ **À venir**       |

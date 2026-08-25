@@ -105,8 +105,8 @@ gantt
 - **Semaine 3-4** :
   - US-016 : Débogage des agents dans VS Code (8h) — ✅ **Terminé**.
   - US-017 : Intégration Git locale (11h) — ✅ **Terminé**.
-  - US-020 à US-024 : Gestion avancée des fichiers.
-  - **Livraison** : **v0.2.1** (19 août 2026).
+  - US-020 à US-024 : Gestion avancée des fichiers — ✅ **Terminé** (25 août 2026).
+  - **Livraison** : **v0.2.1** (25 août 2026).
 
 ##### **🔹 Septembre 2026 (History + Templates)**
 - **Semaine 1-2 (Sprint 1)** :
@@ -254,7 +254,7 @@ gantt
 |-------------|----------------|------------------------------------|-------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
 | **v0.1.0** | 06 août 2026   | MVP                                | Structure de base, API, CLI, modèles IA, tests.                                                             | ✅ MVP fonctionnel, ✅ 10+ utilisateurs testeurs.                                               |
 | **v0.2.0** | 12 août 2026   | VS Code, Files                     | Extension VS Code, gestion des fichiers, intégration Git.                                                   | ✅ 100+ utilisateurs, ✅ 50+ stars GitHub.                                                       |
-| **v0.2.1** | 19 août 2026   | Files                              | Organisation en dossiers, versioning, partage.                                                               | ✅ 150+ utilisateurs.                                                                           |
+| **v0.2.1** | 25 août 2026   | Files                              | Organisation en dossiers, versioning, partage, prévisualisation, nettoyage.                                | ✅ 150+ utilisateurs, ✅ 112 tests unitaires passés.                                             |
 | **v0.3.0** | 30 septembre 2026| History, Templates                 | Historique des agents, bibliothèque de templates, versioning.                                               | ✅ 500+ utilisateurs, ✅ 200+ stars GitHub.                                                     |
 | **v0.4.0** | 30 octobre 2026 | Collaboration                      | Invitation d'utilisateurs, gestion des rôles, partage de projets, chat.                                       | ✅ 1000+ utilisateurs, ✅ 500+ stars GitHub.                                                    |
 | **v0.5.0** | 30 novembre 2026| Integrations                       | GitHub, Slack, Discord, Notion, Google Drive, webhooks.                                                        | ✅ 1500+ utilisateurs, ✅ 1000+ stars GitHub.                                                   |

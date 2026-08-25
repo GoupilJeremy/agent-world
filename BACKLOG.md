@@ -101,17 +101,17 @@
 **Description** : Améliorer la gestion des fichiers générés par les agents.
 **Priorité** : P0 (Must Have)
 **Heures Estimées** : ~30h
-**Statut** : ⏳ **En cours** (Sprint 0)
+**Statut** : ✅ **Terminé** (Version v0.2.1)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
 | US-018   | Dossier de sortie personnalisé     | Permettre aux utilisateurs de choisir un dossier de sortie pour les fichiers générés.             | 2h             | P0           | ✅ Done     | ✅ Sélection du dossier via le CLI, ✅ Persistance du choix, ✅ Validation du chemin et des permissions. |
-| US-019   | Noms de fichiers intelligents      | Générer des noms de fichiers basés sur le contenu (ex: `resume_analysis_20260806.md`).            | 4h             | P0           | ⏳ To Do    | ✅ Algorithme de nommage, ✅ Personnalisation possible.                                           |
-| US-020   | Organisation en dossiers           | Créer une structure de dossiers automatique (ex: `/agents/{agent_name}/outputs/`).               | 3h             | P0           | ⏳ Backlog | ✅ Structure configurable, ✅ Dossiers créés automatiquement.                                    |
-| US-021   | Versioning des fichiers            | Versionner les fichiers générés (ex: `v1`, `v2`).                                                | 5h             | P1           | ⏳ Backlog | ✅ Historique des versions, ✅ Restauration possible.                                            |
-| US-022   | Nettoyage automatique              | Supprimer les fichiers temporaires ou obsolètes.                                                 | 4h             | P1           | ⏳ Backlog | ✅ Règles de nettoyage configurables, ✅ Exécution manuelle/automatique.                         |
-| US-023   | Partage de fichiers                | Permettre le partage de fichiers entre utilisateurs.                                            | 6h             | P1           | ⏳ Backlog | ✅ Liens de partage, ✅ Permissions (lecture/écriture).                                           |
-| US-024   | Prévisualisation des fichiers      | Prévisualiser les fichiers avant téléchargement (ex: Markdown, JSON).                            | 6h             | P2           | ⏳ Backlog | ✅ Aperçu dans l'UI, ✅ Support des formats courants.                                             |
+| US-019   | Noms de fichiers intelligents      | Générer des noms de fichiers basés sur le contenu (ex: `resume_analysis_20260806.md`).            | 4h             | P0           | ✅ Done     | ✅ Algorithme de nommage, ✅ Personnalisation possible.                                           |
+| US-020   | Organisation en dossiers           | Créer une structure de dossiers automatique (ex: `/agents/{agent_name}/outputs/`).               | 3h             | P0           | ✅ Done     | ✅ Structure configurable, ✅ Dossiers créés automatiquement.                                    |
+| US-021   | Versioning des fichiers            | Versionner les fichiers générés (ex: `v1`, `v2`).                                                | 5h             | P1           | ✅ Done     | ✅ Historique des versions, ✅ Restauration possible.                                            |
+| US-022   | Nettoyage automatique              | Supprimer les fichiers temporaires ou obsolètes.                                                 | 4h             | P1           | ✅ Done     | ✅ Règles de nettoyage configurables, ✅ Exécution manuelle/automatique.                         |
+| US-023   | Partage de fichiers                | Permettre le partage de fichiers entre utilisateurs.                                            | 6h             | P1           | ✅ Done     | ✅ Liens de partage, ✅ Permissions (lecture/écriture).                                           |
+| US-024   | Prévisualisation des fichiers      | Prévisualiser les fichiers avant téléchargement (ex: Markdown, JSON).                            | 6h             | P2           | ✅ Done     | ✅ Aperçu dans l'UI, ✅ Support des formats courants.                                             |
 
 ---
 
@@ -253,7 +253,7 @@
 |---------------------|------------------------------------|-----------------------|-------------|---------------------|
 | **MVP**             | Épic 1                              | 06 août 2026          | v0.1.0      | ✅ **Terminé**       |
 | **VS Code**         | Épic 2                              | 12 août 2026          | v0.2.0      | ✅ **Terminé**       |
-| **Files**           | Épic 3                              | 19 août 2026          | v0.2.1      | ⏳ **À venir**       |
+| **Files**           | Épic 3                              | 25 août 2026          | v0.2.1      | ✅ **Terminé**       |
 | **History**         | Épic 4                              | 02 septembre 2026     | v0.3.0      | ⏳ **À venir**       |
 | **Templates**       | Épic 5                              | 16 septembre 2026     | v0.3.1      | ⏳ **À venir**       |
 | **Collaboration**   | Épic 6                              | 30 septembre 2026     | v0.4.0      | ⏳ **À venir**       |
@@ -273,31 +273,37 @@
 | US-012   | Thème automatique VS Code          | 4h             | -             | ✅ Done     | P0           |
 | US-013   | Ouverture des fichiers dans VS Code| 3h             | -             | ✅ Done     | P0           |
 | US-018   | Dossier de sortie personnalisé     | 2h             | -             | ✅ Done     | P0           |
-| US-019   | Noms de fichiers intelligents      | 4h             | -             | ⏳ To Do    | P0           |
+| US-019   | Noms de fichiers intelligents      | 4h             | -             | ✅ Done     | P0           |
+| US-020   | Organisation en dossiers           | 3h             | -             | ✅ Done     | P0           |
 
 **Livrables** :
 - ✅ Extension VS Code fonctionnelle.
-- ✅ Gestion des fichiers améliorée.
+- ✅ Gestion des fichiers complète (noms intelligents, organisation en dossiers).
 - ✅ Documentation mise à jour.
 
 ---
 
 ### **🔹 Sprint 1 (13 août - 26 août 2026)**
-**Objectif** : Implémenter l'historique et les templates de base.
+**Objectif** : Finaliser l'Épic 3 (Gestion des Fichiers) et commencer l'historique.
 **Version Cible** : v0.2.1
-**Heures Totales** : ~30h
+**Heures Totales** : ~40h
 
 | **ID**   | **Titre**                          | **Estimation** | **Assigné à** | **Statut** | **Priorité** |
 |----------|------------------------------------|----------------|---------------|------------|--------------|
+| US-014   | Exécution de commandes VS Code     | 5h             | -             | ✅ Done    | P0           |
+| US-020   | Organisation en dossiers           | 3h             | -             | ✅ Done    | P0           |
+| US-021   | Versioning des fichiers            | 5h             | -             | ✅ Done    | P1           |
+| US-022   | Nettoyage automatique              | 4h             | -             | ✅ Done    | P1           |
+| US-023   | Partage de fichiers                | 6h             | -             | ✅ Done    | P1           |
+| US-024   | Prévisualisation des fichiers      | 6h             | -             | ✅ Done    | P2           |
 | US-025   | Historique des agents              | 8h             | -             | ⏳ To Do    | P1           |
 | US-026   | Historique des exécutions          | 6h             | -             | ⏳ To Do    | P1           |
 | US-033   | Création de templates              | 6h             | -             | ⏳ To Do    | P1           |
-| US-034   | Bibliothèque de templates           | 8h             | -             | ⏳ To Do    | P1           |
-| US-014   | Exécution de commandes VS Code     | 5h             | -             | ✅ Done    | P0           |
 
 **Livrables** :
-- ✅ Système d'historique fonctionnel.
-- ✅ Bibliothèque de templates de base.
+- ✅ Épic 3 (Gestion des Fichiers) complète.
+- ✅ Versioning, nettoyage, partage et prévisualisation fonctionnels.
+- ✅ Système d'historique en cours.
 - ✅ Améliorations VS Code.
 
 ---
@@ -327,9 +333,9 @@
 
 ### **🔴 P0 (Must Have)**
 **Épics** : MVP, VS Code, Files
-**User Stories** : US-001 à US-019 (sélection)
-**Heures** : ~83h
-**Statut** : ✅ MVP terminé, VS Code/Files en cours
+**User Stories** : US-001 à US-024 (sélection)
+**Heures** : ~103h
+**Statut** : ✅ MVP, VS Code, Files terminés
 
 | **ID**   | **Titre**                          | **Épic**       | **Heures** | **Statut**      |
 |----------|------------------------------------|----------------|------------|-----------------|
@@ -347,20 +353,17 @@
 | US-012   | Thème automatique VS Code          | VS Code        | 4h         | ✅ Done         |
 | US-013   | Ouverture des fichiers dans VS Code| VS Code        | 3h         | ✅ Done         |
 | US-018   | Dossier de sortie personnalisé     | Files          | 2h         | ✅ Done         |
-| US-019   | Noms de fichiers intelligents      | Files          | 4h         | ⏳ To Do        |
+| US-019   | Noms de fichiers intelligents      | Files          | 4h         | ✅ Done         |
 
 ---
 
 ### **🟡 P1 (Should Have)**
 **Épics** : History, Templates, Performance
-**User Stories** : US-020 à US-059 (sélection)
-**Heures** : ~142h
+**User Stories** : US-025 à US-059 (sélection)
+**Heures** : ~124h
 **Statut** : ⏳ To Do
 
 | **ID**   | **Titre**                          | **Épic**       | **Heures** | **Statut**      |
-|----------|------------------------------------|----------------|------------|-----------------|
-| US-020   | Organisation en dossiers           | Files          | 3h         | ⏳ Backlog      |
-| US-021   | Versioning des fichiers            | Files          | 5h         | ⏳ Backlog      |
 | US-025   | Historique des agents              | History        | 8h         | ⏳ To Do        |
 | US-026   | Historique des exécutions          | History        | 6h         | ⏳ To Do        |
 | US-027   | Restauration de versions            | History        | 5h         | ⏳ Backlog      |
@@ -417,10 +420,10 @@
 ### **📈 Résumé des Heures**
 | **Catégorie**       | **Heures** | **% du Total** |
 |---------------------|------------|----------------|
-| **P0 (Must Have)**  | 83h        | 26.8%          |
-| **P1 (Should Have)**| 142h       | 45.8%          |
-| **P2 (Could Have)** | 166h       | 53.5%          |
-| **Total**           | **~310h**  | **100%**       |
+| **P0 (Must Have)**  | 90h        | 27.1%          |
+| **P1 (Should Have)**| 157h       | 49.2%          |
+| **P2 (Could Have)** | 172h       | 53.5%          |
+| **Total**           | **~419h**  | **100%**       |
 
 ### **⏱️ Temps Estimé par Sprint**
 - **Sprint 0** : 21h (6 août - 12 août 2026)

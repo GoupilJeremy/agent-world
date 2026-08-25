@@ -350,12 +350,9 @@ def test_cleanup_restores_staged_files_when_database_commit_fails(
     )
     generated_file.created_at = datetime.utcnow() - timedelta(days=2)
     db.session.commit()
-    version_path = service.download_file(
-        generated_file.id,
-        # The token is irrelevant to the physical assertion below; retrieve
-        # the path through the immutable catalogue helper instead.
-        "invalid",
-    )[0]
+    # The token is irrelevant to the physical assertion below; retrieve
+    # the path through the immutable catalogue helper instead.
+    version_path = service._download(generated_file, None)[0]
 
     def fail_commit() -> None:
         raise RuntimeError("database unavailable")
