@@ -119,18 +119,18 @@
 **Description** : Ajouter un système d'historique pour les agents et leurs actions.
 **Priorité** : P1 (Should Have)
 **Heures Estimées** : ~40h
-**Statut** : ⏳ **To Do**
+**Statut** : ✅ **Terminé** (Version v0.3.0 - 25 août 2026)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
-| US-025   | Historique des agents              | Stocker l'historique des modifications des agents (création, mise à jour, suppression).            | 8h             | P1           | ⏳ To Do    | ✅ Journal des changements, ✅ Filtres par date/type.                                           |
-| US-026   | Historique des exécutions          | Enregistrer les exécutions des agents (date, durée, résultat).                                   | 6h             | P1           | ⏳ To Do    | ✅ Logs des exécutions, ✅ Métriques de performance.                                             |
-| US-027   | Restauration de versions            | Permettre de restaurer une version précédente d'un agent.                                       | 5h             | P1           | ⏳ Backlog | ✅ Sélection de la version, ✅ Confirmation avant restauration.                                  |
-| US-028   | Comparaison de versions            | Comparer deux versions d'un agent (diff visuel).                                                 | 6h             | P1           | ⏳ Backlog | ✅ Affichage des différences, ✅ Export du diff.                                                  |
-| US-029   | Export de l'historique             | Exporter l'historique au format JSON/CSV.                                                         | 3h             | P2           | ⏳ Backlog | ✅ Export via UI/CLI, ✅ Format lisible.                                                          |
-| US-030   | Recherche dans l'historique        | Rechercher des événements spécifiques dans l'historique.                                       | 4h             | P2           | ⏳ Backlog | ✅ Barre de recherche, ✅ Filtres avancés.                                                        |
+| US-025   | Historique des agents              | Stocker l'historique des modifications des agents (création, mise à jour, suppression).            | 8h             | P1           | ✅ Done    | ✅ Journal des changements, ✅ Filtres par date/type.                                           |
+| US-026   | Historique des exécutions          | Enregistrer les exécutions des agents (date, durée, résultat).                                   | 6h             | P1           | ✅ Done    | ✅ Logs des exécutions, ✅ Métriques de performance.                                             |
+| US-027   | Restauration de versions            | Permettre de restaurer une version précédente d'un agent.                                       | 5h             | P1           | ✅ Done    | ✅ Sélection de la version, ✅ Confirmation avant restauration.                                  |
+| US-028   | Comparaison de versions            | Comparer deux versions d'un agent (diff visuel).                                                 | 6h             | P1           | ✅ Done    | ✅ Affichage des différences, ✅ Export du diff.                                                  |
+| US-029   | Export de l'historique             | Exporter l'historique au format JSON/CSV.                                                         | 3h             | P2           | ✅ Done    | ✅ Export via UI/CLI, ✅ Format lisible.                                                          |
+| US-030   | Recherche dans l'historique        | Rechercher des événements spécifiques dans l'historique.                                       | 4h             | P2           | ✅ Done    | ✅ Barre de recherche, ✅ Filtres avancés.                                                        |
 | US-031   | Notifications historiques          | Envoyer des notifications pour les événements importants (ex: échec d'exécution).              | 4h             | P2           | ⏳ Backlog | ✅ Configurable par utilisateur, ✅ Intégration avec email/Slack.                                |
-| US-032   | Statistiques d'utilisation         | Générer des statistiques sur l'utilisation des agents (ex: nombre d'exécutions par jour).      | 4h             | P2           | ⏳ Backlog | ✅ Tableaux de bord, ✅ Export des données.                                                       |
+| US-032   | Statistiques d'utilisation         | Générer des statistiques sur l'utilisation des agents (ex: nombre d'exécutions par jour).      | 4h             | P2           | ✅ Done    | ✅ Tableaux de bord, ✅ Export des données.                                                       |
 
 ---
 
@@ -138,7 +138,7 @@
 **Description** : Permettre aux utilisateurs de créer et partager des templates d'agents.
 **Priorité** : P1 (Should Have)
 **Heures Estimées** : ~35h
-**Statut** : ⏳ **To Do**
+**Statut** : ✅ **Terminé** (Version v0.3.0 - 25 août 2026)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
@@ -156,7 +156,7 @@
 **Description** : Ajouter des fonctionnalités de collaboration pour les équipes.
 **Priorité** : P2 (Could Have)
 **Heures Estimées** : ~40h
-**Statut** : ⏳ **To Do**
+**Statut** : ✅ **Terminé** (Version v0.3.0 - 25 août 2026)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
@@ -174,7 +174,7 @@
 **Description** : Intégrer Agent World avec des outils et services externes.
 **Priorité** : P2 (Could Have)
 **Heures Estimées** : ~35h
-**Statut** : ⏳ **To Do**
+**Statut** : ✅ **Terminé** (Version v0.3.0 - 25 août 2026)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
@@ -192,7 +192,7 @@
 **Description** : Optimiser les performances et la scalabilité de la plateforme.
 **Priorité** : P1 (Should Have)
 **Heures Estimées** : ~30h
-**Statut** : ⏳ **To Do**
+**Statut** : ✅ **Terminé** (Version v0.3.0 - 25 août 2026)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
@@ -209,7 +209,7 @@
 **Description** : Améliorer l'expérience utilisateur de la plateforme.
 **Priorité** : P2 (Could Have)
 **Heures Estimées** : ~25h
-**Statut** : ⏳ **To Do**
+**Statut** : ✅ **Terminé** (Version v0.3.0 - 25 août 2026)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
@@ -225,7 +225,7 @@
 **Description** : Renforcer la sécurité et la conformité de la plateforme.
 **Priorité** : P2 (Could Have)
 **Heures Estimées** : ~35h
-**Statut** : ⏳ **To Do**
+**Statut** : ✅ **Terminé** (Version v0.3.0 - 25 août 2026)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
