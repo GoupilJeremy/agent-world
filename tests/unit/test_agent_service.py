@@ -14,6 +14,7 @@ from backend.app import create_app
 from backend.config.settings import TestingConfig
 from backend.models.agent import Agent
 from backend.models.base import db
+from backend.models.execution import Execution, ExecutionStatus
 from backend.services.agent_service import AgentService
 
 
@@ -157,6 +158,49 @@ class TestAgentService:
             assert "agent_id" in result
             assert "status" in result
             assert result["agent_id"] == agent.id
+
+    def test_run_agent_preserves_an_explicit_empty_configuration(
+        self, app, agent_service
+    ):
+        """Test that an empty override does not reuse the agent configuration."""
+        with app.app_context():
+            agent = agent_service.create_agent(
+                name="Configuration Agent",
+                configuration={"temperature": 0.7},
+            )
+
+            result = agent_service.run_agent(
+                agent_id=agent.id,
+                input_data={"text": "Hello"},
+                configuration={},
+            )
+
+            execution = db.session.get(Execution, result["execution_id"])
+            assert execution is not None
+            assert execution.input_data["config"] == {}
+
+    def test_run_agent_marks_execution_failed_on_runtime_error(
+        self, app, agent_service, monkeypatch
+    ):
+        """Test that a committed running execution cannot remain orphaned."""
+
+        def fail_completion(self, output_data):
+            raise RuntimeError("provider failed")
+
+        with app.app_context():
+            agent = agent_service.create_agent(name="Failing Agent")
+            monkeypatch.setattr(Execution, "complete", fail_completion)
+
+            with pytest.raises(RuntimeError, match="provider failed"):
+                agent_service.run_agent(
+                    agent_id=agent.id,
+                    input_data={"text": "Hello"},
+                )
+
+            [execution] = Execution.get_by_agent(agent.id)
+            assert execution.status == ExecutionStatus.FAILED
+            assert execution.error_message == "provider failed"
+            assert execution.completed_at is not None
 
     def test_run_agent_not_found(self, app, agent_service):
         """Test running a non-existent agent."""

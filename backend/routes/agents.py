@@ -9,7 +9,7 @@ Ce module contient tous les endpoints REST pour la gestion des agents IA.
 Il implémente les opérations CRUD de base.
 """
 
-from flask import request
+from flask import current_app, request
 from flask_restful import Resource, reqparse
 
 from ..models.agent import Agent
@@ -238,19 +238,23 @@ class AgentRunResource(Resource):
             application/json:
               schema:
                 type: object
+                required:
+                  - input
                 properties:
                   input:
                     type: string
+                    minLength: 1
                     description: The input text for the agent
                   model:
                     type: string
+                    minLength: 1
                     description: Override the default model
                   configuration:
                     type: object
                     description: Override the agent configuration
         responses:
           200:
-            description: Execution started successfully
+            description: Execution completed successfully
             content:
               application/json:
                 schema:
@@ -262,13 +266,21 @@ class AgentRunResource(Resource):
                       type: integer
                     message:
                       type: string
+                    status:
+                      type: string
+                    output:
+                      type: object
+                    duration_ms:
+                      type: integer
           404:
             description: Agent not found
           400:
             description: Invalid input
+          413:
+            description: Request body exceeds the configured size limit
+          500:
+            description: Agent execution failed
         """
-        from ..models.execution import Execution
-
         agent = Agent.get_by_id(agent_id)
         if not agent:
             return {"error": f"Agent with ID {agent_id} not found"}, 404
@@ -277,34 +289,31 @@ class AgentRunResource(Resource):
             return {"error": f"Agent with ID {agent_id} is not active"}, 400
 
         data = request.get_json(silent=True)
-        if not data or "input" not in data:
+        if not isinstance(data, dict) or "input" not in data:
             return {"error": "Input is required"}, 400
 
-        input_data = data.get("input", "")
+        input_data = data.get("input")
+        if not isinstance(input_data, str) or not input_data.strip():
+            return {"error": "Input must be a non-empty string"}, 400
+
         model = data.get("model", agent.model)
+        if not isinstance(model, str) or not model.strip():
+            return {"error": "Model must be a non-empty string"}, 400
+
         config = data.get("configuration", agent.configuration)
+        if not isinstance(config, dict):
+            return {"error": "Configuration must be an object"}, 400
 
         try:
-            # Create execution record
-            execution = Execution.create(
+            agent_service = current_app.extensions["agent_service"]
+            result = agent_service.run_agent(
                 agent_id=agent_id,
-                input_data={"text": input_data, "model": model, "config": config},
-                model_used=model,
+                input_data={"text": input_data},
+                model=model,
+                configuration=config,
             )
-
-            # Mark as running
-            execution.start()
-
-            # TODO: Here we would actually run the agent
-            # For MVP, we just return the execution ID
-            # US-006 will implement the actual AI model integration
-
-            return {
-                "execution_id": execution.id,
-                "agent_id": agent_id,
-                "message": f"Agent {agent.name} execution started",
-                "status": execution.status.value,
-            }, 200
+            result["message"] = f"Agent {agent.name} execution completed"
+            return result, 200
         except Exception as e:
             db.session.rollback()
             return {"error": str(e)}, 500

@@ -1,7 +1,7 @@
 {
   "name": "agent-world-vscode",
   "displayName": "Agent World",
-  "description": "Visualisez les agents Agent World directement dans VS Code.",
+  "description": "Exécutez, déboguez et versionnez les agents Agent World directement dans VS Code.",
   "version": "0.2.0",
   "publisher": "agent-world",
   "license": "MIT",
@@ -18,31 +18,42 @@
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": "limited",
-      "description": "La consultation des agents reste disponible, mais l’ouverture programmatique de fichiers est désactivée.",
+      "description": "La consultation et l’exécution des agents restent disponibles, mais l’ouverture programmatique de fichiers, les commandes locales, le débogage et Git sont désactivés.",
       "restrictedConfigurations": [
         "agentWorld.apiUrl"
       ]
     }
   },
   "categories": [
+    "Debuggers",
     "Machine Learning",
     "Other"
   ],
   "keywords": [
     "agents",
     "ai",
-    "dashboard"
+    "dashboard",
+    "debugger",
+    "git"
   ],
   "activationEvents": [
     "onView:agentWorld.agentsView",
     "onCommand:agentWorld.openDashboard",
     "onCommand:agentWorld.refreshAgents",
     "onCommand:agentWorld.openAgentDetail",
-    "onCommand:agentWorld.openGeneratedFile"
+    "onCommand:agentWorld.openGeneratedFile",
+    "onCommand:agentWorld.executeVscodeCommand",
+    "onCommand:agentWorld.runAgent",
+    "onCommand:agentWorld.debugAgent",
+    "onCommand:agentWorld.linkAgentRepository",
+    "onCommand:agentWorld.commitAgentChanges",
+    "onCommand:agentWorld.pushAgentChanges",
+    "onDebugResolve:agent-world",
+    "onDebugInitialConfigurations"
   ],
   "main": "./src/extension.js",
   "scripts": {
-    "check": "node --check src/extension.js && node --check src/apiClient.js && node --check src/agentTreeProvider.js && node --check src/fileCommands.js && node --check src/fileSecurity.js && node --check src/panels.js && node --check src/webviews.js",
+    "check": "node --check src/extension.js && node --check src/apiClient.js && node --check src/agentTreeProvider.js && node --check src/debugAdapter.js && node --check src/fileCommands.js && node --check src/fileSecurity.js && node --check src/gitCommand.js && node --check src/gitIntegration.js && node --check src/notificationService.js && node --check src/panels.js && node --check src/runAgentCommand.js && node --check src/vscodeCommandService.js && node --check src/webviews.js",
     "pretest": "npm run check",
     "test": "node --test"
   },
@@ -71,6 +82,42 @@
         "title": "Ouvrir un fichier généré",
         "category": "Agent World",
         "icon": "$(folder-opened)"
+      },
+      {
+        "command": "agentWorld.executeVscodeCommand",
+        "title": "Exécuter une commande VS Code",
+        "category": "Agent World",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "agentWorld.runAgent",
+        "title": "Exécuter un agent",
+        "category": "Agent World",
+        "icon": "$(play)"
+      },
+      {
+        "command": "agentWorld.debugAgent",
+        "title": "Déboguer un agent",
+        "category": "Agent World",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "agentWorld.linkAgentRepository",
+        "title": "Lier l’agent à un dépôt Git",
+        "category": "Agent World",
+        "icon": "$(repo)"
+      },
+      {
+        "command": "agentWorld.commitAgentChanges",
+        "title": "Créer un commit pour l’agent",
+        "category": "Agent World",
+        "icon": "$(git-commit)"
+      },
+      {
+        "command": "agentWorld.pushAgentChanges",
+        "title": "Pousser les commits de l’agent",
+        "category": "Agent World",
+        "icon": "$(cloud-upload)"
       }
     ],
     "configuration": {
@@ -91,6 +138,13 @@
           "minimum": 500,
           "maximum": 60000,
           "description": "Délai maximal des requêtes à l’API Agent World, en millisecondes."
+        },
+        "agentWorld.executionTimeoutMs": {
+          "type": "number",
+          "default": 120000,
+          "minimum": 1000,
+          "maximum": 900000,
+          "description": "Délai maximal distinct pour l’exécution synchrone d’un agent, en millisecondes."
         },
         "agentWorld.openFile.location": {
           "type": "string",
@@ -125,6 +179,67 @@
         }
       ]
     },
+    "breakpoints": [
+      {
+        "language": "plaintext"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "agent-world",
+        "label": "Agent World",
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "agentId"
+            ],
+            "properties": {
+              "agentId": {
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "description": "Identifiant de l’agent Agent World à déboguer."
+              },
+              "input": {
+                "type": "string",
+                "default": "",
+                "description": "Entrée transmise à l’agent."
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "default": true,
+                "description": "Suspendre l’exécution sur la phase de chargement."
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "agent-world",
+            "request": "launch",
+            "name": "Déboguer un agent Agent World",
+            "agentId": "",
+            "input": "",
+            "stopOnEntry": true
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "Agent World : déboguer un agent",
+            "description": "Débogue les phases d’une exécution Agent World.",
+            "body": {
+              "type": "agent-world",
+              "request": "launch",
+              "name": "Déboguer un agent Agent World",
+              "agentId": "${1:agent-id}",
+              "input": "${2}",
+              "stopOnEntry": true
+            }
+          }
+        ]
+      }
+    ],
     "menus": {
       "view/title": [
         {
@@ -139,21 +254,80 @@
         },
         {
           "command": "agentWorld.openGeneratedFile",
-          "when": "view == agentWorld.agentsView",
+          "when": "view == agentWorld.agentsView && isWorkspaceTrusted",
           "group": "navigation@3"
+        },
+        {
+          "command": "agentWorld.executeVscodeCommand",
+          "when": "view == agentWorld.agentsView && isWorkspaceTrusted",
+          "group": "navigation@4"
+        },
+        {
+          "command": "agentWorld.runAgent",
+          "when": "view == agentWorld.agentsView",
+          "group": "navigation@5"
         }
       ],
       "view/item/context": [
         {
           "command": "agentWorld.openAgentDetail",
           "when": "view == agentWorld.agentsView && viewItem == agentWorld.agent",
-          "group": "inline"
+          "group": "inline@1"
+        },
+        {
+          "command": "agentWorld.runAgent",
+          "when": "view == agentWorld.agentsView && viewItem == agentWorld.agent",
+          "group": "inline@2"
+        },
+        {
+          "command": "agentWorld.debugAgent",
+          "when": "view == agentWorld.agentsView && viewItem == agentWorld.agent && isWorkspaceTrusted",
+          "group": "inline@3"
+        },
+        {
+          "command": "agentWorld.linkAgentRepository",
+          "when": "view == agentWorld.agentsView && viewItem == agentWorld.agent && isWorkspaceTrusted",
+          "group": "agentWorld.git@1"
+        },
+        {
+          "command": "agentWorld.commitAgentChanges",
+          "when": "view == agentWorld.agentsView && viewItem == agentWorld.agent && isWorkspaceTrusted",
+          "group": "agentWorld.git@2"
+        },
+        {
+          "command": "agentWorld.pushAgentChanges",
+          "when": "view == agentWorld.agentsView && viewItem == agentWorld.agent && isWorkspaceTrusted",
+          "group": "agentWorld.git@3"
         }
       ],
       "commandPalette": [
         {
           "command": "agentWorld.openAgentDetail",
           "when": "false"
+        },
+        {
+          "command": "agentWorld.openGeneratedFile",
+          "when": "isWorkspaceTrusted"
+        },
+        {
+          "command": "agentWorld.executeVscodeCommand",
+          "when": "isWorkspaceTrusted"
+        },
+        {
+          "command": "agentWorld.debugAgent",
+          "when": "isWorkspaceTrusted"
+        },
+        {
+          "command": "agentWorld.linkAgentRepository",
+          "when": "isWorkspaceTrusted"
+        },
+        {
+          "command": "agentWorld.commitAgentChanges",
+          "when": "isWorkspaceTrusted"
+        },
+        {
+          "command": "agentWorld.pushAgentChanges",
+          "when": "isWorkspaceTrusted"
         }
       ]
     }

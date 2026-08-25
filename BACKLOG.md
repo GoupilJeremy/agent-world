@@ -83,17 +83,17 @@
 **Description** : Permettre aux utilisateurs d'interagir avec Agent World directement depuis VS Code.
 **Priorité** : P0 (Must Have)
 **Heures Estimées** : ~43h
-**Statut** : ⏳ **En cours** (Sprint 0)
+**Statut** : ✅ **Terminé** (Version v0.2.0)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
 | US-011   | Ouverture du dashboard VS Code     | Créer un dashboard pour visualiser les agents depuis VS Code.                                     | 8h             | P0           | ✅ Done     | ✅ Extension VS Code créée, ✅ Affichage des agents, ✅ Navigation basique.                        |
 | US-012   | Thème automatique VS Code          | Adapter le thème de VS Code à Agent World (clair/sombre).                                         | 4h             | P0           | ✅ Done     | ✅ Détection du thème VS Code, ✅ Application automatique.                                       |
 | US-013   | Ouverture des fichiers dans VS Code| Permettre d'ouvrir les fichiers générés par les agents directement dans VS Code.                 | 3h             | P0           | ✅ Done     | ✅ Commande "Ouvrir dans VS Code", ✅ Gestion des chemins.                                       |
-| US-014   | Exécution de commandes VS Code     | Exécuter des commandes VS Code depuis Agent World (ex: formater le code).                         | 5h             | P0           | ⏳ Backlog | ✅ Intégration avec l'API VS Code, ✅ 3+ commandes supportées.                                   |
-| US-015   | Notifications VS Code              | Envoyer des notifications depuis Agent World vers VS Code.                                      | 4h             | P1           | ⏳ Backlog | ✅ Notifications pour les tâches terminées, ✅ Clic pour accéder à l'agent.                      |
-| US-016   | Debugging dans VS Code             | Permettre le debugging des agents directement dans VS Code.                                      | 8h             | P1           | ⏳ Backlog | ✅ Points d'arrêt, ✅ Inspection des variables.                                                   |
-| US-017   | Intégration avec Git               | Lier les agents à des repositories Git (commit, push).                                            | 11h            | P1           | ⏳ Backlog | ✅ Détection des changements Git, ✅ Suggestions de commits.                                     |
+| US-014   | Exécution de commandes VS Code     | Exécuter des commandes VS Code depuis Agent World (ex: formater le code).                         | 5h             | P0           | ✅ Done    | ✅ Intégration avec l'API VS Code, ✅ 3+ commandes supportées.                                   |
+| US-015   | Notifications VS Code              | Envoyer des notifications depuis Agent World vers VS Code.                                      | 4h             | P1           | ✅ Done    | ✅ Notifications pour les tâches terminées, ✅ Clic pour accéder à l'agent.                      |
+| US-016   | Debugging dans VS Code             | Permettre le debugging des agents directement dans VS Code.                                      | 8h             | P1           | ✅ Done    | ✅ Points d'arrêt, ✅ Inspection des variables.                                                   |
+| US-017   | Intégration avec Git               | Lier les agents à des repositories Git (commit, push).                                            | 11h            | P1           | ✅ Done    | ✅ Détection des changements Git, ✅ Suggestions de commits.                                     |
 
 ---
 
@@ -252,7 +252,7 @@
 | **Milestone**       | **Épics**                          | **Date de Livraison** | **Version** | **Statut**          |
 |---------------------|------------------------------------|-----------------------|-------------|---------------------|
 | **MVP**             | Épic 1                              | 06 août 2026          | v0.1.0      | ✅ **Terminé**       |
-| **VS Code**         | Épic 2                              | 12 août 2026          | v0.2.0      | ⏳ **En cours**      |
+| **VS Code**         | Épic 2                              | 12 août 2026          | v0.2.0      | ✅ **Terminé**       |
 | **Files**           | Épic 3                              | 19 août 2026          | v0.2.1      | ⏳ **À venir**       |
 | **History**         | Épic 4                              | 02 septembre 2026     | v0.3.0      | ⏳ **À venir**       |
 | **Templates**       | Épic 5                              | 16 septembre 2026     | v0.3.1      | ⏳ **À venir**       |
@@ -293,7 +293,7 @@
 | US-026   | Historique des exécutions          | 6h             | -             | ⏳ To Do    | P1           |
 | US-033   | Création de templates              | 6h             | -             | ⏳ To Do    | P1           |
 | US-034   | Bibliothèque de templates           | 8h             | -             | ⏳ To Do    | P1           |
-| US-014   | Exécution de commandes VS Code     | 5h             | -             | ⏳ Backlog | P0           |
+| US-014   | Exécution de commandes VS Code     | 5h             | -             | ✅ Done    | P0           |
 
 **Livrables** :
 - ✅ Système d'historique fonctionnel.

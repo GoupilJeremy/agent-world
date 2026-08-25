@@ -50,8 +50,10 @@
 | **Dashboard VS Code**           | Visualiser les agents et ouvrir leur détail directement depuis VS Code.                           | ✅ **Disponible**    | v0.2.0      |
 | **Thème Automatique**           | Adaptation automatique au thème VS Code (clair/sombre et contraste élevé).                       | ✅ **Disponible**    | v0.2.0      |
 | **Ouverture de Fichiers**       | Choisir et ouvrir un fichier généré avec le sélecteur natif de VS Code.                           | ✅ **Disponible**    | v0.2.0      |
-| **Exécution de Commandes**      | Exécuter des commandes VS Code depuis Agent World.                                               | ⏳ **À venir**       | v0.2.0      |
-| **Notifications**               | Recevoir des notifications dans VS Code.                                                         | ⏳ **À venir**       | v0.2.1      |
+| **Exécution de Commandes**      | Formater, organiser les imports ou enregistrer via une allowlist de commandes VS Code.            | ✅ **Disponible**    | v0.2.0      |
+| **Notifications**               | Être notifié à la fin d’une exécution et ouvrir l’agent depuis la notification.                    | ✅ **Disponible**    | v0.2.0      |
+| **Débogage d’Agents**           | Poser des points d’arrêt sur les phases d’exécution et inspecter leurs variables.                  | ✅ **Disponible**    | v0.2.0      |
+| **Intégration Git**             | Lier un agent à un dépôt, détecter les changements, créer un commit suggéré et pousser.            | ✅ **Disponible**    | v0.2.0      |
 
 ### **🔹 Gestion des Fichiers (v0.2.0 - v0.2.1)**
 | **Fonctionnalité**               | **Description**                                                                                     | **Statut**          | **Version** |
@@ -311,6 +313,12 @@ son [guide dédié](vscode-extension/README.md) pour le développement et les te
 - **Ouvrir le Dashboard** : utilisez l’action Dashboard dans l’en-tête de la vue.
 - **Voir un détail** : cliquez sur un agent dans l’arborescence.
 - **Ouvrir un fichier** : lancez `Agent World: Ouvrir un fichier généré`.
+- **Exécuter un agent** : utilisez le bouton de lecture ; la notification finale
+  permet de revenir à son détail.
+- **Déboguer un agent** : utilisez le bouton de débogage, puis placez des points
+  d’arrêt sur les phases affichées dans la source virtuelle.
+- **Utiliser Git** : ouvrez le menu contextuel de l’agent pour lier un dépôt,
+  créer un commit avec message suggéré ou pousser les commits.
 
 ---
 

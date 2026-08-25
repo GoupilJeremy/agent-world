@@ -99,9 +99,12 @@ gantt
 - **Semaine 2 (Sprint 0)** :
   - US-018 : Dossier de sortie personnalisé (2h) — ✅ **Terminé**.
   - US-019 : Noms de fichiers intelligents (4h).
-  - US-014 : Exécution de commandes VS Code (5h).
-  - **Total** : 11h → **Livraison v0.2.0** (12 août 2026).
+  - US-014 : Exécution de commandes VS Code (5h) — ✅ **Terminé**.
+  - US-015 : Notifications VS Code (4h) — ✅ **Terminé**.
+  - **Total** : 15h → **Livraison v0.2.0** (12 août 2026).
 - **Semaine 3-4** :
+  - US-016 : Débogage des agents dans VS Code (8h) — ✅ **Terminé**.
+  - US-017 : Intégration Git locale (11h) — ✅ **Terminé**.
   - US-020 à US-024 : Gestion avancée des fichiers.
   - **Livraison** : **v0.2.1** (19 août 2026).
 

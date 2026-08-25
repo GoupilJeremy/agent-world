@@ -32,6 +32,17 @@ Ce changelog suit les conventions de [Keep a Changelog](https://keepachangelog.c
 - Adaptation automatique des vues aux couleurs du thème VS Code (US-012).
 - Ouverture d’un fichier généré via le sélecteur et les URI natives de VS Code
   (US-013).
+- Allowlist de commandes VS Code pour formater, organiser les imports et
+  enregistrer les fichiers (US-014).
+- Exécution d’agents depuis VS Code avec notifications de fin dédupliquées et
+  accès direct au détail de l’agent (US-015).
+- Adaptateur de débogage Agent World avec points d’arrêt sur le cycle
+  d’exécution, pas à pas et inspection sécurisée des variables (US-016).
+- Intégration à l’API Git native de VS Code : association agent/dépôt, détection
+  des changements, sélection explicite des fichiers, suggestion de commit et
+  push avec contrôle de l’amont (US-017).
+- Finalisation synchrone des exécutions lancées par `POST /api/agents/{id}/run`,
+  avec résultat et durée retournés à l’extension.
 - Choix et persistance du dossier de sortie depuis le CLI, avec override ponctuel
   pour une exécution (US-018).
 - Validation des dossiers et confinement des fichiers générés, avec écriture JSON

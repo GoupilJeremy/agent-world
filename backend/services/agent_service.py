@@ -12,6 +12,7 @@ Il fait le lien entre les modèles de données et les contrôleurs.
 from typing import Any, Dict, List, Optional
 
 from ..models.agent import Agent
+from ..models.base import db
 from ..models.execution import Execution, ExecutionStatus
 
 
@@ -182,7 +183,7 @@ class AgentService:
 
         # Use provided model or agent's default
         model_used = model or agent.model
-        config_used = configuration or agent.configuration
+        config_used = agent.configuration if configuration is None else configuration
 
         # Create execution record
         execution = Execution.create(
@@ -196,27 +197,39 @@ class AgentService:
             executed_by=executed_by,
         )
 
-        # Mark as running
-        execution.start()
-
         # TODO: Actual AI model execution will be implemented in US-006
         # For MVP, we just simulate a successful execution
         # This is a placeholder - real implementation will call AIService
 
-        # Simulate execution (remove this in production)
-        import time
+        try:
+            # Mark as running only once failure handling is in place. The
+            # execution record was already committed by ``Execution.create``.
+            execution.start()
 
-        time.sleep(0.1)  # Simulate processing time
+            # Simulate execution (remove this in production)
+            import time
 
-        # Mock output
-        output_data = {
-            "result": f"Mock response from {model_used} for agent {agent.name}",
-            "input": input_data,
-            "model": model_used,
-            "timestamp": execution.created_at.isoformat(),
-        }
+            time.sleep(0.1)  # Simulate processing time
 
-        execution.complete(output_data)
+            # Mock output
+            output_data = {
+                "result": f"Mock response from {model_used} for agent {agent.name}",
+                "input": input_data,
+                "model": model_used,
+                "timestamp": execution.created_at.isoformat(),
+            }
+
+            execution.complete(output_data)
+        except Exception as error:
+            # ``start`` and ``complete`` commit independently. Roll back first
+            # so a failed flush/commit cannot prevent the terminal FAILED state
+            # from being persisted in a fresh transaction.
+            db.session.rollback()
+            try:
+                execution.fail(str(error))
+            except Exception:
+                db.session.rollback()
+            raise
 
         return {
             "execution_id": execution.id,

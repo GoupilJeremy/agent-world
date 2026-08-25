@@ -24,6 +24,7 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY") or "dev-secret-key-change-in-production"
     DEBUG = False
     TESTING = False
+    MAX_CONTENT_LENGTH = 1024 * 1024  # 1 MiB maximum request body
 
     # Database settings (PostgreSQL by default)
     SQLALCHEMY_DATABASE_URI = (

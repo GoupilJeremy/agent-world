@@ -16,6 +16,7 @@ import pytest
 from backend.app import create_app
 from backend.config.settings import TestingConfig
 from backend.models.base import db
+from backend.models.execution import Execution, ExecutionStatus
 
 
 @pytest.fixture
@@ -218,7 +219,111 @@ class TestAgentsAPI:
         data = response.get_json()
         assert "execution_id" in data
         assert data["agent_id"] == agent_id
-        assert "status" in data
+        assert data["status"] == ExecutionStatus.COMPLETED.value
+        assert data["message"] == "Agent Run Agent execution completed"
+        assert data["output"]["input"] == {"text": "Hello, world!"}
+
+        execution = db.session.get(Execution, data["execution_id"])
+        assert execution is not None
+        assert execution.status == ExecutionStatus.COMPLETED
+        assert execution.completed_at is not None
+        assert execution.output_data == data["output"]
+
+    def test_run_agent_delegates_to_registered_service(self, app, client):
+        """Test that the API uses the application AgentService instance."""
+        create_response = client.post(
+            "/api/agents",
+            data=json.dumps({"name": "Delegated Agent", "model": "mistral-tiny"}),
+            content_type="application/json",
+        )
+        agent_id = create_response.get_json()["id"]
+        captured = {}
+
+        class StubAgentService:
+            def run_agent(self, **kwargs):
+                captured.update(kwargs)
+                return {
+                    "execution_id": 42,
+                    "agent_id": kwargs["agent_id"],
+                    "status": ExecutionStatus.COMPLETED.value,
+                    "output": {"result": "done"},
+                    "duration_ms": 1,
+                }
+
+        app.extensions["agent_service"] = StubAgentService()
+
+        response = client.post(
+            f"/api/agents/{agent_id}/run",
+            data=json.dumps(
+                {
+                    "input": "Delegate this",
+                    "model": "gpt-4",
+                    "configuration": {"temperature": 0.2},
+                }
+            ),
+            content_type="application/json",
+        )
+
+        assert response.status_code == 200
+        assert response.get_json()["status"] == ExecutionStatus.COMPLETED.value
+        assert captured == {
+            "agent_id": agent_id,
+            "input_data": {"text": "Delegate this"},
+            "model": "gpt-4",
+            "configuration": {"temperature": 0.2},
+        }
+
+    def test_run_agent_preserves_an_explicit_empty_configuration(self, client):
+        """Test that the API treats an empty configuration as an override."""
+        create_response = client.post(
+            "/api/agents",
+            data=json.dumps(
+                {
+                    "name": "API Configuration Agent",
+                    "configuration": {"temperature": 0.7},
+                }
+            ),
+            content_type="application/json",
+        )
+        agent_id = create_response.get_json()["id"]
+
+        response = client.post(
+            f"/api/agents/{agent_id}/run",
+            data=json.dumps({"input": "Override configuration", "configuration": {}}),
+            content_type="application/json",
+        )
+
+        assert response.status_code == 200
+        execution = db.session.get(Execution, response.get_json()["execution_id"])
+        assert execution is not None
+        assert execution.input_data["config"] == {}
+
+    def test_run_agent_failure_is_persisted_as_failed(self, client, monkeypatch):
+        """Test that a service failure cannot leave a running execution."""
+        create_response = client.post(
+            "/api/agents",
+            data=json.dumps({"name": "API Failing Agent"}),
+            content_type="application/json",
+        )
+        agent_id = create_response.get_json()["id"]
+
+        def fail_completion(self, output_data):
+            raise RuntimeError("provider failed")
+
+        monkeypatch.setattr(Execution, "complete", fail_completion)
+
+        response = client.post(
+            f"/api/agents/{agent_id}/run",
+            data=json.dumps({"input": "Trigger failure"}),
+            content_type="application/json",
+        )
+
+        assert response.status_code == 500
+        assert response.get_json()["error"] == "provider failed"
+        [execution] = Execution.get_by_agent(agent_id)
+        assert execution.status == ExecutionStatus.FAILED
+        assert execution.error_message == "provider failed"
+        assert execution.completed_at is not None
 
     def test_run_agent_not_found(self, client):
         """Test running a non-existent agent."""
@@ -249,6 +354,58 @@ class TestAgentsAPI:
 
         assert response.status_code == 400
         assert "Input is required" in response.get_json()["error"]
+
+    def test_run_agent_rejects_oversized_request(self, app, client):
+        """Test that Flask enforces the server-side request size limit."""
+        create_response = client.post(
+            "/api/agents",
+            data=json.dumps({"name": "Oversized Request Agent"}),
+            content_type="application/json",
+        )
+        agent_id = create_response.get_json()["id"]
+        request_body = json.dumps({"input": "x" * app.config["MAX_CONTENT_LENGTH"]})
+
+        assert len(request_body.encode("utf-8")) > app.config["MAX_CONTENT_LENGTH"]
+
+        response = client.post(
+            f"/api/agents/{agent_id}/run",
+            data=request_body,
+            content_type="application/json",
+        )
+
+        assert response.status_code == 413
+        assert Execution.get_all() == []
+
+    @pytest.mark.parametrize(
+        ("payload", "expected_error"),
+        [
+            ({"input": "   "}, "Input must be a non-empty string"),
+            ({"input": 42}, "Input must be a non-empty string"),
+            ({"input": "ok", "model": ""}, "Model must be a non-empty string"),
+            (
+                {"input": "ok", "configuration": []},
+                "Configuration must be an object",
+            ),
+        ],
+    )
+    def test_run_agent_rejects_invalid_payloads(self, client, payload, expected_error):
+        """Test that execution payloads are validated before persistence."""
+        create_response = client.post(
+            "/api/agents",
+            data=json.dumps({"name": f"Invalid {expected_error}"}),
+            content_type="application/json",
+        )
+        agent_id = create_response.get_json()["id"]
+
+        response = client.post(
+            f"/api/agents/{agent_id}/run",
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        assert response.status_code == 400
+        assert response.get_json()["error"] == expected_error
+        assert Execution.get_all() == []
 
     def test_health_check(self, client):
         """Test the health check endpoint."""
