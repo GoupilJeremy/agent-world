@@ -97,7 +97,7 @@ gantt
   - US-013 : Ouverture des fichiers dans VS Code (3h) — ✅ **Terminé**.
   - **Total** : 15h → **Livraison partielle v0.2.0-alpha**.
 - **Semaine 2 (Sprint 0)** :
-  - US-018 : Dossier de sortie personnalisé (2h).
+  - US-018 : Dossier de sortie personnalisé (2h) — ✅ **Terminé**.
   - US-019 : Noms de fichiers intelligents (4h).
   - US-014 : Exécution de commandes VS Code (5h).
   - **Total** : 11h → **Livraison v0.2.0** (12 août 2026).
@@ -355,7 +355,7 @@ gantt
 │  US-011 : VS Code Dashboard       [8h]  ✅ Done                               │
 │  US-012 : Auto Theme              [4h]  ✅ Done                               │
 │  US-013 : Open in VS Code         [3h]  ✅ Done                               │
-│  US-018 : Custom Output Dir       [2h]  ⏳ To Do                              │
+│  US-018 : Custom Output Dir       [2h]  ✅ Done                               │
 │  US-019 : Smart Filenames         [4h]  ⏳ To Do                              │
 │                                                                               │
 │  Total : 21h → Livraison : 12 août 2026 (v0.2.0)                              │
@@ -370,8 +370,9 @@ gantt
 - Les versions **v0.x.x** sont des versions **bêta** (pour les early adopters).
 - La version **v1.0.0** marquera la **stabilité** de la plateforme.
 - Les fonctionnalités **P2 (Could Have)** peuvent être reportées si nécessaire.
-- **Dette MVP vérifiée le 25 août 2026** : les 57 tests backend passent, mais la
-  couverture globale reste à 55 % et les appels aux fournisseurs IA sont encore
+- **Dette MVP vérifiée le 25 août 2026** : la suite backend compte 105 tests
+  (104 réussis et un scénario de lien symbolique ignoré sous Windows), mais la
+  couverture globale reste à 68 % et les appels aux fournisseurs IA sont encore
   simulés. Le seuil de 90 % et les connecteurs réels restent à traiter.
 
 ---

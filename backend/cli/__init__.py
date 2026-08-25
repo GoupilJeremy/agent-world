@@ -9,6 +9,6 @@ Ce package contient toutes les commandes CLI pour gérer les agents IA
 depuis le terminal.
 """
 
-from .main import cli
+from .main import cli, main
 
-__all__ = ["cli"]
+__all__ = ["cli", "main"]

@@ -17,11 +17,14 @@ Usage:
 
 import argparse
 import json
+import os
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
+from ..config.settings import Config
 from ..models.agent import Agent
 from ..services.agent_service import AgentService
+from ..services.output_manager import OutputConfigurationError, OutputManager
 
 
 class CLIFormatter(argparse.RawDescriptionHelpFormatter):
@@ -30,7 +33,7 @@ class CLIFormatter(argparse.RawDescriptionHelpFormatter):
     pass
 
 
-def create_parser():
+def create_parser() -> argparse.ArgumentParser:
     """Create the main argument parser for the CLI."""
     parser = argparse.ArgumentParser(
         prog="agent",
@@ -168,6 +171,37 @@ Examples:
     )
     run_parser.add_argument("--model", "-m", help="Override the agent model")
     run_parser.add_argument("--output", "-o", help="Output file to save the result")
+    run_parser.add_argument(
+        "--output-dir",
+        help="Override the output directory for this execution",
+    )
+
+    # Config command
+    config_parser = subparsers.add_parser(
+        "config",
+        help="Manage Agent World configuration",
+        description="View or update Agent World configuration",
+    )
+    config_subparsers = config_parser.add_subparsers(
+        title="configuration",
+        dest="config_command",
+        required=True,
+    )
+    output_dir_parser = config_subparsers.add_parser(
+        "output-dir",
+        help="View or update the output directory",
+    )
+    output_dir_group = output_dir_parser.add_mutually_exclusive_group()
+    output_dir_group.add_argument(
+        "path",
+        nargs="?",
+        help="Directory to use for generated files",
+    )
+    output_dir_group.add_argument(
+        "--reset",
+        action="store_true",
+        help="Restore the default output directory",
+    )
 
     return parser
 
@@ -175,21 +209,33 @@ Examples:
 class AgentWorldCLI:
     """Main CLI class for Agent World."""
 
-    def __init__(self):
+    def __init__(
+        self,
+        agent_service: Optional[AgentService] = None,
+        output_manager: Optional[OutputManager] = None,
+    ) -> None:
         """Initialize the CLI."""
         self.parser = create_parser()
-        self.agent_service = AgentService()
+        self._agent_service_injected = agent_service is not None
+        self.agent_service = (
+            agent_service if agent_service is not None else AgentService()
+        )
+        self.output_manager = (
+            output_manager
+            if output_manager is not None
+            else OutputManager(environ={**os.environ, "OUTPUT_DIR": Config.OUTPUT_DIR})
+        )
         self.verbose = False
         self.format = "table"
 
-    def run(self, args: Optional[List[str]] = None):
+    def run(self, args: Optional[List[str]] = None) -> int:
         """
         Run the CLI with the given arguments.
 
         Args:
             args: List of command line arguments (default: sys.argv[1:])
         """
-        args = args or sys.argv[1:]
+        args = sys.argv[1:] if args is None else args
         parsed_args = self.parser.parse_args(args)
 
         # Set global options
@@ -200,12 +246,43 @@ class AgentWorldCLI:
         command = parsed_args.command
         handler_name = f"handle_{command}"
 
-        if hasattr(self, handler_name):
-            handler = getattr(self, handler_name)
-            return handler(parsed_args)
-        else:
+        if not hasattr(self, handler_name):
             print(f"❌ Unknown command: {command}")
             self.parser.print_help()
+            return 1
+
+        handler: Callable[[argparse.Namespace], int] = getattr(self, handler_name)
+        if command == "config" or self._agent_service_injected:
+            return handler(parsed_args)
+
+        from flask import has_app_context
+
+        if has_app_context():
+            return handler(parsed_args)
+
+        from ..app import app
+
+        with app.app_context():
+            return handler(parsed_args)
+
+    def handle_config(self, args: argparse.Namespace) -> int:
+        """Handle configuration commands."""
+        if args.config_command != "output-dir":
+            print(f"Unknown configuration command: {args.config_command}")
+            return 1
+
+        try:
+            if args.reset:
+                output_directory = self.output_manager.reset_output_directory()
+            elif args.path is not None:
+                output_directory = self.output_manager.set_output_directory(args.path)
+            else:
+                output_directory = self.output_manager.get_output_directory()
+
+            print(f"Output directory: {output_directory}")
+            return 0
+        except OutputConfigurationError as error:
+            print(f"Error: {error}")
             return 1
 
     def handle_create(self, args) -> int:
@@ -397,6 +474,14 @@ class AgentWorldCLI:
     def handle_run(self, args) -> int:
         """Handle the run command."""
         try:
+            output_directory = getattr(args, "output_dir", None)
+            if args.output:
+                self.output_manager.resolve_output_path(
+                    args.output, output_dir=output_directory
+                )
+            elif output_directory:
+                self.output_manager.get_output_directory(override=output_directory)
+
             if self.verbose:
                 print(f"▶️  Running agent {args.id} with input: {args.input[:50]}...")
 
@@ -408,9 +493,10 @@ class AgentWorldCLI:
                 print(f"✅ Execution completed in {result.get('duration_ms', 0)}ms")
 
             if args.output:
-                with open(args.output, "w", encoding="utf-8") as f:
-                    json.dump(result, f, indent=2, ensure_ascii=False)
-                print(f"💾 Result saved to: {args.output}")
+                written_path = self.output_manager.write_json(
+                    args.output, result, output_dir=output_directory
+                )
+                print(f"💾 Result saved to: {written_path}")
 
             if self.format == "json":
                 print(json.dumps(result, indent=2, ensure_ascii=False))
@@ -423,6 +509,9 @@ class AgentWorldCLI:
 
             return 0
 
+        except OutputConfigurationError as e:
+            print(f"❌ Error: {str(e)}")
+            return 1
         except ValueError as e:
             print(f"❌ Error: {str(e)}")
             return 1
@@ -505,10 +594,8 @@ class AgentWorldCLI:
 cli = AgentWorldCLI()
 
 
-def main():
+def main() -> int:
     """Main entry point for the CLI."""
-    import sys
-
     return cli.run(sys.argv[1:])
 
 

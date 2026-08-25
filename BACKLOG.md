@@ -105,7 +105,7 @@
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
-| US-018   | Dossier de sortie personnalisé     | Permettre aux utilisateurs de choisir un dossier de sortie pour les fichiers générés.             | 2h             | P0           | ⏳ To Do    | ✅ Sélection du dossier via l'UI/CLI, ✅ Persistance du choix.                                    |
+| US-018   | Dossier de sortie personnalisé     | Permettre aux utilisateurs de choisir un dossier de sortie pour les fichiers générés.             | 2h             | P0           | ✅ Done     | ✅ Sélection du dossier via le CLI, ✅ Persistance du choix, ✅ Validation du chemin et des permissions. |
 | US-019   | Noms de fichiers intelligents      | Générer des noms de fichiers basés sur le contenu (ex: `resume_analysis_20260806.md`).            | 4h             | P0           | ⏳ To Do    | ✅ Algorithme de nommage, ✅ Personnalisation possible.                                           |
 | US-020   | Organisation en dossiers           | Créer une structure de dossiers automatique (ex: `/agents/{agent_name}/outputs/`).               | 3h             | P0           | ⏳ Backlog | ✅ Structure configurable, ✅ Dossiers créés automatiquement.                                    |
 | US-021   | Versioning des fichiers            | Versionner les fichiers générés (ex: `v1`, `v2`).                                                | 5h             | P1           | ⏳ Backlog | ✅ Historique des versions, ✅ Restauration possible.                                            |
@@ -272,7 +272,7 @@
 | US-011   | Ouverture du dashboard VS Code     | 8h             | -             | ✅ Done     | P0           |
 | US-012   | Thème automatique VS Code          | 4h             | -             | ✅ Done     | P0           |
 | US-013   | Ouverture des fichiers dans VS Code| 3h             | -             | ✅ Done     | P0           |
-| US-018   | Dossier de sortie personnalisé     | 2h             | -             | ⏳ To Do    | P0           |
+| US-018   | Dossier de sortie personnalisé     | 2h             | -             | ✅ Done     | P0           |
 | US-019   | Noms de fichiers intelligents      | 4h             | -             | ⏳ To Do    | P0           |
 
 **Livrables** :
@@ -346,7 +346,7 @@
 | US-011   | Ouverture du dashboard VS Code     | VS Code        | 8h         | ✅ Done         |
 | US-012   | Thème automatique VS Code          | VS Code        | 4h         | ✅ Done         |
 | US-013   | Ouverture des fichiers dans VS Code| VS Code        | 3h         | ✅ Done         |
-| US-018   | Dossier de sortie personnalisé     | Files          | 2h         | ⏳ To Do        |
+| US-018   | Dossier de sortie personnalisé     | Files          | 2h         | ✅ Done         |
 | US-019   | Noms de fichiers intelligents      | Files          | 4h         | ⏳ To Do        |
 
 ---

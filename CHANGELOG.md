@@ -32,11 +32,18 @@ Ce changelog suit les conventions de [Keep a Changelog](https://keepachangelog.c
 - Adaptation automatique des vues aux couleurs du thème VS Code (US-012).
 - Ouverture d’un fichier généré via le sélecteur et les URI natives de VS Code
   (US-013).
+- Choix et persistance du dossier de sortie depuis le CLI, avec override ponctuel
+  pour une exécution (US-018).
+- Validation des dossiers et confinement des fichiers générés, avec écriture JSON
+  atomique.
+- Tests unitaires du gestionnaire de sortie et de son intégration CLI.
 - Tests Node sans dépendances pour le manifeste, l’API, les vues et les commandes.
 
 #### **Changed**
 - Mise à jour de la structure du repository.
 - Exécution des tests de l’extension dans les workflows CI et pull request.
+- Correction du point d’entrée CLI et initialisation paresseuse de Flask pour que
+  les commandes de configuration restent utilisables sans base de données active.
 
 ---
 

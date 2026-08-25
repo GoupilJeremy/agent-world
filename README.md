@@ -56,7 +56,7 @@
 ### **🔹 Gestion des Fichiers (v0.2.0 - v0.2.1)**
 | **Fonctionnalité**               | **Description**                                                                                     | **Statut**          | **Version** |
 |---------------------------------|-----------------------------------------------------------------------------------------------------|---------------------|-------------|
-| **Dossier de Sortie Personnalisé** | Choisir un dossier de sortie pour les fichiers générés.                                         | ⏳ **En cours**      | v0.2.0      |
+| **Dossier de Sortie Personnalisé** | Choisir et mémoriser un dossier de sortie validé depuis le CLI.                                 | ✅ **Disponible**    | v0.2.0      |
 | **Noms de Fichiers Intelligents** | Générer des noms de fichiers basés sur le contenu.                                               | ⏳ **En cours**      | v0.2.0      |
 | **Organisation en Dossiers**    | Structure de dossiers automatique (ex: `/agents/{name}/outputs/`).                              | ⏳ **À venir**       | v0.2.1      |
 | **Versioning des Fichiers**     | Versionner les fichiers générés (ex: `v1`, `v2`).                                                | ⏳ **À venir**       | v0.2.1      |
@@ -236,13 +236,25 @@ docker-compose up -d
 | `agent update <id>`        | Mettre à jour un agent.                                                                            | `agent update 123 --name new_name`   |
 | `agent delete <id>`        | Supprimer un agent.                                                                                | `agent delete 123`                   |
 | `agent run <id>`           | Exécuter un agent.                                                                                  | `agent run 123 --input "Hello!"`     |
+| `agent config output-dir`  | Afficher, choisir ou réinitialiser le dossier de sortie.                                          | `agent config output-dir ./results`  |
 
 #### **Options Avancées**
 | **Option**                 | **Description**                                                                                     | **Exemple**                          |
 |----------------------------|-----------------------------------------------------------------------------------------------------|--------------------------------------|
 | `--model`                  | Spécifier le modèle IA à utiliser.                                                                | `agent run 123 --model mistral`      |
-| `--output`                 | Spécifier le fichier de sortie.                                                                   | `agent run 123 --output result.md`   |
+| `--output`                 | Spécifier un nom de fichier relatif au dossier de sortie.                                         | `agent run 123 --input "Hello!" --output result.json` |
+| `--output-dir`             | Remplacer le dossier configuré pour une seule exécution.                                          | `agent run 123 --input "Hello!" --output result.json --output-dir ./tmp` |
 | `--verbose`                | Afficher les logs détaillés.                                                                      | `agent run 123 --verbose`            |
+
+Le dossier persistant se configure avec `agent config output-dir <dossier>`, se
+consulte sans argument et se réinitialise avec
+`agent config output-dir --reset`. Le chemin est créé si nécessaire, vérifié en
+écriture et mémorisé dans la configuration utilisateur du système. La variable
+`AGENT_WORLD_CONFIG_FILE` permet de déplacer ce fichier de préférences.
+
+Pour une exécution, l’ordre de priorité est `--output-dir`, le choix persistant,
+la variable `OUTPUT_DIR`, puis le dossier `outputs`. Les chemins absolus et les
+traversées avec `..` sont refusés ; l’écriture JSON est atomique.
 
 ---
 

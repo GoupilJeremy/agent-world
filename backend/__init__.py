@@ -13,8 +13,18 @@ Il inclut :
 - Configuration et utilitaires
 """
 
-from .app import create_app
+from flask import Flask
+
 from .config import Config
+
+
+def create_app(config_class: type[Config] = Config) -> Flask:
+    """Create the Flask application without initializing it on package import."""
+
+    from .app import create_app as application_factory
+
+    return application_factory(config_class)
+
 
 __version__ = "0.1.0"
 __author__ = "Jeremy Goupil"
