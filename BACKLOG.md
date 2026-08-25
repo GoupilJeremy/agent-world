@@ -142,13 +142,13 @@
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
-| US-033   | Création de templates              | Permettre aux utilisateurs de créer des templates d'agents réutilisables.                        | 6h             | P1           | ⏳ To Do    | ✅ Éditeur de templates, ✅ Sauvegarde locale.                                                   |
-| US-034   | Bibliothèque de templates           | Créer une bibliothèque de templates partagés par la communauté.                                | 8h             | P1           | ⏳ To Do    | ✅ Liste des templates, ✅ Filtres par catégorie.                                                 |
-| US-035   | Import/Export de templates          | Importer et exporter des templates au format JSON/YAML.                                          | 4h             | P1           | ⏳ Backlog | ✅ Import via fichier/URL, ✅ Export en JSON/YAML.                                                |
-| US-036   | Personnalisation des templates     | Personnaliser un template avant de l'utiliser (ex: modifier les paramètres par défaut).           | 5h             | P1           | ⏳ Backlog | ✅ Éditeur de personnalisation, ✅ Aperçu des changements.                                       |
-| US-037   | Versioning des templates           | Versionner les templates (ex: `v1.0`, `v1.1`).                                                  | 3h             | P2           | ⏳ Backlog | ✅ Historique des versions, ✅ Restauration possible.                                            |
-| US-038   | Partage de templates                | Partager des templates avec d'autres utilisateurs ou équipes.                                   | 5h             | P2           | ⏳ Backlog | ✅ Liens de partage, ✅ Permissions (public/privé).                                               |
-| US-039   | Templates officiels                | Créer et maintenir une liste de templates officiels (ex: "Agent de traduction", "Agent de résumé"). | 4h             | P2           | ⏳ Backlog | ✅ 10+ templates officiels, ✅ Documentation associée.                                           |
+| US-033   | Création de templates              | Permettre aux utilisateurs de créer des templates d'agents réutilisables.                        | 6h             | P1           | ✅ Done    | ✅ Éditeur de templates, ✅ Sauvegarde locale.                                                   |
+| US-034   | Bibliothèque de templates           | Créer une bibliothèque de templates partagés par la communauté.                                | 8h             | P1           | ✅ Done    | ✅ Liste des templates, ✅ Filtres par catégorie.                                                 |
+| US-035   | Import/Export de templates          | Importer et exporter des templates au format JSON/YAML.                                          | 4h             | P1           | ✅ Done    | ✅ Import via fichier/URL, ✅ Export en JSON/YAML.                                                |
+| US-036   | Personnalisation des templates     | Personnaliser un template avant de l'utiliser (ex: modifier les paramètres par défaut).           | 5h             | P1           | ✅ Done    | ✅ Éditeur de personnalisation, ✅ Aperçu des changements.                                       |
+| US-037   | Versioning des templates           | Versionner les templates (ex: `v1.0`, `v1.1`).                                                  | 3h             | P2           | ✅ Done    | ✅ Historique des versions, ✅ Restauration possible.                                            |
+| US-038   | Partage de templates                | Partager des templates avec d'autres utilisateurs ou équipes.                                   | 5h             | P2           | ✅ Done    | ✅ Liens de partage, ✅ Permissions (public/privé).                                               |
+| US-039   | Templates officiels                | Créer et maintenir une liste de templates officiels (ex: "Agent de traduction", "Agent de résumé"). | 4h             | P2           | ✅ Done    | ✅ 10+ templates officiels, ✅ Documentation associée.                                           |
 
 ---
 
@@ -255,7 +255,7 @@
 | **VS Code**         | Épic 2                              | 12 août 2026          | v0.2.0      | ✅ **Terminé**       |
 | **Files**           | Épic 3                              | 25 août 2026          | v0.2.1      | ✅ **Terminé**       |
 | **History**         | Épic 4                              | 02 septembre 2026     | v0.3.0      | ⏳ **À venir**       |
-| **Templates**       | Épic 5                              | 16 septembre 2026     | v0.3.1      | ⏳ **À venir**       |
+| **Templates**       | Épic 5                              | 25 août 2026          | v0.3.1      | ✅ **Terminé**       |
 | **Collaboration**   | Épic 6                              | 30 septembre 2026     | v0.4.0      | ⏳ **À venir**       |
 
 ---
@@ -368,10 +368,13 @@
 | US-026   | Historique des exécutions          | History        | 6h         | ⏳ To Do        |
 | US-027   | Restauration de versions            | History        | 5h         | ⏳ Backlog      |
 | US-028   | Comparaison de versions            | History        | 6h         | ⏳ Backlog      |
-| US-033   | Création de templates              | Templates      | 6h         | ⏳ To Do        |
-| US-034   | Bibliothèque de templates           | Templates      | 8h         | ⏳ To Do        |
-| US-035   | Import/Export de templates          | Templates      | 4h         | ⏳ Backlog      |
-| US-036   | Personnalisation des templates     | Templates      | 5h         | ⏳ Backlog      |
+| US-033   | Création de templates              | Templates      | 6h         | ✅ Done        |
+| US-034   | Bibliothèque de templates           | Templates      | 8h         | ✅ Done        |
+| US-035   | Import/Export de templates          | Templates      | 4h         | ✅ Done        |
+| US-036   | Personnalisation des templates     | Templates      | 5h         | ✅ Done        |
+| US-037   | Versioning des templates           | Templates      | 3h         | ✅ Done        |
+| US-038   | Partage de templates                | Templates      | 5h         | ✅ Done        |
+| US-039   | Templates officiels                | Templates      | 4h         | ✅ Done        |
 | US-054   | Optimisation des requêtes API      | Performance    | 6h         | ⏳ To Do        |
 | US-055   | Mise en cache des résultats         | Performance    | 5h         | ⏳ To Do        |
 | US-056   | Scalabilité horizontale             | Performance    | 8h         | ⏳ Backlog      |
