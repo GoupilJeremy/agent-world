@@ -844,6 +844,54 @@ class TemplateTagsResource(Resource):
 class TemplateShareResource(Resource):
     """Resource for sharing templates."""
 
+    def get(self, template_id: int):
+        """
+        Get share information for a template.
+
+        ---
+        parameters:
+          - in: path
+            name: template_id
+            schema:
+              type: integer
+            required: true
+        responses:
+          200:
+            description: Share information for the template
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    is_public:
+                      type: boolean
+                    share_permissions:
+                      type: array
+                      items:
+                        type: object
+                    share_tokens:
+                      type: array
+                      items:
+                        type: object
+          404:
+            description: Template not found
+        """
+        template = Template.get_by_id(template_id)
+        if not template:
+            return {"error": f"Template with ID {template_id} not found"}, 404
+
+        from ..models.template_share import SharePermission, ShareToken
+
+        permissions = SharePermission.get_active_shares(template_id)
+        tokens = ShareToken.get_active_tokens(template_id)
+
+        return {
+            "template_id": template_id,
+            "is_public": template.is_public,
+            "share_permissions": [p.to_dict() for p in permissions],
+            "share_tokens": [t.to_dict() for t in tokens],
+        }, 200
+
     def post(self, template_id: int):
         """
         Share a template with specific users or make it public.
@@ -870,6 +918,22 @@ class TemplateShareResource(Resource):
                     items:
                       type: integer
                     description: List of user IDs to share with
+                  permission_level:
+                    type: string
+                    enum: [read, edit, admin]
+                    default: read
+                    description: Permission level for user shares
+                  generate_token:
+                    type: boolean
+                    description: Generate a shareable token
+                  token_permission:
+                    type: string
+                    enum: [read, edit, admin]
+                    default: read
+                    description: Permission level for share token
+                  token_expires_in:
+                    type: integer
+                    description: Token expiration in days (optional)
         responses:
           200:
             description: Template shared successfully
@@ -884,17 +948,56 @@ class TemplateShareResource(Resource):
         if not template:
             return {"error": f"Template with ID {template_id} not found"}, 404
 
+        from ..models.template_share import SharePermission, ShareToken
+
         data = request.get_json(silent=True) or {}
 
-        if "is_public" in data:
-            template.is_public = data["is_public"]
-
-        # Note: For user-specific sharing, we would need a separate table
-        # This is a simplified version
-
         try:
-            template.updated_at = datetime.utcnow()
+            # Handle public sharing
+            if "is_public" in data:
+                template.is_public = data["is_public"]
+                template.updated_at = datetime.utcnow()
+
+            # Handle user-specific sharing
+            if "user_ids" in data and data["user_ids"]:
+                permission_level = data.get("permission_level", SharePermission.READ)
+                for user_id in data["user_ids"]:
+                    # Check if share already exists
+                    existing_share = SharePermission.get_share_with_user(
+                        template_id, user_id
+                    )
+                    if existing_share:
+                        existing_share.update_permission(permission_level)
+                    else:
+                        SharePermission.create(
+                            template_id=template_id,
+                            shared_with_id=user_id,
+                            permission_level=permission_level,
+                            shared_by=template.created_by,
+                        )
+
+            # Handle share token generation
+            if data.get("generate_token", False):
+                token_permission = data.get(
+                    "token_permission", SharePermission.READ
+                )
+                expires_in_days = data.get("token_expires_in")
+                
+                expires_at = None
+                if expires_in_days:
+                    expires_at = datetime.utcnow() + timedelta(
+                        days=expires_in_days
+                    )
+
+                token = ShareToken.create(
+                    template_id=template_id,
+                    permission_level=token_permission,
+                    created_by=template.created_by,
+                    expires_at=expires_at,
+                )
+
             db.session.commit()
+            
             return {
                 "message": "Template shared successfully",
                 "template": template.to_dict_minimal(),
@@ -905,7 +1008,7 @@ class TemplateShareResource(Resource):
 
 
 # Import datetime for use in resources
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def register_resources(api):

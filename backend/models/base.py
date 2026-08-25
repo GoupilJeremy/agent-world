@@ -71,6 +71,7 @@ def init_db(app):
         execution,
         generated_file,
         template,
+        template_share,
         user,
         workflow,
     )
