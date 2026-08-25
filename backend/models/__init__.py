@@ -7,6 +7,7 @@ from .agent import Agent
 from .agent_history import ActionType, AgentHistory
 from .execution import Execution
 from .generated_file import FileShare, FileVersion, GeneratedFile, SharePermission
+from .template import Template, TemplateVersion
 from .user import User
 from .workflow import Workflow
 
@@ -21,4 +22,6 @@ __all__ = [
     "FileVersion",
     "FileShare",
     "SharePermission",
+    "Template",
+    "TemplateVersion",
 ]

@@ -24,9 +24,11 @@ from typing import Any, Callable, Dict, List, Optional
 
 from ..config.settings import Config
 from ..models.agent import Agent
+from ..models.template import Template, TemplateVersion
 from ..services.agent_service import AgentService
 from ..services.file_naming import generate_filename, normalize_extension
 from ..services.output_manager import OutputConfigurationError, OutputManager
+from .templates import TemplateCLIHandler, add_template_commands
 
 
 class CLIFormatter(argparse.RawDescriptionHelpFormatter):
@@ -69,6 +71,9 @@ Examples:
 
     # Subcommands
     subparsers = parser.add_subparsers(title="commands", dest="command", required=True)
+
+    # Add template commands
+    add_template_commands(subparsers)
 
     # Create command
     create_parser = subparsers.add_parser(
@@ -293,6 +298,7 @@ class AgentWorldCLI:
         )
         self.verbose = False
         self.format = "table"
+        self.template_handler = TemplateCLIHandler()
 
     def run(self, args: Optional[List[str]] = None) -> int:
         """
@@ -310,6 +316,30 @@ class AgentWorldCLI:
 
         # Route to the appropriate command handler
         command = parsed_args.command
+        
+        # Handle template subcommands
+        if command == "template":
+            self.template_handler.verbose = self.verbose
+            self.template_handler.format = self.format
+            template_command = parsed_args.template_command
+            template_handler_name = f"handle_template_{template_command}"
+            
+            if hasattr(self.template_handler, template_handler_name):
+                handler: Callable[[argparse.Namespace], int] = getattr(
+                    self.template_handler, template_handler_name
+                )
+                return handler(parsed_args)
+            else:
+                # Check for nested commands (versions)
+                if hasattr(parsed_args, "versions_command"):
+                    versions_handler_name = f"handle_template_versions_{parsed_args.versions_command}"
+                    if hasattr(self.template_handler, versions_handler_name):
+                        handler = getattr(self.template_handler, versions_handler_name)
+                        return handler(parsed_args)
+                
+                print(f"❌ Unknown template command: {template_command}")
+                return 1
+
         handler_name = f"handle_{command}"
 
         if not hasattr(self, handler_name):
