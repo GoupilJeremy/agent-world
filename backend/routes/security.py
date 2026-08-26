@@ -138,8 +138,7 @@ class LoginTwoFactorResource(Resource):
             return _response(
                 {
                     "error": (
-                        "Two-factor authentication is not enabled "
-                        "for this account"
+                        "Two-factor authentication is not enabled " "for this account"
                     ),
                     "code": "two_factor_not_enabled",
                 },
