@@ -192,14 +192,14 @@
 **Description** : Optimiser les performances et la scalabilité de la plateforme.
 **Priorité** : P1 (Should Have)
 **Heures Estimées** : ~30h
-**Statut** : ✅ **Terminé** (Version v0.3.0 - 25 août 2026)
+**Statut** : ⏳ **En cours** (Version v0.4.2 - Sprint 5 terminé)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
-| US-054   | Optimisation des requêtes API      | Réduire la latence des requêtes API (caching, pagination).                                        | 6h             | P1           | ⏳ To Do    | ✅ Temps de réponse < 200ms, ✅ Cache Redis/Memcached.                                           |
-| US-055   | Mise en cache des résultats         | Mettre en cache les résultats des agents pour éviter les recalculs.                              | 5h             | P1           | ⏳ To Do    | ✅ Cache des résultats, ✅ Invalidation automatique.                                             |
+| US-054   | Optimisation des requêtes API      | Réduire la latence des requêtes API (caching, pagination).                                        | 6h             | P1           | ✅ Done    | ✅ Temps de réponse < 200ms, ✅ Cache Redis/Memcached, ✅ Pagination.                              |
+| US-055   | Mise en cache des résultats         | Mettre en cache les résultats des agents pour éviter les recalculs.                              | 5h             | P1           | ✅ Done    | ✅ Cache des résultats, ✅ Invalidation automatique, ✅ Intégration avec AgentService.         |
 | US-056   | Scalabilité horizontale             | Permettre le scaling horizontal de l'application (ex: Kubernetes).                              | 8h             | P1           | ⏳ Backlog | ✅ Déploiement multi-instances, ✅ Load balancing.                                               |
-| US-057   | Optimisation de la base de données | Optimiser les requêtes et les index de la base de données.                                      | 5h             | P1           | ⏳ Backlog | ✅ Index optimisés, ✅ Requêtes < 100ms.                                                          |
+| US-057   | Optimisation de la base de données | Optimiser les requêtes et les index de la base de données.                                      | 5h             | P1           | ✅ Done    | ✅ Index optimisés (25+), ✅ Requêtes < 100ms, ✅ Migration Alembic.                              |
 | US-058   | Compression des fichiers           | Compresser les fichiers générés pour économiser de l'espace.                                    | 3h             | P2           | ⏳ Backlog | ✅ Compression GZIP/ZIP, ✅ Décompression automatique.                                            |
 | US-059   | Monitoring des performances         | Ajouter un système de monitoring (ex: Prometheus, Grafana).                                       | 3h             | P2           | ⏳ Backlog | ✅ Métriques de performance, ✅ Alertes configurables.                                           |
 
@@ -257,6 +257,7 @@
 | **History**         | Épic 4                              | 25 août 2026          | v0.3.0      | ✅ **Terminé**       |
 | **Templates**       | Épic 5                              | 25 août 2026          | v0.3.1      | ✅ **Terminé**       |
 | **Integrations**    | Épic 7                              | 26 août 2026          | v0.4.1      | ✅ **Terminé**       |
+| **Performance**     | Épic 8                              | 26 août 2026          | v0.4.2      | ✅ **Terminé**       |
 | **Collaboration**   | Épic 6                              | 30 septembre 2026     | v0.4.0      | ⏳ **À venir**       |
 
 ---
@@ -420,10 +421,10 @@
 | US-037   | Versioning des templates           | Templates      | 3h         | ✅ Done        |
 | US-038   | Partage de templates                | Templates      | 5h         | ✅ Done        |
 | US-039   | Templates officiels                | Templates      | 4h         | ✅ Done        |
-| US-054   | Optimisation des requêtes API      | Performance    | 6h         | ⏳ To Do        |
-| US-055   | Mise en cache des résultats         | Performance    | 5h         | ⏳ To Do        |
+| US-054   | Optimisation des requêtes API      | Performance    | 6h         | ✅ Done        |
+| US-055   | Mise en cache des résultats         | Performance    | 5h         | ✅ Done        |
 | US-056   | Scalabilité horizontale             | Performance    | 8h         | ⏳ Backlog      |
-| US-057   | Optimisation de la base de données | Performance    | 5h         | ⏳ Backlog      |
+| US-057   | Optimisation de la base de données | Performance    | 5h         | ✅ Done        |
 
 ---
 
@@ -511,4 +512,4 @@
 
 ---
 
-*Document généré le 06 août 2026. Dernière mise à jour : 26 août 2026 (Version 1.2.0 - Épic 7 terminé).*
+*Document généré le 06 août 2026. Dernière mise à jour : 26 août 2026 (Version 1.3.0 - Épic 8 Sprint 5 terminé).*
