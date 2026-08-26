@@ -8,6 +8,7 @@ from flask import Blueprint
 from .agents import register_resources as register_agent_resources
 from .audit import register_audit_resources
 from .auth import register_resources as register_auth_resources
+from .gdpr import register_gdpr_resources
 from .compression import compression_bp, register_compression_resources
 from .files import register_resources as register_file_resources
 from .history import register_history_resources
@@ -55,6 +56,8 @@ def register_resources(api):
     register_encryption_resources(api)
     # Audit resources (Épic 10 - US-068)
     register_audit_resources(api)
+    # GDPR resources (Épic 10 - US-069)
+    register_gdpr_resources(api)
     # Enregistrer les intégrations de manière lazy
     register_integration_resources = _get_register_integration_resources()
     register_integration_resources(api)

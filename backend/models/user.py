@@ -70,6 +70,18 @@ class User(BaseModel):
         back_populates="executor",
         foreign_keys="Execution.executed_by",
     )
+    two_factor_auth = db.relationship(
+        "TwoFactorAuth",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    roles = db.relationship(
+        "Role",
+        secondary="user_roles",
+        back_populates="users",
+        lazy="select",
+    )
 
     def __init__(
         self,

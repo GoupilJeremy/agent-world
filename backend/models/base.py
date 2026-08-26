@@ -72,6 +72,7 @@ def init_db(app):
         encryption_key,
         execution,
         generated_file,
+        gdpr_compliance,
         history_notification,
         invitation,
         permission,

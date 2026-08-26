@@ -22,6 +22,7 @@ from .services.agent_service import AgentService
 from .services.ai_service import AIService
 from .services.audit_service import AuditService
 from .services.auth_service import AuthService
+from .services.gdpr_service import GDPRService
 from .services.cache_service import CacheService, get_cache_service
 from .services.compression_service import CompressionService
 from .services.email_service import EmailService
@@ -109,6 +110,9 @@ def create_app(config_class=Config):
         retention_days=app.config.get("AUDIT_LOG_RETENTION_DAYS", 90),
     )
     
+    # GDPR service (EPIC 10 - US-069)
+    gdpr_service = GDPRService()
+    
     # Log masking service (EPIC 10 - US-067)
     log_masking_service = LogMaskingService()
     
@@ -178,6 +182,7 @@ def create_app(config_class=Config):
     app.extensions["encryption_service"] = encryption_service
     app.extensions["log_masking_service"] = log_masking_service
     app.extensions["audit_service"] = audit_service
+    app.extensions["gdpr_service"] = gdpr_service
     app.extensions["file_service"] = file_service
     app.extensions["history_service"] = history_service
     app.extensions["email_service"] = email_service
