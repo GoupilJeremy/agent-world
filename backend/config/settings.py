@@ -57,7 +57,18 @@ class Config:
     # AI Model settings
     MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+    ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+    GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+    TOGETHER_API_KEY = os.environ.get("TOGETHER_API_KEY")
+    OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
     DEFAULT_AI_MODEL = os.environ.get("DEFAULT_AI_MODEL", "mistral-tiny")
+
+    # Fallback settings (Épic 11 - US-074)
+    AI_FALLBACK_ENABLED = os.environ.get("AI_FALLBACK_ENABLED", "true").lower() in {
+        "1", "true", "yes", "on",
+    }
+    AI_FALLBACK_MAX_RETRIES = int(os.environ.get("AI_FALLBACK_MAX_RETRIES", "3"))
+    AI_FALLBACK_RETRY_DELAY = float(os.environ.get("AI_FALLBACK_RETRY_DELAY", "1.0"))
 
     # Cache settings (Redis)
     REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")

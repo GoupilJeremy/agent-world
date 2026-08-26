@@ -1,88 +1,77 @@
 # 🤖 Agent World - AI Service
-# Version: 0.1.0 (MVP)
-# Description: Service pour l'intégration des modèles IA
+# Version: 0.8.0 (Épic 11 - Multi-Modèles)
+# Description: Service unifié pour l'interaction avec les modèles IA
 
 """
 AI Service for Agent World.
 
-Ce service contient la logique pour interagir avec les différents modèles IA
-(Mistral, OpenAI, etc.). Il fournit une interface unifiée pour tous les modèles.
+Ce service fournit une interface unifiée pour interagir avec les différents
+modèles IA via le registre de modèles et les connecteurs.  Il supporte
+le fallback automatique, le suivi des coûts et la sélection de modèle.
 """
 
+import logging
 import os
 import time
-from enum import Enum
 from typing import Any, Dict, List, Optional
 
+from .connectors.anthropic_connector import AnthropicConnector
+from .connectors.base import BaseConnector, ConnectorError, ConnectorResponse
+from .connectors.mistral import MistralConnector
+from .connectors.openai_compatible import OpenAICompatibleConnector
+from .connectors.openai_connector import OpenAIConnector
+from .model_registry import ModelInfo, ModelRegistry, get_model_registry
 
-class AIModelType(str, Enum):
-    """Types of supported AI models."""
-
-    MISTRAL = "mistral"
-    OPENAI = "openai"
-    ANTHROPIC = "anthropic"
-    LLAMA = "llama"
-    GEMMA = "gemma"
+logger = logging.getLogger(__name__)
 
 
 class AIService:
-    """
-    Service class for interacting with AI models.
+    """Service class for interacting with AI models.
 
     This service provides a unified interface for different AI model providers.
-    It handles authentication, request formatting, and response parsing.
+    It handles authentication, request formatting, response parsing, and
+    delegates to the correct connector via the model registry.
     """
 
-    # Model configuration mapping
-    MODEL_CONFIG = {
-        "mistral-tiny": {"type": AIModelType.MISTRAL, "endpoint": "tiny"},
-        "mistral-small": {"type": AIModelType.MISTRAL, "endpoint": "small"},
-        "mistral-medium": {"type": AIModelType.MISTRAL, "endpoint": "medium"},
-        "mistral-large": {"type": AIModelType.MISTRAL, "endpoint": "large"},
-        "gpt-3.5-turbo": {"type": AIModelType.OPENAI, "endpoint": "gpt-3.5-turbo"},
-        "gpt-4": {"type": AIModelType.OPENAI, "endpoint": "gpt-4"},
-        "gpt-4-turbo": {"type": AIModelType.OPENAI, "endpoint": "gpt-4-turbo"},
-    }
+    def __init__(self, registry: Optional[ModelRegistry] = None):
+        """Initialize the AIService.
 
-    def __init__(self):
-        """Initialize the AIService."""
-        self.connectors = {
-            AIModelType.MISTRAL: MistralConnector(),
-            AIModelType.OPENAI: OpenAIConnector(),
-            AIModelType.ANTHROPIC: AnthropicConnector(),
-        }
+        Args:
+            registry: Optional model registry.  Uses the global singleton
+                if not provided.
+        """
+        self.registry = registry or get_model_registry()
         self.default_model = os.environ.get("DEFAULT_AI_MODEL", "mistral-tiny")
 
-    def get_connector(self, model_type: AIModelType) -> "BaseAIConnector":
-        """
-        Get the connector for a specific model type.
+        # Register all connectors with the registry
+        self._register_connectors()
 
-        Args:
-            model_type: Type of AI model
+    def _register_connectors(self) -> None:
+        """Create and register connectors for all known providers."""
+        connectors: Dict[str, BaseConnector] = {
+            "mistral": MistralConnector(),
+            "openai": OpenAIConnector(),
+            "anthropic": AnthropicConnector(),
+            "groq": OpenAICompatibleConnector(provider_name="groq"),
+            "together": OpenAICompatibleConnector(provider_name="together"),
+            "ollama": OpenAICompatibleConnector(provider_name="ollama"),
+        }
 
-        Returns:
-            Connector instance
-        """
-        return self.connectors.get(model_type, self.connectors[AIModelType.MISTRAL])
+        for provider, connector in connectors.items():
+            self.registry.register_connector(provider, connector)
 
-    def parse_model_string(self, model_string: str) -> Dict[str, Any]:
-        """
-        Parse a model string to extract type and configuration.
+        # Log which providers are configured
+        configured = [p for p, c in connectors.items() if c.is_configured]
+        logger.info(
+            "AI Service initialized with %d/%d providers configured: %s",
+            len(configured),
+            len(connectors),
+            ", ".join(configured) if configured else "(none)",
+        )
 
-        Args:
-            model_string: String identifier for the model (e.g., 'mistral-tiny')
-
-        Returns:
-            Dictionary with model type and configuration
-        """
-        model_string = model_string.lower()
-
-        for model_key, config in self.MODEL_CONFIG.items():
-            if model_key in model_string:
-                return config
-
-        # Default to mistral-tiny
-        return self.MODEL_CONFIG["mistral-tiny"]
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
     def generate(
         self,
@@ -93,13 +82,12 @@ class AIService:
         temperature: float = 0.7,
         stream: bool = False,
     ) -> Dict[str, Any]:
-        """
-        Generate text using the specified AI model.
+        """Generate text using the specified AI model.
 
         Args:
             prompt: The input prompt for the model
             model: Model identifier (default: self.default_model)
-            configuration: Optional model configuration
+            configuration: Optional model configuration overrides
             max_tokens: Maximum number of tokens to generate (default: 1000)
             temperature: Sampling temperature (0-2, default: 0.7)
             stream: Whether to stream the response (default: False)
@@ -109,43 +97,39 @@ class AIService:
 
         Raises:
             ValueError: If model is not supported or configuration is invalid
+            ConnectorError: If the API call fails
         """
         model = model or self.default_model
-        model_config = self.parse_model_string(model)
-        model_type = model_config["type"]
-        model_endpoint = model_config["endpoint"]
+        resolved_model = self.registry.resolve_alias(model)
 
-        connector = self.get_connector(model_type)
+        connector = self.registry.get_connector_for_model(resolved_model)
+        if connector is None:
+            raise ValueError(
+                f"No connector available for model '{model}'. "
+                f"Available models: {self.get_available_models()}"
+            )
 
-        # Prepare request parameters
-        request_params = {
-            "prompt": prompt,
-            "model": model_endpoint,
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-            "stream": stream,
-        }
-
+        # Build kwargs from configuration
+        kwargs: Dict[str, Any] = {}
         if configuration:
-            request_params.update(configuration)
+            kwargs.update(configuration)
 
-        # Call the appropriate connector
-        start_time = time.time()
-        result = connector.generate(**request_params)
-        duration = time.time() - start_time
+        response = connector.generate(
+            prompt=prompt,
+            model=resolved_model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            **kwargs,
+        )
 
-        # Format the response
-        response = {
-            "model": model,
-            "model_type": model_type.value,
-            "prompt": prompt,
-            "generated_text": result.get("text", ""),
-            "tokens_used": result.get("tokens_used", 0),
-            "duration_seconds": duration,
-            "finish_reason": result.get("finish_reason", "stop"),
-        }
+        model_info = self.registry.get_model(resolved_model)
+        cost = 0.0
+        if model_info:
+            cost = model_info.estimate_cost(
+                response.tokens_input, response.tokens_output
+            )
 
-        return response
+        return self._format_response(response, model, cost)
 
     def chat(
         self,
@@ -155,14 +139,13 @@ class AIService:
         max_tokens: int = 1000,
         temperature: float = 0.7,
     ) -> Dict[str, Any]:
-        """
-        Generate a chat completion using the specified AI model.
+        """Generate a chat completion using the specified AI model.
 
         Args:
             messages: List of message dictionaries
-                (role: 'user' or 'assistant', content: str)
+                (role: 'user', 'assistant', or 'system'; content: str)
             model: Model identifier (default: self.default_model)
-            configuration: Optional model configuration
+            configuration: Optional model configuration overrides
             max_tokens: Maximum number of tokens to generate (default: 1000)
             temperature: Sampling temperature (0-2, default: 0.7)
 
@@ -170,47 +153,65 @@ class AIService:
             Dictionary containing the assistant's response and metadata
         """
         model = model or self.default_model
-        model_config = self.parse_model_string(model)
-        model_type = model_config["type"]
-        model_endpoint = model_config["endpoint"]
+        resolved_model = self.registry.resolve_alias(model)
 
-        connector = self.get_connector(model_type)
+        connector = self.registry.get_connector_for_model(resolved_model)
+        if connector is None:
+            raise ValueError(
+                f"No connector available for model '{model}'. "
+                f"Available models: {self.get_available_models()}"
+            )
 
-        request_params = {
-            "messages": messages,
-            "model": model_endpoint,
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-        }
-
+        kwargs: Dict[str, Any] = {}
         if configuration:
-            request_params.update(configuration)
+            kwargs.update(configuration)
 
-        start_time = time.time()
-        result = connector.chat(**request_params)
-        duration = time.time() - start_time
+        response = connector.chat(
+            messages=messages,
+            model=resolved_model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            **kwargs,
+        )
 
-        return {
-            "model": model,
-            "model_type": model_type.value,
-            "messages": messages,
-            "response": result.get("message", {}),
-            "tokens_used": result.get("tokens_used", 0),
-            "duration_seconds": duration,
-        }
+        model_info = self.registry.get_model(resolved_model)
+        cost = 0.0
+        if model_info:
+            cost = model_info.estimate_cost(
+                response.tokens_input, response.tokens_output
+            )
+
+        return self._format_chat_response(response, model, messages, cost)
 
     def get_available_models(self) -> List[str]:
-        """
-        Get a list of all available models.
+        """Get a list of all available model identifiers.
 
         Returns:
             List of available model identifiers
         """
-        return list(self.MODEL_CONFIG.keys())
+        return self.registry.list_model_ids()
+
+    def get_models_info(
+        self,
+        provider: Optional[str] = None,
+        available_only: bool = False,
+    ) -> List[Dict[str, Any]]:
+        """Get detailed info for all models.
+
+        Args:
+            provider: Optional filter by provider
+            available_only: If True, only return available models
+
+        Returns:
+            List of model info dictionaries
+        """
+        models = self.registry.list_models(
+            provider=provider, available_only=available_only
+        )
+        return [m.to_dict() for m in models]
 
     def validate_model(self, model: str) -> bool:
-        """
-        Validate if a model is supported.
+        """Validate if a model is supported.
 
         Args:
             model: Model identifier to validate
@@ -218,256 +219,96 @@ class AIService:
         Returns:
             True if model is supported, False otherwise
         """
-        return model.lower() in [m.lower() for m in self.get_available_models()]
+        resolved = self.registry.resolve_alias(model)
+        return self.registry.get_model(resolved) is not None
 
-
-class BaseAIConnector:
-    """Base class for AI model connectors."""
-
-    def __init__(self):
-        """Initialize the connector."""
-        self.api_key = None
-        self.base_url = None
-
-    def generate(self, prompt: str, model: str, **kwargs) -> Dict[str, Any]:
-        """
-        Generate text from a prompt.
+    def get_model_info(self, model: str) -> Optional[Dict[str, Any]]:
+        """Get info for a single model.
 
         Args:
-            prompt: Input prompt
             model: Model identifier
-            **kwargs: Additional parameters
 
         Returns:
-            Dictionary with generation results
-
-        Raises:
-            NotImplementedError: Must be implemented by subclasses
+            Model info dictionary or None
         """
-        raise NotImplementedError("Subclasses must implement generate method")
+        resolved = self.registry.resolve_alias(model)
+        model_info = self.registry.get_model(resolved)
+        return model_info.to_dict() if model_info else None
 
-    def chat(
-        self, messages: List[Dict[str, Any]], model: str, **kwargs
-    ) -> Dict[str, Any]:
-        """
-        Generate a chat completion.
-
-        Args:
-            messages: List of message dictionaries
-            model: Model identifier
-            **kwargs: Additional parameters
+    def health_check(self) -> Dict[str, bool]:
+        """Run health checks on all providers.
 
         Returns:
-            Dictionary with chat results
-
-        Raises:
-            NotImplementedError: Must be implemented by subclasses
+            Mapping of provider name → healthy status
         """
-        raise NotImplementedError("Subclasses must implement chat method")
+        return self.registry.refresh_availability()
 
-    def _handle_error(self, error: Exception) -> Dict[str, Any]:
-        """
-        Handle API errors and return a standardized response.
+    # ------------------------------------------------------------------
+    # Response formatting
+    # ------------------------------------------------------------------
 
-        Args:
-            error: The exception that occurred
-
-        Returns:
-            Dictionary with error information
-        """
-        return {
-            "error": str(error),
-            "text": f"Error generating response: {str(error)}",
-            "tokens_used": 0,
-        }
-
-
-class MistralConnector(BaseAIConnector):
-    """Connector for Mistral AI models."""
-
-    def __init__(self):
-        """Initialize the Mistral connector."""
-        super().__init__()
-        self.api_key = os.environ.get("MISTRAL_API_KEY")
-        self.base_url = "https://api.mistral.ai/v1"
-
-    def generate(self, prompt: str, model: str, **kwargs) -> Dict[str, Any]:
-        """
-        Generate text using Mistral API.
-
-        Note: This is a mock implementation for MVP.
-        Actual API calls will be implemented in a future version.
-        """
-        if not self.api_key:
-            return {
-                "error": "MISTRAL_API_KEY not configured",
-                "text": (
-                    "Mistral API is not configured. "
-                    "Please set MISTRAL_API_KEY environment variable."
-                ),
-                "tokens_used": 0,
-            }
-
-        # Mock response for MVP
-        # TODO: Implement actual API call
-        return {
-            "text": f"[Mock Mistral {model} response]\n\n{prompt}",
-            "tokens_used": 10,
-            "finish_reason": "stop",
-        }
-
-    def chat(
-        self, messages: List[Dict[str, Any]], model: str, **kwargs
+    def _format_response(
+        self, response: ConnectorResponse, model: str, cost_usd: float
     ) -> Dict[str, Any]:
-        """
-        Generate chat completion using Mistral API.
-
-        Note: This is a mock implementation for MVP.
-        """
-        if not self.api_key:
-            return {
-                "error": "MISTRAL_API_KEY not configured",
-                "message": {
-                    "role": "assistant",
-                    "content": "Mistral API is not configured.",
-                },
-                "tokens_used": 0,
-            }
-
-        # Mock response
+        """Format a generate() response into the API output dict."""
+        model_info = self.registry.get_model(
+            self.registry.resolve_alias(model)
+        )
         return {
-            "message": {
-                "role": "assistant",
-                "content": (
-                    f"[Mock Mistral {model} chat response]\n\n"
-                    "I'm a helpful AI assistant."
-                ),
-            },
-            "tokens_used": 20,
-            "finish_reason": "stop",
+            "model": model,
+            "model_type": model_info.provider if model_info else "unknown",
+            "prompt": "",  # callers can add this themselves
+            "generated_text": response.text,
+            "tokens_used": response.tokens_total,
+            "tokens_input": response.tokens_input,
+            "tokens_output": response.tokens_output,
+            "duration_seconds": response.latency_ms / 1000.0,
+            "latency_ms": response.latency_ms,
+            "finish_reason": response.finish_reason,
+            "cost_usd": cost_usd,
         }
 
-
-class OpenAIConnector(BaseAIConnector):
-    """Connector for OpenAI models."""
-
-    def __init__(self):
-        """Initialize the OpenAI connector."""
-        super().__init__()
-        self.api_key = os.environ.get("OPENAI_API_KEY")
-        self.base_url = "https://api.openai.com/v1"
-
-    def generate(self, prompt: str, model: str, **kwargs) -> Dict[str, Any]:
-        """
-        Generate text using OpenAI API.
-
-        Note: This is a mock implementation for MVP.
-        """
-        if not self.api_key:
-            return {
-                "error": "OPENAI_API_KEY not configured",
-                "text": (
-                    "OpenAI API is not configured. "
-                    "Please set OPENAI_API_KEY environment variable."
-                ),
-                "tokens_used": 0,
-            }
-
-        # Mock response
-        return {
-            "text": f"[Mock OpenAI {model} response]\n\n{prompt}",
-            "tokens_used": 15,
-            "finish_reason": "stop",
-        }
-
-    def chat(
-        self, messages: List[Dict[str, Any]], model: str, **kwargs
+    def _format_chat_response(
+        self,
+        response: ConnectorResponse,
+        model: str,
+        messages: List[Dict[str, Any]],
+        cost_usd: float,
     ) -> Dict[str, Any]:
-        """
-        Generate chat completion using OpenAI API.
-
-        Note: This is a mock implementation for MVP.
-        """
-        if not self.api_key:
-            return {
-                "error": "OPENAI_API_KEY not configured",
-                "message": {
-                    "role": "assistant",
-                    "content": "OpenAI API is not configured.",
-                },
-                "tokens_used": 0,
-            }
-
-        # Mock response
+        """Format a chat() response into the API output dict."""
+        model_info = self.registry.get_model(
+            self.registry.resolve_alias(model)
+        )
         return {
-            "message": {
-                "role": "assistant",
-                "content": (
-                    f"[Mock OpenAI {model} chat response]\n\n"
-                    "I'm a helpful AI assistant."
-                ),
-            },
-            "tokens_used": 25,
-            "finish_reason": "stop",
+            "model": model,
+            "model_type": model_info.provider if model_info else "unknown",
+            "messages": messages,
+            "response": response.message or {"role": "assistant", "content": response.text},
+            "tokens_used": response.tokens_total,
+            "tokens_input": response.tokens_input,
+            "tokens_output": response.tokens_output,
+            "duration_seconds": response.latency_ms / 1000.0,
+            "latency_ms": response.latency_ms,
+            "cost_usd": cost_usd,
         }
 
 
-class AnthropicConnector(BaseAIConnector):
-    """Connector for Anthropic models."""
+# -----------------------------------------------------------------------
+# Legacy compatibility
+# -----------------------------------------------------------------------
+# The old AIModelType enum and BaseAIConnector class are kept below so
+# that any existing code that imports them still works.  New code should
+# use the connectors package and ModelRegistry directly.
 
-    def __init__(self):
-        """Initialize the Anthropic connector."""
-        super().__init__()
-        self.api_key = os.environ.get("ANTHROPIC_API_KEY")
-        self.base_url = "https://api.anthropic.com/v1"
+from enum import Enum
 
-    def generate(self, prompt: str, model: str, **kwargs) -> Dict[str, Any]:
-        """
-        Generate text using Anthropic API.
 
-        Note: This is a mock implementation for MVP.
-        """
-        if not self.api_key:
-            return {
-                "error": "ANTHROPIC_API_KEY not configured",
-                "text": "Anthropic API is not configured.",
-                "tokens_used": 0,
-            }
+class AIModelType(str, Enum):
+    """Types of supported AI models (legacy, kept for backward compat)."""
 
-        # Mock response
-        return {
-            "text": f"[Mock Anthropic {model} response]\n\n{prompt}",
-            "tokens_used": 12,
-            "finish_reason": "end_turn",
-        }
-
-    def chat(
-        self, messages: List[Dict[str, Any]], model: str, **kwargs
-    ) -> Dict[str, Any]:
-        """
-        Generate chat completion using Anthropic API.
-
-        Note: This is a mock implementation for MVP.
-        """
-        if not self.api_key:
-            return {
-                "error": "ANTHROPIC_API_KEY not configured",
-                "message": {
-                    "role": "assistant",
-                    "content": "Anthropic API is not configured.",
-                },
-                "tokens_used": 0,
-            }
-
-        # Mock response
-        return {
-            "message": {
-                "role": "assistant",
-                "content": (
-                    f"[Mock Anthropic {model} chat response]\n\n"
-                    "I am a helpful AI assistant."
-                ),
-            },
-            "tokens_used": 18,
-            "finish_reason": "end_turn",
-        }
+    MISTRAL = "mistral"
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+    LLAMA = "llama"
+    GEMMA = "gemma"
+    GROQ = "groq"

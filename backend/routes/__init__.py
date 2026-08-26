@@ -14,6 +14,8 @@ from .invitations import register_resources as register_invitation_resources
 from .notifications import register_resources as register_notification_resources
 from .performance import performance_bp, register_performance_resources
 from .templates import register_resources as register_template_resources
+from .benchmarks import register_benchmark_resources
+from .models import register_model_resources
 
 # Créer un blueprint pour les routes des agents
 agents_bp = Blueprint("agents", __name__, url_prefix="/api/agents")
@@ -46,6 +48,9 @@ def register_resources(api):
     # Enregistrer les intégrations de manière lazy
     register_integration_resources = _get_register_integration_resources()
     register_integration_resources(api)
+    # Multi-Modèles resources (Épic 11)
+    register_model_resources(api)
+    register_benchmark_resources(api)
 
 
 def get_integrations_bp():

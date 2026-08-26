@@ -17,6 +17,12 @@ alembic==1.13.1
 requests==2.31.0
 httpx==0.26.0
 
+# AI Provider SDKs (Épic 11 - Multi-Modèles)
+openai>=1.12.0
+anthropic>=0.18.0
+mistralai>=0.1.8
+groq>=0.4.0
+
 # Authentication & Security
 pyjwt==2.8.0
 passlib==1.7.4

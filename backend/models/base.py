@@ -68,10 +68,12 @@ def init_db(app):
     from . import (  # noqa: F401
         agent,
         agent_history,
+        benchmark_result,
         execution,
         generated_file,
         history_notification,
         invitation,
+        model_quota,
         project,
         template,
         template_share,
