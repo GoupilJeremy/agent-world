@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import unittest
-from datetime import datetime
 
 from cryptography.fernet import Fernet
 
@@ -12,8 +11,8 @@ from ..app import create_app
 from ..config.settings import TestingConfig
 from ..models.base import db
 from ..models.user import User
-from ..services.encryption_service import EncryptionService, get_encryption_service
-from ..services.permission_service import has_permission, role_permissions
+from ..services.encryption_service import EncryptionService
+from ..services.permission_service import has_permission
 from ..services.two_factor_service import TwoFactorService
 
 os.environ.setdefault("ENCRYPTION_KEY", Fernet.generate_key().decode())
@@ -137,7 +136,7 @@ class PermissionServiceTestCase(unittest.TestCase):
                 username="member",
                 password="pass",
             )
-            from ..models.role import Role, user_roles
+            from ..models.role import Role
 
             role = Role.create(name="member")
             user.roles = [role]

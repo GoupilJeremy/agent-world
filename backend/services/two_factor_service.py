@@ -11,7 +11,7 @@ from typing import Optional
 import pyotp
 
 from ..models.user import User
-from ..services.encryption_service import EncryptionError, get_encryption_service
+from ..services.encryption_service import get_encryption_service
 
 
 class TwoFactorError(RuntimeError):

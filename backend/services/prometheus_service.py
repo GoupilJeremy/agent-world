@@ -8,12 +8,10 @@ US-059: Monitoring des performances
 Épic 8: Performance et Scalabilité
 """
 
-from functools import wraps
 from time import time
 
 from flask import current_app, request
 from prometheus_client import (
-    REGISTRY,
     CollectorRegistry,
     Counter,
     Gauge,

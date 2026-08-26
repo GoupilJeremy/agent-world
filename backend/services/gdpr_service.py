@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from ..models.agent_history import AgentHistory
 from ..models.audit_log import AuditLog

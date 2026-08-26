@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import csv
 import io
-from datetime import datetime
 from typing import Any
 
 from flask import Blueprint, current_app, request
@@ -14,17 +13,10 @@ from ..models.audit_log import AuditLog
 from ..models.base import db
 from ..models.role import Role
 from ..models.user import User
-from ..services.audit_service import audit_service
 from ..services.auth_service import AuthenticationError, AuthService
 from ..services.gdpr_service import GdprService
 from ..services.permission_service import PermissionDeniedError
-from ..services.two_factor_service import (
-    BackupCodeUsedError,
-    TwoFactorDisabledError,
-    TwoFactorError,
-    TwoFactorRequiredError,
-    TwoFactorService,
-)
+from ..services.two_factor_service import TwoFactorService
 
 security_bp = Blueprint("security", __name__, url_prefix="/api")
 
@@ -145,7 +137,10 @@ class LoginTwoFactorResource(Resource):
         if not user.totp_enabled:
             return _response(
                 {
-                    "error": "Two-factor authentication is not enabled for this account",
+                    "error": (
+                        "Two-factor authentication is not enabled "
+                        "for this account"
+                    ),
                     "code": "two_factor_not_enabled",
                 },
                 400,

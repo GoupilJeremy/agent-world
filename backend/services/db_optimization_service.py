@@ -13,11 +13,10 @@ Ce module fournit des utilitaires pour :
 """
 
 import logging
-import time
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from sqlalchemy import func, text
+from sqlalchemy import text
 from sqlalchemy.orm import Query
 
 from ..models.base import db
@@ -159,7 +158,8 @@ class DBOptimizationService:
                         FROM pg_index idx
                         JOIN pg_class i ON i.oid = idx.indexrelid
                         JOIN pg_class t ON t.oid = idx.indrelid
-                        JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = ANY(idx.indkey)
+                        JOIN pg_attribute a ON a.attrelid = t.oid
+                        AND a.attnum = ANY(idx.indkey)
                         JOIN pg_am am ON i.relam = am.oid
                         WHERE t.relname = :table_name
                         AND idx.indisprimary = false
@@ -191,7 +191,8 @@ class DBOptimizationService:
                 elif self._engine.dialect.name == "sqlite":
                     result = conn.execute(
                         text(
-                            "SELECT name, sql FROM sqlite_master WHERE type='index' AND tbl_name=:table_name"
+                            "SELECT name, sql FROM sqlite_master "
+                            "WHERE type='index' AND tbl_name=:table_name"
                         ).bindparams(table_name=table_name)
                     )
                     return [
@@ -286,11 +287,20 @@ class DBOptimizationService:
         unique_str = "UNIQUE" if unique else ""
 
         if self._engine.dialect.name == "postgresql":
-            return f"CREATE {unique_str} INDEX {index_name} ON {table_name} ({columns_str})"
+            return (
+                f"CREATE {unique_str} INDEX {index_name} "
+                f"ON {table_name} ({columns_str})"
+            )
         elif self._engine.dialect.name == "sqlite":
-            return f"CREATE {unique_str} INDEX IF NOT EXISTS {index_name} ON {table_name} ({columns_str})"
+            return (
+                f"CREATE {unique_str} INDEX IF NOT EXISTS {index_name} "
+                f"ON {table_name} ({columns_str})"
+            )
         else:
-            return f"CREATE {unique_str} INDEX {index_name} ON {table_name} ({columns_str})"
+            return (
+                f"CREATE {unique_str} INDEX {index_name} "
+                f"ON {table_name} ({columns_str})"
+            )
 
     def create_missing_indexes(
         self, table_name: Optional[str] = None
@@ -323,7 +333,8 @@ class DBOptimizationService:
                     logger.info(f"✅ Created index: {sql}")
                 except Exception as e:
                     logger.error(
-                        f"❌ Failed to create index on {table}({idx_config['columns']}): {e}"
+                        f"❌ Failed to create index on {table}"
+                        f"({idx_config['columns']}): {e}"
                     )
 
             if created:
@@ -474,9 +485,12 @@ class DBOptimizationService:
                         text(
                             """
                         SELECT
-                            pg_size_pretty(pg_total_relation_size(:table)) as total_size,
-                            pg_size_pretty(pg_table_size(:table)) as table_size,
-                            pg_size_pretty(pg_indexes_size(:table)) as indexes_size,
+                            pg_size_pretty(pg_total_relation_size(:table))
+                            as total_size,
+                            pg_size_pretty(pg_table_size(:table))
+                            as table_size,
+                            pg_size_pretty(pg_indexes_size(:table))
+                            as indexes_size,
                             pg_total_relation_size(:table) as total_bytes,
                             pg_table_size(:table) as table_bytes,
                             pg_indexes_size(:table) as indexes_bytes
@@ -558,7 +572,8 @@ class DBOptimizationService:
 
             else:
                 logger.warning(
-                    f"⚠️ Table statistics not fully supported for {self._engine.dialect.name}"
+                    f"⚠️ Table statistics not fully supported for "
+                    f"{self._engine.dialect.name}"
                 )
                 return {"table": table_name}
 
@@ -680,8 +695,10 @@ def downgrade():
                 for idx_config in indexes:
                     columns = idx_config["columns"]
                     index_name = f"idx_{table_name}_{'_'.join(columns)}"
-                    migration_content += f"""    op.drop_index({index_name!r}, table_name={table_name!r})
-"""
+                    migration_content += (
+                        f"    op.drop_index({index_name!r}, "
+                        f"table_name={table_name!r})\n"
+                    )
 
             migration_content += """
 """

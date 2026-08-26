@@ -29,13 +29,12 @@ from .services.agent_cache_service import AgentCacheService
 from .services.agent_service import AgentService
 from .services.ai_service import AIService
 from .services.auth_service import AuthService
-from .services.cache_service import CacheService, get_cache_service
+from .services.cache_service import CacheService
 from .services.compression_service import CompressionService
 from .services.email_service import EmailService
 from .services.file_service import FileService
 from .services.history_service import HistoryService
 from .services.invitation_service import InvitationService
-from .services.prometheus_service import PrometheusService
 
 # Global API instance will be created in create_app
 
