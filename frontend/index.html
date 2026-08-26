@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Agent World - Plateforme open-source pour créer, gérer et déployer des agents IA" />
+    <meta name="theme-color" content="#6366F1" />
+    
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Agent World - Gestion d'Agents IA" />
+    <meta name="author" content="Agent World Team" />
+    <meta name="keywords" content="IA, agents, intelligence artificielle, automation, workflow" />
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://localhost:3000" />
+    <meta property="og:title" content="Agent World" />
+    <meta property="og:description" content="Plateforme open-source pour créer, gérer et déployer des agents IA" />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="http://localhost:3000" />
+    <meta property="twitter:title" content="Agent World" />
+    <meta property="twitter:description" content="Plateforme open-source pour créer, gérer et déployer des agents IA" />
+    <meta property="twitter:image" content="/og-image.png" />
+    
+    <!-- Accessibility -->
+    <meta name="color-scheme" content="light dark" />
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <!-- Fira Code for monospace -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <title>Agent World</title>
+    
+    <!-- Inline critical CSS for theme flash prevention -->
+    <script>
+      // Set theme before page render to prevent flash
+      (function() {
+        const savedTheme = localStorage.getItem('agent-world-theme');
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (systemDark ? 'dark' : 'light');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
