@@ -20,6 +20,7 @@ from .routes.share_auth import register_share_recipient_auth
 from .services.agent_cache_service import AgentCacheService
 from .services.agent_service import AgentService
 from .services.ai_service import AIService
+from .services.audit_service import AuditService
 from .services.auth_service import AuthService
 from .services.cache_service import CacheService, get_cache_service
 from .services.compression_service import CompressionService
@@ -27,7 +28,11 @@ from .services.email_service import EmailService
 from .services.file_service import FileService
 from .services.history_service import HistoryService
 from .services.invitation_service import InvitationService
+from .services.encryption_service import EncryptionService, init_encryption_service
+from .services.log_masking_service import LogMaskingService, setup_log_masking
+from .services.permission_service import PermissionService
 from .services.prometheus_service import PrometheusService
+from .services.two_factor_service import TwoFactorService
 
 # Global API instance will be created in create_app
 
@@ -84,6 +89,29 @@ def create_app(config_class=Config):
         access_token_ttl_seconds=app.config["AUTH_ACCESS_TOKEN_TTL_SECONDS"],
         issuer=app.config["AUTH_TOKEN_ISSUER"],
     )
+    
+    # Two-Factor Authentication service (EPIC 10 - US-065)
+    two_factor_service = TwoFactorService(
+        encryption_key=app.config["TWO_FACTOR_ENCRYPTION_KEY"],
+    )
+    
+    # Permission service (EPIC 10 - US-066)
+    permission_service = PermissionService()
+    
+    # Encryption service (EPIC 10 - US-067)
+    encryption_service = EncryptionService(
+        master_key=app.config["ENCRYPTION_MASTER_KEY"],
+        key_ttl_days=app.config["ENCRYPTION_KEY_TTL_DAYS"],
+    )
+    
+    # Audit service (EPIC 10 - US-068)
+    audit_service = AuditService(
+        retention_days=app.config.get("AUDIT_LOG_RETENTION_DAYS", 90),
+    )
+    
+    # Log masking service (EPIC 10 - US-067)
+    log_masking_service = LogMaskingService()
+    
     file_service = FileService(
         output_dir=app.config.get("OUTPUT_DIR", "outputs"),
         preview_max_bytes=app.config.get("FILE_PREVIEW_MAX_BYTES", 1024 * 1024),
@@ -145,6 +173,11 @@ def create_app(config_class=Config):
     app.extensions["agent_service"] = agent_service
     app.extensions["ai_service"] = ai_service
     app.extensions["auth_service"] = auth_service
+    app.extensions["two_factor_service"] = two_factor_service
+    app.extensions["permission_service"] = permission_service
+    app.extensions["encryption_service"] = encryption_service
+    app.extensions["log_masking_service"] = log_masking_service
+    app.extensions["audit_service"] = audit_service
     app.extensions["file_service"] = file_service
     app.extensions["history_service"] = history_service
     app.extensions["email_service"] = email_service
@@ -157,6 +190,24 @@ def create_app(config_class=Config):
     app.extensions["oauth_service"] = oauth_service
     app.extensions["webhook_service"] = webhook_service
     register_share_recipient_auth(app)
+    
+    # Initialize default permissions and roles (EPIC 10 - US-066)
+    with app.app_context():
+        permission_service.initialize_defaults()
+    
+    # Initialize encryption service (EPIC 10 - US-067)
+    with app.app_context():
+        from .models.encryption_key import EncryptionKey
+        if not EncryptionKey.get_active_key():
+            # Create and activate a default key if none exists
+            key = encryption_service.create_and_store_key(
+                description="Default encryption key"
+            )
+            encryption_service.activate_key(key.key_id)
+    
+    # Initialize log masking (EPIC 10 - US-067)
+    # Set up log masking for the root logger
+    log_masking_service.setup_logging()
 
     # Health check endpoint
     @app.route("/health")

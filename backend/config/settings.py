@@ -57,18 +57,7 @@ class Config:
     # AI Model settings
     MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-    ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
-    GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-    TOGETHER_API_KEY = os.environ.get("TOGETHER_API_KEY")
-    OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
     DEFAULT_AI_MODEL = os.environ.get("DEFAULT_AI_MODEL", "mistral-tiny")
-
-    # Fallback settings (Épic 11 - US-074)
-    AI_FALLBACK_ENABLED = os.environ.get("AI_FALLBACK_ENABLED", "true").lower() in {
-        "1", "true", "yes", "on",
-    }
-    AI_FALLBACK_MAX_RETRIES = int(os.environ.get("AI_FALLBACK_MAX_RETRIES", "3"))
-    AI_FALLBACK_RETRY_DELAY = float(os.environ.get("AI_FALLBACK_RETRY_DELAY", "1.0"))
 
     # Cache settings (Redis)
     REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
@@ -121,6 +110,27 @@ class Config:
     # Logging
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
     LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+    # Two-Factor Authentication settings (Épic 10 - US-065)
+    # Encryption key for 2FA secrets and recovery codes
+    # Generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+    TWO_FACTOR_ENCRYPTION_KEY = os.environ.get(
+        "TWO_FACTOR_ENCRYPTION_KEY",
+        "YOUR-2FA-ENCRYPTION-KEY-GENERATE-IN-PRODUCTION",
+    )
+    TWO_FACTOR_ISSUER = os.environ.get("TWO_FACTOR_ISSUER", "Agent World")
+
+    # Data Encryption settings (Épic 10 - US-067)
+    # Master key for encrypting data encryption keys
+    # Generate with: python -c "import secrets; print(secrets.token_urlsafe(32))"
+    ENCRYPTION_MASTER_KEY = os.environ.get(
+        "ENCRYPTION_MASTER_KEY",
+        "YOUR-ENCRYPTION-MASTER-KEY-GENERATE-IN-PRODUCTION",
+    )
+    ENCRYPTION_KEY_TTL_DAYS = int(os.environ.get("ENCRYPTION_KEY_TTL_DAYS", "90"))
+
+    # Audit Log settings (Épic 10 - US-068)
+    AUDIT_LOG_RETENTION_DAYS = int(os.environ.get("AUDIT_LOG_RETENTION_DAYS", "90"))
 
 
 class DevelopmentConfig(Config):

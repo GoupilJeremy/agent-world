@@ -6,6 +6,7 @@
 from flask import Blueprint
 
 from .agents import register_resources as register_agent_resources
+from .audit import register_audit_resources
 from .auth import register_resources as register_auth_resources
 from .compression import compression_bp, register_compression_resources
 from .files import register_resources as register_file_resources
@@ -13,9 +14,10 @@ from .history import register_history_resources
 from .invitations import register_resources as register_invitation_resources
 from .notifications import register_resources as register_notification_resources
 from .performance import performance_bp, register_performance_resources
+from .encryption import register_encryption_resources
+from .permissions import register_permission_resources
 from .templates import register_resources as register_template_resources
-from .benchmarks import register_benchmark_resources
-from .models import register_model_resources
+from .two_factor_auth import register_two_factor_resources
 
 # Créer un blueprint pour les routes des agents
 agents_bp = Blueprint("agents", __name__, url_prefix="/api/agents")
@@ -45,12 +47,17 @@ def register_resources(api):
     register_performance_resources(api)
     # Compression resources (Épic 8 - US-058)
     register_compression_resources(api)
+    # Two-Factor Authentication resources (Épic 10 - US-065)
+    register_two_factor_resources(api)
+    # Permission and Role resources (Épic 10 - US-066)
+    register_permission_resources(api)
+    # Encryption resources (Épic 10 - US-067)
+    register_encryption_resources(api)
+    # Audit resources (Épic 10 - US-068)
+    register_audit_resources(api)
     # Enregistrer les intégrations de manière lazy
     register_integration_resources = _get_register_integration_resources()
     register_integration_resources(api)
-    # Multi-Modèles resources (Épic 11)
-    register_model_resources(api)
-    register_benchmark_resources(api)
 
 
 def get_integrations_bp():
