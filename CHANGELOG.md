@@ -86,6 +86,69 @@ Ce changelog suit les conventions de [Keep a Changelog](https://keepachangelog.c
 
 ---
 
+### **✅ [v0.4.3] - 26 août 2026**
+*Scalabilité et Monitoring (Épic 8 - Sprint 6)*
+
+#### **Added**
+- **Performance et Scalabilité (Épic 8 - Sprint 6)** :
+  - **Scalabilité horizontale (US-056)** :
+    - Configuration Kubernetes complète pour le déploiement multi-pods.
+    - kubernetes/backend/deployment.yaml avec stratégie RollingUpdate.
+    - kubernetes/backend/hpa.yaml : Horizontal Pod Autoscaler basé sur CPU (70%) et mémoire (80%).
+    - Configuration de PodDisruptionBudget pour la haute disponibilité.
+    - kubernetes/backend/service.yaml : Service LoadBalancer avec sessionAffinity.
+    - kubernetes/backend/ingress.yaml : Ingress Nginx avec TLS (cert-manager) et CORS.
+    - kubernetes/backend/configmap.yaml et secret.yaml.example pour la configuration.
+    - Configuration Redis avec PVC pour la persistance.
+    - Configuration PostgreSQL avec PVC pour la persistance.
+    - kubernetes/kustomization.yaml pour le déploiement unifié.
+    - Support de minAvailable: 1 pour garantir la disponibilité.
+    - Configuration des probes (liveness, readiness) pour le monitoring Kubernetes.
+    - Affinité podAntiAffinity pour répartir les pods sur différents nœuds.
+    
+  - **Compression des fichiers (US-058)** :
+    - CompressionService avec support GZIP et ZIP.
+    - Compression individuelle de fichiers (GZIP) et compression de dossiers (ZIP).
+    - Décompression automatique avec détection du format.
+    - Génération automatique des chemins de destination avec timestamp.
+    - Configuration via settings.py (COMPRESSION_ENABLED, COMPRESSION_DEFAULT_FORMAT, COMPRESSION_LEVEL, COMPRESSION_KEEP_ORIGINAL).
+    - Statistiques de compression (taille originale, taille compressée, ratio, espace économisé).
+    - Gestion des erreurs avec nettoyage automatique des fichiers temporaires.
+    - Support des patterns d'inclusion/exclusion pour la compression de dossiers.
+    - Endpoints API : POST /api/compression/compress, POST /api/compression/decompress, GET /api/compression/stats, GET /api/compression/info, GET /api/compression/check.
+    
+  - **Monitoring des performances (US-059)** :
+    - PrometheusService avec exposition complète des métriques.
+    - Métriques HTTP : requêtes totales, erreurs, durée, taille des requêtes/réponses, requêtes en cours.
+    - Métriques business : création/suppression/exécution d'agents, génération de fichiers.
+    - Métriques système : utilisation CPU/mémoire, connexions BDD, erreurs BDD.
+    - Métriques cache : hits/misses, taille du cache.
+    - Endpoint /metrics pour l'exposition des métriques au format Prometheus.
+    - Middleware automatique pour le tracking des requêtes HTTP.
+    - Méthodes de tracking manuel pour les événements business.
+    - kubernetes/monitoring/prometheus.yaml : Configuration complète de Prometheus.
+    - kubernetes/monitoring/grafana.yaml : Configuration complète de Grafana.
+    - kubernetes/monitoring/kustomization.yaml pour le déploiement du monitoring.
+    - Registre Prometheus personnalisé pour isoler les métriques Agent World.
+    - Support du multiprocess mode pour Gunicorn/UWSGI.
+    
+  - **Documentation** :
+    - Plan détaillé du Sprint 6 : docs/sprints/SPRINT6_PLAN.md.
+    - Mise à jour du BACKLOG.md avec les statuts Done pour US-056, US-058, US-059.
+
+#### **Changed**
+- backend/config/settings.py : Ajout de la configuration pour la compression.
+- backend/app.py : Intégration de CompressionService et PrometheusService.
+- backend/routes/__init__.py : Ajout de compression_bp et register_compression_resources.
+- requirements.txt : Ajout de la dépendance prometheus-client==0.19.0.
+
+#### **Performance Improvements**
+- Support du scaling horizontal automatique via HPA Kubernetes.
+- Réduction de l'espace de stockage grâce à la compression des fichiers.
+- Monitoring complet des performances via Prometheus/Grafana.
+
+---
+
 ### **📅 [v0.4.1] - 26 août 2026**
 *Intégrations Externes Complètes (Épic 7)*
 

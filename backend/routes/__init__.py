@@ -7,6 +7,7 @@ from flask import Blueprint
 
 from .agents import register_resources as register_agent_resources
 from .auth import register_resources as register_auth_resources
+from .compression import compression_bp, register_compression_resources
 from .files import register_resources as register_file_resources
 from .history import register_history_resources
 from .invitations import register_resources as register_invitation_resources
@@ -40,6 +41,8 @@ def register_resources(api):
     register_template_resources(api)
     # Performance resources (Épic 8)
     register_performance_resources(api)
+    # Compression resources (Épic 8 - US-058)
+    register_compression_resources(api)
     # Enregistrer les intégrations de manière lazy
     register_integration_resources = _get_register_integration_resources()
     register_integration_resources(api)
@@ -55,4 +58,15 @@ def get_performance_bp():
     return performance_bp
 
 
-__all__ = ["agents_bp", "register_resources", "get_integrations_bp", "get_performance_bp"]
+def get_compression_bp():
+    """Récupère le blueprint de compression."""
+    return compression_bp
+
+
+__all__ = [
+    "agents_bp", 
+    "register_resources", 
+    "get_integrations_bp", 
+    "get_performance_bp",
+    "get_compression_bp"
+]

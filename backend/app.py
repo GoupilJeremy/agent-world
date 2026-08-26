@@ -15,17 +15,19 @@ from flask_restful import Api
 
 from .config.settings import Config
 from .models.base import init_db
-from .routes import agents_bp, register_resources, get_performance_bp
+from .routes import agents_bp, register_resources, get_performance_bp, get_compression_bp
 from .routes.share_auth import register_share_recipient_auth
 from .services.agent_cache_service import AgentCacheService
 from .services.agent_service import AgentService
 from .services.ai_service import AIService
 from .services.auth_service import AuthService
 from .services.cache_service import CacheService, get_cache_service
+from .services.compression_service import CompressionService
 from .services.email_service import EmailService
 from .services.file_service import FileService
 from .services.history_service import HistoryService
 from .services.invitation_service import InvitationService
+from .services.prometheus_service import PrometheusService
 
 # Global API instance will be created in create_app
 
@@ -66,6 +68,9 @@ def create_app(config_class=Config):
     # Register performance blueprint (Épic 8)
     app.register_blueprint(get_performance_bp())
     
+    # Register compression blueprint (Épic 8 - US-058)
+    app.register_blueprint(get_compression_bp())
+    
     # Register integrations blueprint
     from .routes import get_integrations_bp
     app.register_blueprint(get_integrations_bp())
@@ -101,6 +106,19 @@ def create_app(config_class=Config):
     # Agent cache service (Épic 8 - Performance)
     agent_cache_service = AgentCacheService()
     
+    # Compression service (Épic 8 - US-058)
+    compression_service = CompressionService(
+        enabled=app.config.get("COMPRESSION_ENABLED", True),
+        default_format=app.config.get("COMPRESSION_DEFAULT_FORMAT", "gzip"),
+        compression_level=app.config.get("COMPRESSION_LEVEL", 6),
+        keep_original=app.config.get("COMPRESSION_KEEP_ORIGINAL", True),
+    )
+    
+    # Prometheus service (Épic 8 - US-059)
+    from .services.prometheus_service import PrometheusService
+    prometheus_service = PrometheusService()
+    prometheus_service.init_app(app)
+    
     # Collaboration services (Épic 6)
     email_service = EmailService(
         provider=app.config.get("EMAIL_PROVIDER", "smtp"),
@@ -133,6 +151,8 @@ def create_app(config_class=Config):
     app.extensions["invitation_service"] = invitation_service
     app.extensions["cache_service"] = cache_service
     app.extensions["agent_cache_service"] = agent_cache_service
+    app.extensions["compression_service"] = compression_service
+    app.extensions["prometheus_service"] = prometheus_service
     app.extensions["integration_manager"] = integration_manager
     app.extensions["oauth_service"] = oauth_service
     app.extensions["webhook_service"] = webhook_service

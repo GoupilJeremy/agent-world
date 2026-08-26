@@ -1,0 +1,70 @@
+# Backend Service for Agent World
+# Version: 0.4.3 (Épic 8 - Sprint 6)
+# Description: Service exposant le backend Flask avec load balancing
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: agent-world
+  labels:
+    app: backend
+    component: api
+    version: v0.4.3
+    epic: "8"
+  annotations:
+    # Pour les cloud providers (AWS, GCP, Azure)
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-internal: "false"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    
+    # Pour Metallb (bare metal)
+    metallb.universe.tf/allow-shared-ip: "agent-world"
+spec:
+  selector:
+    app: backend
+    component: api
+  
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5000
+      protocol: TCP
+    
+    # Port pour les métriques Prometheus (optionnel)
+    - name: metrics
+      port: 9090
+      targetPort: 5000
+      protocol: TCP
+  
+  # Type de service
+  # Options: ClusterIP (interne), NodePort (accès via nœuds), LoadBalancer (cloud provider)
+  type: LoadBalancer
+  
+  # Pour LoadBalancer, on peut spécifier une IP statique si nécessaire
+  # loadBalancerIP: "10.0.0.100"
+  
+  # Configuration pour le load balancing
+  sessionAffinity: ClientIP  # Maintenir la session sur le même pod
+  externalTrafficPolicy: Cluster  # Préserver l'IP source (nécessaire pour certains LB)
+
+---
+# Service Headless pour la découverte DNS directe (optionnel)
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-headless
+  namespace: agent-world
+  labels:
+    app: backend
+    component: api
+    type: headless
+spec:
+  clusterIP: None
+  selector:
+    app: backend
+    component: api
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP

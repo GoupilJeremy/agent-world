@@ -91,6 +91,22 @@ class Config:
     # its HTTP administration endpoints are disabled.
     FILE_CLEANUP_TOKEN = os.environ.get("FILE_CLEANUP_TOKEN")
 
+    # Compression settings (Épic 8 - US-058)
+    COMPRESSION_ENABLED = os.environ.get("COMPRESSION_ENABLED", "true").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    COMPRESSION_DEFAULT_FORMAT = os.environ.get("COMPRESSION_DEFAULT_FORMAT", "gzip").lower()
+    COMPRESSION_LEVEL = int(os.environ.get("COMPRESSION_LEVEL", "6"))
+    COMPRESSION_KEEP_ORIGINAL = os.environ.get("COMPRESSION_KEEP_ORIGINAL", "true").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
     # Logging
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
     LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

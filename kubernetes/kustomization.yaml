@@ -1,0 +1,95 @@
+# Kustomization for Agent World
+# Version: 0.4.3 (Épic 8 - Sprint 6)
+# Description: Configuration centralisée pour Kustomize
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Métadonnées communes à toutes les ressources
+commonLabels:
+  app: agent-world
+  version: v0.4.3
+  epic: "8"
+  managed-by: kustomize
+
+# Namespace
+namespace: agent-world
+
+# Générer automatiquement le namespace
+# ( commenter si le namespace existe déjà )
+# resources:
+#   - namespace.yaml
+
+# Ressources à inclure
+resources:
+  # Backend
+  - backend/deployment.yaml
+  - backend/service.yaml
+  - backend/hpa.yaml
+  - backend/configmap.yaml
+  # - backend/secret.yaml  # Ne pas inclure, créer séparément
+  
+  # Redis
+  - redis/deployment.yaml
+  - redis/service.yaml
+  - redis/pvc.yaml
+  
+  # PostgreSQL
+  - postgres/deployment.yaml
+  - postgres/service.yaml
+  - postgres/pvc.yaml
+  
+  # Monitoring (Épic 8 - US-059)
+  - monitoring/prometheus.yaml
+  - monitoring/grafana.yaml
+
+# Configurer les images (override)
+images:
+  - name: goupiljeremy/agent-world
+    newName: goupiljeremy/agent-world
+    newTag: latest
+  - name: redis
+    newName: redis
+    newTag: 7-alpine
+  - name: postgres
+    newName: postgres
+    newTag: 15-alpine
+
+# Patches pour adapter les configurations
+# Exemple : changer le nombre de réplicas pour le développement
+patches:
+  # Pour le développement (1 réplica au lieu de 2)
+  - target:
+      kind: Deployment
+      name: backend
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+  
+  # Pour le développement (HPA désactivé)
+  - target:
+      kind: HorizontalPodAutoscaler
+      name: backend-hpa
+    patch: |-
+      - op: replace
+        path: /spec/minReplicas
+        value: 1
+
+# Générer des ConfigMaps et Secrets à partir de fichiers
+# (décommenter si nécessaire)
+# configMapGenerator:
+#   - name: agent-world-config
+#     files:
+#       - backend/configmap.properties
+
+# secretGenerator:
+#   - name: agent-world-secrets
+#     files:
+#       - backend/secret.properties
+#     type: Opaque
+
+# Options de transformation
+# transformations:
+#   - labels.yaml
+#   - annotations.yaml

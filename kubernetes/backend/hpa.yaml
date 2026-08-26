@@ -1,0 +1,87 @@
+# Horizontal Pod Autoscaler for Agent World Backend
+# Version: 0.4.3 (Épic 8 - Sprint 6)
+# Description: Scalabilité automatique basée sur la charge CPU et mémoire
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-hpa
+  namespace: agent-world
+  labels:
+    app: backend
+    component: api
+    version: v0.4.3
+    epic: "8"
+spec:
+  # Cible du scaling
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend
+  
+  # Nombre minimal et maximal de réplicas
+  minReplicas: 2  # Au moins 2 pods pour la haute disponibilité
+  maxReplicas: 10  # Jusqu'à 10 pods pour gérer la charge
+  
+  # Période de stabilisation pour éviter les oscillations
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300  # Attendre 5 minutes avant de réduire
+      policies:
+        - type: Percent
+          value: 10  # Réduire de 10% à la fois
+          periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60  # Attendre 1 minute avant d'augmenter
+      policies:
+        - type: Percent
+          value: 20  # Augmenter de 20% à la fois
+          periodSeconds: 60
+        - type: Pods
+          value: 2  # Ou ajouter 2 pods à la fois
+          periodSeconds: 60
+      # Ne pas dépasser 4 pods par minute
+      selectPolicy: Max
+  
+  # Métriques pour le scaling
+  metrics:
+    # Scaling basé sur l'utilisation CPU
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70  # Scaler si CPU > 70% en moyenne
+    
+    # Scaling basé sur l'utilisation mémoire (optionnel)
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80  # Scaler si mémoire > 80% en moyenne
+    
+    # Scaling basé sur des métriques personnalisées (ex: requêtes par seconde)
+    # Nécessite l'installation de Prometheus Adapter
+    # - type: Pods
+    #   pods:
+    #     metric:
+    #       name: requests_per_second
+    #     target:
+    #       type: AverageValue
+    #       averageValue: 100
+
+---
+# Pod Disruption Budget pour garantir la disponibilité pendant les maintenances
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend-pdb
+  namespace: agent-world
+spec:
+  minAvailable: 1  # Au moins 1 pod doit rester disponible
+  # maxUnavailable: 1  # Alternative: max 1 pod indisponible
+  selector:
+    matchLabels:
+      app: backend
+      component: api

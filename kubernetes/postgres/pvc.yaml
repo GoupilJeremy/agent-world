@@ -1,0 +1,31 @@
+# Persistent Volume Claim for PostgreSQL
+# Version: 0.4.3 (Épic 8 - Sprint 6)
+# Description: Stockage persistant pour les données PostgreSQL
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: agent-world
+  labels:
+    app: postgres
+    component: database
+    version: "15"
+    epic: "8"
+spec:
+  # Type d'accès : ReadWriteOnce (un seul pod peut monter en écriture)
+  accessModes:
+    - ReadWriteOnce
+  
+  # Ressources demandées
+  resources:
+    requests:
+      storage: 5Gi  # 5 Giga-octets pour commencer
+    # limits:
+    #   storage: 10Gi  # Limite à 10 GiB (optionnel)
+  
+  # Classe de stockage (à adapter selon votre cluster)
+  storageClassName: standard  # Changez selon votre StorageClass
+  
+  # Mode de volume
+  volumeMode: Filesystem

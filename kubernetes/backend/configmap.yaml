@@ -1,0 +1,61 @@
+# ConfigMap for Agent World Backend
+# Version: 0.4.3 (Épic 8 - Sprint 6)
+# Description: Configuration de l'application (non sensible)
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-world-config
+  namespace: agent-world
+  labels:
+    app: backend
+    component: api
+    version: v0.4.3
+    epic: "8"
+data:
+  # Flask Configuration
+  FLASK_ENV: "production"
+  FLASK_DEBUG: "0"
+  
+  # Database Configuration
+  # Note: Le mot de passe est dans le Secret
+  SQLALCHEMY_DATABASE_URI: "postgresql://postgres@postgres:5432/agent_world"
+  SQLALCHEMY_TRACK_MODIFICATIONS: "false"
+  SQLALCHEMY_POOL_SIZE: "20"
+  SQLALCHEMY_MAX_OVERFLOW: "10"
+  SQLALCHEMY_POOL_TIMEOUT: "30"
+  SQLALCHEMY_POOL_RECYCLE: "3600"
+  AUTO_CREATE_DB: "false"
+  
+  # Redis Configuration
+  REDIS_URL: "redis://redis:6379/0"
+  CACHE_DEFAULT_TIMEOUT: "3600"  # 1 heure
+  
+  # File Output Configuration
+  OUTPUT_DIR: "/app/outputs"
+  FILE_PREVIEW_MAX_BYTES: "1048576"  # 1 MiB
+  FILE_WRITE_MAX_BYTES: "1048576"   # 1 MiB
+  FILE_SHARE_DEFAULT_TTL_SECONDS: "604800"  # 7 jours
+  FILE_SHARE_MAX_TTL_SECONDS: "2592000"    # 30 jours
+  FILE_CLEANUP_ENABLED: "false"
+  FILE_CLEANUP_INTERVAL_SECONDS: "86400"    # 24 heures
+  FILE_TEMPORARY_TTL_HOURS: "24"
+  FILE_OBSOLETE_TTL_DAYS: "30"
+  FILE_KEEP_LATEST_VERSIONS: "3"
+  
+  # AI Model Configuration
+  DEFAULT_AI_MODEL: "mistral-tiny"
+  
+  # CORS Configuration
+  CORS_ORIGINS: "*"
+  
+  # API Configuration
+  MAX_CONTENT_LENGTH: "1048576"  # 1 MiB
+  
+  # Logging Configuration
+  LOG_LEVEL: "INFO"
+  LOG_FORMAT: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Auth Configuration
+  AUTH_ACCESS_TOKEN_TTL_SECONDS: "3600"  # 1 heure
+  AUTH_TOKEN_ISSUER: "agent-world"

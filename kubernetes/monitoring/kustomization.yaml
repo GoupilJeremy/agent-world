@@ -1,0 +1,45 @@
+# Kustomization for Monitoring (Prometheus + Grafana)
+# Version: 0.4.3 (Épic 8 - Sprint 6 - US-059)
+# Description: Configuration centralisée pour le monitoring
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Métadonnées communes
+commonLabels:
+  app: agent-world
+  component: monitoring
+  version: v0.4.3
+  epic: "8"
+  managed-by: kustomize
+
+# Namespace
+namespace: monitoring
+
+# Générer automatiquement le namespace
+resources:
+  - prometheus.yaml
+  - grafana.yaml
+
+# Patches pour adapter les configurations
+patches:
+  # Pour le développement (1 réplica pour Prometheus et Grafana)
+  - target:
+      kind: Deployment
+      name: prometheus
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+  
+  - target:
+      kind: Deployment
+      name: grafana
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+
+# Options de transformation
+configurations:
+  - kustomizeconfig.yaml

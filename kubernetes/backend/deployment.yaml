@@ -1,0 +1,145 @@
+# Backend Deployment for Agent World
+# Version: 0.4.3 (Épic 8 - Sprint 6)
+# Description: Déploiement du backend Flask avec support de scalabilité
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: agent-world
+  labels:
+    app: backend
+    component: api
+    version: v0.4.3
+    epic: "8"
+spec:
+  replicas: 2  # Nombre minimal de pods pour la haute disponibilité
+  selector:
+    matchLabels:
+      app: backend
+      component: api
+  
+  # Stratégie de rolling update pour éviter les downtimes
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%  # Nombre maximal de pods supplémentaires pendant le update
+      maxUnavailable: 25%  # Nombre maximal de pods indisponibles pendant le update
+  
+  template:
+    metadata:
+      labels:
+        app: backend
+        component: api
+        version: v0.4.3
+      annotations:
+        # Recharger le pod si le ConfigMap ou Secret change
+        checksum/config: {{ include (print $.Template.BasePath "/backend/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/backend/secret.yaml") . | sha256sum }}
+        
+        # Métriques Prometheus
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+        prometheus.io/path: "/metrics"
+    
+    spec:
+      # Affinité pour répartir les pods sur différents nœuds
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - backend
+                topologyKey: "kubernetes.io/hostname"
+      
+      containers:
+        - name: backend
+          image: goupiljeremy/agent-world:latest
+          imagePullPolicy: IfNotPresent  # Always pour la production
+          
+          # Port exposé par le conteneur
+          ports:
+            - containerPort: 5000
+              name: http
+              protocol: TCP
+          
+          # Variables d'environnement depuis ConfigMap et Secret
+          envFrom:
+            - configMapRef:
+                name: agent-world-config
+            - secretRef:
+                name: agent-world-secrets
+          
+          # Configuration des ressources
+          resources:
+            requests:
+              cpu: "100m"  # 0.1 CPU
+              memory: "256Mi"
+            limits:
+              cpu: "500m"  # 0.5 CPU
+              memory: "512Mi"
+          
+          # Probes de santé
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 30  # Attendre 30s avant la première vérification
+            periodSeconds: 10  # Vérifier toutes les 10s
+            timeoutSeconds: 5  # Timeout de 5s
+            successThreshold: 1
+            failureThreshold: 3  # 3 échecs avant redémarrage
+          
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3  # 3 échecs avant de marquer comme non prêt
+          
+          # Configuration de la sécurité
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false  # Nécessaire pour écrire les fichiers de sortie
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+          
+          # Volume pour les fichiers de sortie
+          volumeMounts:
+            - name: outputs
+              mountPath: /app/outputs
+            - name: temporary-files
+              mountPath: /tmp
+      
+      # Volumes
+      volumes:
+        - name: outputs
+          emptyDir: {}
+        - name: temporary-files
+          emptyDir:
+            sizeLimit: 100Mi
+      
+      # Restart policy (toujours Always pour les Deployments)
+      restartPolicy: Always
+      
+      # Tolerations pour les nœuds avec taints
+      tolerations:
+        - key: "node-role.kubernetes.io/master"
+          operator: Exists
+          effect: NoSchedule
+      
+      # Node selector pour déployer sur des nœuds spécifiques
+      nodeSelector:
+        kubernetes.io/os: linux

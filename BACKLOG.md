@@ -198,10 +198,10 @@
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
 | US-054   | Optimisation des requêtes API      | Réduire la latence des requêtes API (caching, pagination).                                        | 6h             | P1           | ✅ Done    | ✅ Temps de réponse < 200ms, ✅ Cache Redis/Memcached, ✅ Pagination.                              |
 | US-055   | Mise en cache des résultats         | Mettre en cache les résultats des agents pour éviter les recalculs.                              | 5h             | P1           | ✅ Done    | ✅ Cache des résultats, ✅ Invalidation automatique, ✅ Intégration avec AgentService.         |
-| US-056   | Scalabilité horizontale             | Permettre le scaling horizontal de l'application (ex: Kubernetes).                              | 8h             | P1           | ⏳ Backlog | ✅ Déploiement multi-instances, ✅ Load balancing.                                               |
+| US-056   | Scalabilité horizontale             | Permettre le scaling horizontal de l'application (ex: Kubernetes).                              | 8h             | P1           | ✅ Done    | ✅ Déploiement multi-instances, ✅ Load balancing, ✅ HPA, ✅ Kubernetes manifests.               |
 | US-057   | Optimisation de la base de données | Optimiser les requêtes et les index de la base de données.                                      | 5h             | P1           | ✅ Done    | ✅ Index optimisés (25+), ✅ Requêtes < 100ms, ✅ Migration Alembic.                              |
-| US-058   | Compression des fichiers           | Compresser les fichiers générés pour économiser de l'espace.                                    | 3h             | P2           | ⏳ Backlog | ✅ Compression GZIP/ZIP, ✅ Décompression automatique.                                            |
-| US-059   | Monitoring des performances         | Ajouter un système de monitoring (ex: Prometheus, Grafana).                                       | 3h             | P2           | ⏳ Backlog | ✅ Métriques de performance, ✅ Alertes configurables.                                           |
+| US-058   | Compression des fichiers           | Compresser les fichiers générés pour économiser de l'espace.                                    | 3h             | P2           | ✅ Done    | ✅ Compression GZIP/ZIP, ✅ Décompression automatique, ✅ API endpoints, ✅ Configuration.       |
+| US-059   | Monitoring des performances         | Ajouter un système de monitoring (ex: Prometheus, Grafana).                                       | 3h             | P2           | ✅ Done    | ✅ Métriques de performance, ✅ Alertes configurables, ✅ Prometheus/Grafana K8s manifests.       |
 
 ---
 
@@ -423,8 +423,10 @@
 | US-039   | Templates officiels                | Templates      | 4h         | ✅ Done        |
 | US-054   | Optimisation des requêtes API      | Performance    | 6h         | ✅ Done        |
 | US-055   | Mise en cache des résultats         | Performance    | 5h         | ✅ Done        |
-| US-056   | Scalabilité horizontale             | Performance    | 8h         | ⏳ Backlog      |
+| US-056   | Scalabilité horizontale             | Performance    | 8h         | ✅ Done        |
 | US-057   | Optimisation de la base de données | Performance    | 5h         | ✅ Done        |
+| US-058   | Compression des fichiers           | Performance    | 3h         | ✅ Done        |
+| US-059   | Monitoring des performances         | Performance    | 3h         | ✅ Done        |
 
 ---
 

@@ -1,0 +1,42 @@
+# Persistent Volume Claim for Redis
+# Version: 0.4.3 (Épic 8 - Sprint 6)
+# Description: Stockage persistant pour les données Redis
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: agent-world
+  labels:
+    app: redis
+    component: cache
+    version: "7.0"
+    epic: "8"
+spec:
+  # Type d'accès : ReadWriteOnce (un seul pod peut monter en écriture)
+  accessModes:
+    - ReadWriteOnce
+  
+  # Ressources demandées
+  resources:
+    requests:
+      storage: 1Gi  # 1 Giga-octet pour commencer
+    # limits:
+    #   storage: 2Gi  # Limite à 2 GiB (optionnel)
+  
+  # Classe de stockage (à adapter selon votre cluster)
+  storageClassName: standard  # Changez selon votre StorageClass
+  
+  # Mode de volume
+  volumeMode: Filesystem
+
+---
+# StorageClass pour Minikube (optionnel, si vous utilisez Minikube)
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: standard
+#   namespace: agent-world
+# provisioner: k8s.io/minikube-hostpath
+# volumeBindingMode: Immediate
+# reclaimPolicy: Delete

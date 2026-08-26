@@ -1,0 +1,377 @@
+# Grafana Configuration for Agent World
+# Version: 0.4.3 (Épic 8 - Sprint 6 - US-059)
+# Description: Configuration Grafana pour la visualisation des métriques
+
+---
+# ConfigMap pour les dashboards Grafana
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+  labels:
+    app: grafana
+    component: dashboards
+    version: v0.4.3
+    epic: "8"
+data:
+  # Dashboard pour le monitoring du backend Agent World
+  agent-world-dashboard.json: |
+    {
+      "title": "Agent World - Monitoring",
+      "uid": "agent-world-monitoring",
+      "tags": ["agent-world", "backend", "performance"],
+      "timezone": "browser",
+      "schemaVersion": 37,
+      "version": 1,
+      "refresh": "30s",
+      "panels": [
+        {
+          "title": "CPU Usage",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "targets": [
+            {
+              "expr": "sum(rate(container_cpu_usage_seconds_total{pod=~"backend-.*"}[5m])) by (pod)",
+              "legendFormat": "{{pod}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {"drawStyle": "line", "lineInterpolation": "smooth"}
+            }
+          }
+        },
+        {
+          "title": "Memory Usage",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "targets": [
+            {
+              "expr": "sum(container_memory_working_set_bytes{pod=~"backend-.*"}) by (pod)",
+              "legendFormat": "{{pod}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "custom": {"drawStyle": "line", "lineInterpolation": "smooth"}
+            }
+          }
+        },
+        {
+          "title": "Request Rate",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+          "targets": [
+            {
+              "expr": "sum(rate(flask_http_request_total[5m])) by (endpoint, method)",
+              "legendFormat": "{{method}} {{endpoint}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "custom": {"drawStyle": "line", "lineInterpolation": "smooth"}
+            }
+          }
+        },
+        {
+          "title": "Request Latency (95th Percentile)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(flask_http_request_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "P95",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(flask_http_request_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "P99",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "custom": {"drawStyle": "line", "lineInterpolation": "smooth"}
+            }
+          }
+        },
+        {
+          "title": "Error Rate",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+          "targets": [
+            {
+              "expr": "sum(rate(flask_http_request_total{status=~"5.."}[5m])) by (endpoint) / sum(rate(flask_http_request_total[5m])) by (endpoint) * 100",
+              "legendFormat": "{{endpoint}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "custom": {"drawStyle": "line", "lineInterpolation": "smooth"}
+            }
+          }
+        },
+        {
+          "title": "Active Pods",
+          "type": "stat",
+          "gridPos": {"h": 4, "w": 6, "x": 0, "y": 24},
+          "targets": [
+            {
+              "expr": "count(kube_pod_status_ready{pod=~"backend-.*"} == 1)",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "mappings": [{"options": {"0": {"text": "Down"}, "1": {"text": "Up"}}, "type": "value"}]
+            }
+          }
+        },
+        {
+          "title": "HPA Status",
+          "type": "stat",
+          "gridPos": {"h": 4, "w": 6, "x": 6, "y": 24},
+          "targets": [
+            {
+              "expr": "kube_hpa_status_current_replicas{horizontalpodautoscaler=~"backend-.*"}",
+              "legendFormat": "Current",
+              "refId": "A"
+            },
+            {
+              "expr": "kube_hpa_status_desired_replicas{horizontalpodautoscaler=~"backend-.*"}",
+              "legendFormat": "Desired",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            }
+          }
+        }
+      ],
+      "templating": {
+        "list": []
+      },
+      "time": {"from": "now-1h", "to": "now"},
+      "timepicker": {},
+      "timeRange": "1h",
+      "title": "Agent World - Monitoring",
+      "version": 1
+    }
+
+---
+# Déploiement de Grafana
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+    component: visualization
+    version: v0.4.3
+    epic: "8"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+      component: visualization
+  
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  
+  template:
+    metadata:
+      labels:
+        app: grafana
+        component: visualization
+        version: v0.4.3
+      annotations:
+        prometheus.io/scrape: "false"
+    
+    spec:
+      securityContext:
+        fsGroup: 472
+        runAsUser: 472
+      
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.2.0
+          imagePullPolicy: IfNotPresent
+          
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: "admin"
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-secrets
+                  key: admin-password
+            - name: GF_USERS_ALLOW_SIGN_UP
+              value: "false"
+            - name: GF_AUTH_DISABLE_LOGIN_FORM
+              value: "false"
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "false"
+            # Configuration de la source de données Prometheus
+            - name: GF_DATASOURCES_JSON
+              value: |
+                [
+                  {
+                    "name": "Prometheus",
+                    "type": "prometheus",
+                    "access": "proxy",
+                    "url": "http://prometheus:9090",
+                    "isDefault": true,
+                    "jsonData": {
+                      "tlsAuth": false,
+                      "tlsAuthWithCACert": false
+                    },
+                    "version": 1
+                  }
+                ]
+          
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          
+          volumeMounts:
+            - name: storage
+              mountPath: /var/lib/grafana
+            - name: dashboards
+              mountPath: /etc/grafana/provisioning/dashboards
+            - name: datasources
+              mountPath: /etc/grafana/provisioning/datasources
+          
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+      
+      volumes:
+        - name: storage
+          emptyDir: {}
+        - name: dashboards
+          configMap:
+            name: grafana-dashboards
+        - name: datasources
+          emptyDir: {}
+
+---
+# Service pour Grafana
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+    component: visualization
+    version: v0.4.3
+    epic: "8"
+spec:
+  type: ClusterIP
+  selector:
+    app: grafana
+    component: visualization
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+      protocol: TCP
+
+---
+# Secret pour Grafana (mot de passe admin)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-secrets
+  namespace: monitoring
+  labels:
+    app: grafana
+    version: v0.4.3
+    epic: "8"
+type: Opaque
+stringData:
+  admin-password: "admin"  # À changer en production !
+
+---
+# Ingress pour Grafana (optionnel, pour accès externe)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: monitoring
+  labels:
+    app: grafana
+    version: v0.4.3
+    epic: "8"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Optionnel
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: grafana.agent-world.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000
+  # TLS (optionnel)
+  # tls:
+  #   - hosts:
+  #       - grafana.agent-world.example.com
+  #     secretName: grafana-tls

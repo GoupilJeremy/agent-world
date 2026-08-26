@@ -1,0 +1,178 @@
+# PostgreSQL Deployment for Agent World
+# Version: 0.4.3 (Épic 8 - Sprint 6)
+# Description: Déploiement de PostgreSQL pour la base de données
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: agent-world
+  labels:
+    app: postgres
+    component: database
+    version: "15"
+    epic: "8"
+spec:
+  replicas: 1  # PostgreSQL est stateful, 1 réplica pour la production
+  selector:
+    matchLabels:
+      app: postgres
+      component: database
+  
+  strategy:
+    type: Recreate  # Necessaire pour les Persistent Volumes
+  
+  template:
+    metadata:
+      labels:
+        app: postgres
+        component: database
+      annotations:
+        # Métriques Prometheus
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+        prometheus.io/path: "/metrics"
+    
+    spec:
+      # Affinité pour PostgreSQL
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - postgres
+              topologyKey: "kubernetes.io/hostname"
+      
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          imagePullPolicy: IfNotPresent
+          
+          ports:
+            - containerPort: 5432
+              name: postgres
+              protocol: TCP
+          
+          # Variables d'environnement
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_DB
+              value: "agent_world"
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+          
+          # Mot de passe depuis Secret
+          envFrom:
+            - secretRef:
+                name: agent-world-secrets
+                optional: false  # Le secret doit exister
+          
+          # Configuration des ressources
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"  # 1 CPU
+              memory: "1Gi"
+          
+          # Probes de santé
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          
+          # Configuration de la sécurité
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false  # PostgreSQL a besoin d'écrire
+            runAsNonRoot: true
+            runAsUser: 999  # User postgres dans le conteneur Alpine
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+          
+          # Volume pour la persistance
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      
+      # Volumes
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+      
+      # Restart policy
+      restartPolicy: Always
+      
+      # Node selector
+      nodeSelector:
+        kubernetes.io/os: linux
+
+---
+# PostgreSQL Exporter pour Prometheus (optionnel)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-exporter
+  namespace: agent-world
+  labels:
+    app: postgres-exporter
+    component: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-exporter
+  template:
+    metadata:
+      labels:
+        app: postgres-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+    spec:
+      containers:
+        - name: postgres-exporter
+          image: prometheuscommunity/postgres-exporter:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9187
+          env:
+            - name: DATA_SOURCE_NAME
+              value: "postgresql"
+            - name: DATA_SOURCE_USER
+              value: "postgres"
+            - name: DATA_SOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: agent-world-secrets
+                  key: POSTGRES_PASSWORD
+            - name: DATA_SOURCE_URI
+              value: "postgres:5432/agent_world?sslmode=disable"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"

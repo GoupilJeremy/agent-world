@@ -1,0 +1,47 @@
+# PostgreSQL Service for Agent World
+# Version: 0.4.3 (Épic 8 - Sprint 6)
+# Description: Service exposant PostgreSQL pour la base de données
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: agent-world
+  labels:
+    app: postgres
+    component: database
+    version: "15"
+    epic: "8"
+spec:
+  selector:
+    app: postgres
+    component: database
+  
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+      protocol: TCP
+  
+  # Type ClusterIP pour un accès interne au cluster
+  type: ClusterIP
+
+---
+# Service pour PostgreSQL Exporter (optionnel)
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-exporter
+  namespace: agent-world
+  labels:
+    app: postgres-exporter
+    component: monitoring
+spec:
+  selector:
+    app: postgres-exporter
+  ports:
+    - name: metrics
+      port: 9187
+      targetPort: 9187
+      protocol: TCP
+  type: ClusterIP

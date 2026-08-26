@@ -1,0 +1,158 @@
+# Redis Deployment for Agent World
+# Version: 0.4.3 (Épic 8 - Sprint 6)
+# Description: Déploiement de Redis pour le cache
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: agent-world
+  labels:
+    app: redis
+    component: cache
+    version: "7.0"
+    epic: "8"
+spec:
+  replicas: 1  # Redis est stateful, 1 réplica pour commencer
+  selector:
+    matchLabels:
+      app: redis
+      component: cache
+  
+  strategy:
+    type: Recreate  # Necessaire pour les Persistent Volumes
+  
+  template:
+    metadata:
+      labels:
+        app: redis
+        component: cache
+      annotations:
+        # Métriques Prometheus
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9121"
+        prometheus.io/path: "/metrics"
+    
+    spec:
+      # Affinité pour Redis (éviter de déplacer le pod)
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - redis
+              topologyKey: "kubernetes.io/hostname"
+      
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          imagePullPolicy: IfNotPresent
+          
+          ports:
+            - containerPort: 6379
+              name: redis
+              protocol: TCP
+          
+          # Commande pour démarrer Redis avec persistance
+          command: ["redis-server"]
+          args: ["--appendonly", "yes", "--save", "900", "1", "--save", "300", "10", "--save", "60", "10000"]
+          
+          # Configuration des ressources
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          
+          # Probes de santé
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          
+          # Configuration de la sécurité
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 999  # User redis dans le conteneur Alpine
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+          
+          # Volume pour la persistance
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      
+      # Volumes
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-pvc
+      
+      # Restart policy
+      restartPolicy: Always
+      
+      # Node selector
+      nodeSelector:
+        kubernetes.io/os: linux
+
+---
+# Redis Exporter pour Prometheus (optionnel)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-exporter
+  namespace: agent-world
+  labels:
+    app: redis-exporter
+    component: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-exporter
+  template:
+    metadata:
+      labels:
+        app: redis-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9121"
+    spec:
+      containers:
+        - name: redis-exporter
+          image: oliver006/redis_exporter:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9121
+          env:
+            - name: REDIS_ADDR
+              value: "redis:6379"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"

@@ -1,0 +1,387 @@
+# Prometheus Configuration for Agent World
+# Version: 0.4.3 (Épic 8 - Sprint 6 - US-059)
+# Description: Configuration Prometheus pour le monitoring des performances
+
+---
+# Namespace pour le monitoring (optionnel, peut utiliser agent-world)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    app: agent-world
+    component: monitoring
+    version: v0.4.3
+    epic: "8"
+
+---
+# ConfigMap pour la configuration de Prometheus
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: server
+    version: v0.4.3
+    epic: "8"
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      scrape_timeout: 10s
+    
+    # Configuration des alertes
+    rule_files:
+      - /etc/prometheus/rules/*.yml
+    
+    # Cibles de scrape (Service Discovery Kubernetes)
+    scrape_configs:
+      # Scraper Prometheus lui-même
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+      
+      # Scraper les pods du backend Agent World
+      - job_name: 'agent-world-backend'
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          # Cibler uniquement les pods avec l'annotation prometheus.io/scrape: "true"
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          # Utiliser le port configuré dans l'annotation
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            target_label: __meta_kubernetes_pod_container_port_number
+            regex: (\d+)
+          # Utiliser le path configuré dans l'annotation
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          # Ajouter des labels
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: kubernetes_namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: kubernetes_pod_name
+      
+      # Scraper les services Kubernetes
+      - job_name: 'kubernetes-service-endpoints'
+        kubernetes_sd_configs:
+          - role: endpoints
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_port]
+            action: replace
+            target_label: __meta_kubernetes_service_port
+            regex: (\d+)
+          - source_labels: [__address__]
+            action: replace
+            regex: (.+):(\d+)
+            replacement: $1:9090
+            target_label: __address__
+      
+      # Scraper le node exporter (si installé)
+      - job_name: 'kubernetes-nodes'
+        kubernetes_sd_configs:
+          - role: node
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+
+---
+# Rules pour les alertes
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rules
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: server
+    version: v0.4.3
+    epic: "8"
+data:
+  alert.rules.yml: |
+    groups:
+    - name: agent-world-alerts
+      rules:
+      
+      # Alertes pour le backend
+      - alert: AgentWorldBackendDown
+        expr: up{job="agent-world-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: backend
+        annotations:
+          summary: "Le backend Agent World est down"
+          description: "Le backend Agent World n'a pas répondu aux checks de santé pendant 1 minute"
+      
+      - alert: AgentWorldHighCPULoad
+        expr: (sum(rate(container_cpu_usage_seconds_total{pod=~"backend-.*"}[5m])) by (pod) / sum(container_spec_cpu_quota{pod=~"backend-.*"} / container_spec_cpu_period{pod=~"backend-.*"}) by (pod) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: backend
+        annotations:
+          summary: "Charge CPU élevée sur le backend"
+          description: "Le pod {{ $labels.pod }} a une charge CPU de plus de 80% pendant 5 minutes"
+      
+      - alert: AgentWorldHighMemoryUsage
+        expr: (sum(container_memory_working_set_bytes{pod=~"backend-.*"}) by (pod) / sum(container_spec_memory_limit_bytes{pod=~"backend-.*"}) by (pod) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: backend
+        annotations:
+          summary: "Utilisation mémoire élevée sur le backend"
+          description: "Le pod {{ $labels.pod }} utilise plus de 85% de sa mémoire allouée"
+      
+      - alert: AgentWorldHighRequestLatency
+        expr: histogram_quantile(0.95, sum(rate(flask_http_request_duration_seconds_bucket[5m])) by (le)) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: backend
+        annotations:
+          summary: "Latence élevée des requêtes"
+          description: "Le 95ème percentile de latence des requêtes dépasse 1 seconde"
+      
+      # Alertes pour Redis
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: redis
+        annotations:
+          summary: "Redis est down"
+          description: "Redis n'a pas répondu aux checks de santé pendant 1 minute"
+      
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "Utilisation mémoire élevée sur Redis"
+          description: "Redis utilise plus de 90% de sa mémoire"
+      
+      # Alertes pour PostgreSQL
+      - alert: PostgreSQLDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: postgres
+        annotations:
+          summary: "PostgreSQL est down"
+          description: "PostgreSQL n'a pas répondu aux checks de santé pendant 1 minute"
+
+---
+# Déploiement de Prometheus
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: server
+    version: v0.4.3
+    epic: "8"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+      component: server
+  
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  
+  template:
+    metadata:
+      labels:
+        app: prometheus
+        component: server
+        version: v0.4.3
+      annotations:
+        prometheus.io/scrape: "false"  # Prometheus ne se scrape pas lui-même via le service discovery
+    
+    spec:
+      serviceAccountName: prometheus
+      
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.48.0
+          imagePullPolicy: IfNotPresent
+          
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+            - "--storage.tsdb.retention.time=30d"  # Conserver les données pendant 30 jours
+            - "--web.console.templates=/etc/prometheus/consoles"
+            - "--web.console.libraries=/etc/prometheus/console_libraries"
+            - "--web.enable-lifecycle"
+            - "--web.enable-admin-api"
+          
+          ports:
+            - containerPort: 9090
+              name: http
+              protocol: TCP
+          
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus
+            - name: storage
+              mountPath: /prometheus
+            - name: rules
+              mountPath: /etc/prometheus/rules
+          
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9090
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9090
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+      
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus-config
+        - name: rules
+          configMap:
+            name: prometheus-rules
+        - name: storage
+          emptyDir: {}
+
+---
+# Service pour Prometheus
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+    component: server
+    version: v0.4.3
+    epic: "8"
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+spec:
+  type: ClusterIP
+  selector:
+    app: prometheus
+    component: server
+  ports:
+    - name: http
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+
+---
+# ServiceAccount pour Prometheus
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+    version: v0.4.3
+    epic: "8"
+
+---
+# ClusterRole pour Prometheus (accès en lecture aux métriques Kubernetes)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+    version: v0.4.3
+    epic: "8"
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - services
+      - endpoints
+      - pods
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["extensions"]
+    resources:
+      - ingresses
+    verbs: ["get", "list", "watch"]
+  - nonResourceURLs: ["/metrics"]
+    verbs: ["get"]
+
+---
+# ClusterRoleBinding pour Prometheus
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+    version: v0.4.3
+    epic: "8"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+  - kind: ServiceAccount
+    name: prometheus
+    namespace: monitoring
