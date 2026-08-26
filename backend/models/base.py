@@ -71,6 +71,8 @@ def init_db(app):
         execution,
         generated_file,
         history_notification,
+        invitation,
+        project,
         template,
         template_share,
         user,

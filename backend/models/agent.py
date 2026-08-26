@@ -40,6 +40,7 @@ class Agent(BaseModel):
     model = db.Column(db.String(50), nullable=False, default="mistral-tiny")
     configuration = db.Column(db.JSON, nullable=False, default={})
     is_active = db.Column(db.Boolean, nullable=False, default=True)
+    project_id = db.Column(db.Integer, db.ForeignKey("projects.id"), nullable=True)
     created_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(
@@ -47,6 +48,7 @@ class Agent(BaseModel):
     )
 
     # Relationships
+    project = db.relationship("Project", back_populates="agents")
     creator = db.relationship(
         "User", back_populates="agents", foreign_keys=[created_by]
     )
@@ -67,6 +69,7 @@ class Agent(BaseModel):
         configuration: Optional[dict] = None,
         is_active: bool = True,
         created_by: Optional[int] = None,
+        project_id: Optional[int] = None,
     ):
         """
         Initialize a new Agent instance.
@@ -78,6 +81,7 @@ class Agent(BaseModel):
             configuration: Optional JSON configuration
             is_active: Whether the agent is active (default: True)
             created_by: ID of the creating user
+            project_id: ID of the project this agent belongs to
         """
         self.name = name
         self.model = model
@@ -85,6 +89,7 @@ class Agent(BaseModel):
         self.configuration = configuration or {}
         self.is_active = is_active
         self.created_by = created_by
+        self.project_id = project_id
 
     def __repr__(self) -> str:
         return f"<Agent(id={self.id}, name={self.name}, model={self.model})>"

@@ -57,7 +57,7 @@ class TestNotificationModel(unittest.TestCase):
             channel=NotificationChannel.EMAIL,
             title="Test Execution Failure",
             message="Test execution failed",
-            metadata={"agent_id": 1, "execution_id": 100},
+            extra_data={"agent_id": 1, "execution_id": 100},
         )
         
         self.assertIsNotNone(notification.id)
@@ -66,7 +66,7 @@ class TestNotificationModel(unittest.TestCase):
         self.assertEqual(notification.channel, NotificationChannel.EMAIL)
         self.assertEqual(notification.title, "Test Execution Failure")
         self.assertEqual(notification.message, "Test execution failed")
-        self.assertEqual(notification.metadata, {"agent_id": 1, "execution_id": 100})
+        self.assertEqual(notification.extra_data, {"agent_id": 1, "execution_id": 100})
         self.assertFalse(notification.is_sent)
         self.assertEqual(notification.send_attempts, 0)
         self.assertIsNotNone(notification.created_at)
@@ -246,7 +246,7 @@ class TestNotificationModel(unittest.TestCase):
             channel=NotificationChannel.EMAIL,
             title="Test",
             message="Test message",
-            metadata={"agent_id": 1},
+            extra_data={"agent_id": 1},
         )
         
         result = notification.to_dict()
@@ -257,7 +257,7 @@ class TestNotificationModel(unittest.TestCase):
         self.assertIn("channel", result)
         self.assertIn("title", result)
         self.assertIn("message", result)
-        self.assertIn("metadata", result)
+        self.assertIn("extra_data", result)
         self.assertIn("is_sent", result)
         self.assertIn("send_attempts", result)
         self.assertIn("created_at", result)
@@ -313,7 +313,7 @@ class TestNotificationService(unittest.TestCase):
             notification_type=NotificationType.EXECUTION_FAILURE,
             title="Service Test Failure",
             message="Execution failed via service",
-            metadata={"agent_id": 1, "execution_id": 100},
+            extra_data={"agent_id": 1, "execution_id": 100},
             send_immediately=False,  # Don't actually send
         )
         
@@ -332,9 +332,9 @@ class TestNotificationService(unittest.TestCase):
         
         self.assertIsNotNone(notification)
         self.assertEqual(notification.notification_type, NotificationType.EXECUTION_FAILURE)
-        self.assertIn("agent_id", notification.metadata)
-        self.assertIn("execution_id", notification.metadata)
-        self.assertIn("error", notification.metadata)
+        self.assertIn("agent_id", notification.extra_data)
+        self.assertIn("execution_id", notification.extra_data)
+        self.assertIn("error", notification.extra_data)
 
     def test_create_execution_success_notification(self):
         """Test creating execution success notification."""
@@ -347,9 +347,9 @@ class TestNotificationService(unittest.TestCase):
         
         self.assertIsNotNone(notification)
         self.assertEqual(notification.notification_type, NotificationType.EXECUTION_SUCCESS)
-        self.assertIn("agent_id", notification.metadata)
-        self.assertIn("execution_id", notification.metadata)
-        self.assertIn("duration", notification.metadata)
+        self.assertIn("agent_id", notification.extra_data)
+        self.assertIn("execution_id", notification.extra_data)
+        self.assertIn("duration", notification.extra_data)
 
     def test_create_agent_modification_notification(self):
         """Test creating agent modification notification."""

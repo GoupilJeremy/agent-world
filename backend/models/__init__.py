@@ -12,6 +12,8 @@ from .history_notification import (
     NotificationChannel,
     NotificationType,
 )
+from .invitation import Invitation, InvitationStatus
+from .project import Project
 from .template import Template, TemplateVersion
 from .template_share import SharePermission, ShareToken
 from .user import User
@@ -34,4 +36,7 @@ __all__ = [
     "HistoryNotification",
     "NotificationChannel",
     "NotificationType",
+    "Project",
+    "Invitation",
+    "InvitationStatus",
 ]

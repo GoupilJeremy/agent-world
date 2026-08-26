@@ -65,7 +65,7 @@ class HistoryNotification(BaseModel):
     )
     title = db.Column(db.String(255), nullable=False)
     message = db.Column(db.Text, nullable=False)
-    metadata = db.Column(db.JSON, nullable=True)
+    extra_data = db.Column(db.JSON, nullable=True)
     is_sent = db.Column(db.Boolean, nullable=False, default=False)
     send_attempts = db.Column(db.Integer, nullable=False, default=0)
     sent_at = db.Column(db.DateTime, nullable=True)
@@ -83,7 +83,7 @@ class HistoryNotification(BaseModel):
         channel: NotificationChannel,
         title: str,
         message: str,
-        metadata: Optional[dict] = None,
+        extra_data: Optional[dict] = None,
         is_sent: bool = False,
         send_attempts: int = 0,
         sent_at: Optional[datetime] = None,
@@ -99,7 +99,7 @@ class HistoryNotification(BaseModel):
             channel: Notification channel
             title: Notification title
             message: Notification message
-            metadata: Additional data
+            extra_data: Additional data
             is_sent: Whether notification was sent
             send_attempts: Number of send attempts
             sent_at: When notification was sent
@@ -111,7 +111,7 @@ class HistoryNotification(BaseModel):
         self.channel = channel
         self.title = title
         self.message = message
-        self.metadata = metadata or {}
+        self.extra_data = extra_data or {}
         self.is_sent = is_sent
         self.send_attempts = send_attempts
         self.sent_at = sent_at
@@ -133,7 +133,7 @@ class HistoryNotification(BaseModel):
             "channel": self.channel.value,
             "title": self.title,
             "message": self.message,
-            "metadata": self.metadata,
+            "extra_data": self.extra_data,
             "is_sent": self.is_sent,
             "send_attempts": self.send_attempts,
             "sent_at": self.sent_at.isoformat() if self.sent_at else None,

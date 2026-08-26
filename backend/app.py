@@ -20,8 +20,10 @@ from .routes.share_auth import register_share_recipient_auth
 from .services.agent_service import AgentService
 from .services.ai_service import AIService
 from .services.auth_service import AuthService
+from .services.email_service import EmailService
 from .services.file_service import FileService
 from .services.history_service import HistoryService
+from .services.invitation_service import InvitationService
 
 # Global API instance will be created in create_app
 
@@ -58,6 +60,10 @@ def create_app(config_class=Config):
 
     # Register blueprints
     app.register_blueprint(agents_bp)
+    
+    # Register integrations blueprint
+    from .routes import get_integrations_bp
+    app.register_blueprint(get_integrations_bp())
 
     # Initialize services
     history_service = HistoryService()
@@ -69,16 +75,38 @@ def create_app(config_class=Config):
         issuer=app.config["AUTH_TOKEN_ISSUER"],
     )
     file_service = FileService(
-        output_dir=app.config["OUTPUT_DIR"],
-        preview_max_bytes=app.config["FILE_PREVIEW_MAX_BYTES"],
-        write_max_bytes=app.config["FILE_WRITE_MAX_BYTES"],
-        share_default_ttl_seconds=app.config["FILE_SHARE_DEFAULT_TTL_SECONDS"],
-        share_max_ttl_seconds=app.config["FILE_SHARE_MAX_TTL_SECONDS"],
-        cleanup_enabled=app.config["FILE_CLEANUP_ENABLED"],
-        cleanup_interval_seconds=app.config["FILE_CLEANUP_INTERVAL_SECONDS"],
-        temporary_ttl_hours=app.config["FILE_TEMPORARY_TTL_HOURS"],
-        obsolete_ttl_days=app.config["FILE_OBSOLETE_TTL_DAYS"],
-        keep_latest_versions=app.config["FILE_KEEP_LATEST_VERSIONS"],
+        output_dir=app.config.get("OUTPUT_DIR", "outputs"),
+        preview_max_bytes=app.config.get("FILE_PREVIEW_MAX_BYTES", 1024 * 1024),
+        write_max_bytes=app.config.get("FILE_WRITE_MAX_BYTES", 1024 * 1024),
+        share_default_ttl_seconds=app.config.get("FILE_SHARE_DEFAULT_TTL_SECONDS", 7 * 24 * 60 * 60),
+        share_max_ttl_seconds=app.config.get("FILE_SHARE_MAX_TTL_SECONDS", 30 * 24 * 60 * 60),
+        cleanup_enabled=app.config.get("FILE_CLEANUP_ENABLED", False),
+        cleanup_interval_seconds=app.config.get("FILE_CLEANUP_INTERVAL_SECONDS", 24 * 60 * 60),
+        temporary_ttl_hours=app.config.get("FILE_TEMPORARY_TTL_HOURS", 24),
+        obsolete_ttl_days=app.config.get("FILE_OBSOLETE_TTL_DAYS", 30),
+        keep_latest_versions=app.config.get("FILE_KEEP_LATEST_VERSIONS", 3),
+    )
+    
+    # Collaboration services (Épic 6)
+    email_service = EmailService(
+        provider=app.config.get("EMAIL_PROVIDER", "smtp"),
+        api_key=app.config.get("EMAIL_API_KEY"),
+        default_sender=app.config.get("EMAIL_DEFAULT_SENDER"),
+        app=app,
+    )
+    invitation_service = InvitationService(email_service=email_service)
+
+    # Integration services (Épic 7)
+    # Importer ici pour éviter les dépendances circulaires
+    from .integrations.integration_manager import IntegrationManager
+    from .integrations.oauth.oauth_service import OAuthService
+    from .integrations.webhooks.webhook_service import WebhookService
+    
+    oauth_service = OAuthService()
+    webhook_service = WebhookService()
+    integration_manager = IntegrationManager(
+        oauth_service=oauth_service,
+        webhook_service=webhook_service,
     )
 
     # Register services with app context
@@ -87,6 +115,11 @@ def create_app(config_class=Config):
     app.extensions["auth_service"] = auth_service
     app.extensions["file_service"] = file_service
     app.extensions["history_service"] = history_service
+    app.extensions["email_service"] = email_service
+    app.extensions["invitation_service"] = invitation_service
+    app.extensions["integration_manager"] = integration_manager
+    app.extensions["oauth_service"] = oauth_service
+    app.extensions["webhook_service"] = webhook_service
     register_share_recipient_auth(app)
 
     # Health check endpoint

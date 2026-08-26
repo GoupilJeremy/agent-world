@@ -106,7 +106,7 @@ class NotificationService:
         notification_type: NotificationType,
         title: str,
         message: str,
-        metadata: Optional[dict] = None,
+        extra_data: Optional[dict] = None,
         channel: Optional[NotificationChannel] = None,
         send_immediately: bool = True,
     ) -> HistoryNotification:
@@ -118,7 +118,7 @@ class NotificationService:
             notification_type: Type of notification
             title: Notification title
             message: Notification message
-            metadata: Additional data to include
+            extra_data: Additional data to include
             channel: Specific channel to use (optional, will use user preferences)
             send_immediately: Whether to attempt sending immediately
             
@@ -136,7 +136,7 @@ class NotificationService:
             channel=channel,
             title=title,
             message=message,
-            metadata=metadata,
+            extra_data=extra_data,
         )
         
         logger.info(
@@ -345,7 +345,7 @@ class NotificationService:
             notification_type=NotificationType.EXECUTION_FAILURE,
             title=f"Agent {agent_id} - Exécution échouée",
             message=f"L'exécution {execution_id} de l'agent {agent_id} a échoué: {error_message}",
-            metadata={
+            extra_data={
                 "agent_id": agent_id,
                 "execution_id": execution_id,
                 "error": error_message,
@@ -379,7 +379,7 @@ class NotificationService:
             notification_type=NotificationType.EXECUTION_SUCCESS,
             title=f"Agent {agent_id} - Exécution réussie",
             message=f"L'exécution {execution_id} de l'agent {agent_id} a réussi en {duration:.2f}s",
-            metadata={
+            extra_data={
                 "agent_id": agent_id,
                 "execution_id": execution_id,
                 "duration": duration,
@@ -421,7 +421,7 @@ class NotificationService:
             notification_type=notification_type,
             title=title,
             message=message,
-            metadata={"agent_id": agent_id, "action": action},
+            extra_data={"agent_id": agent_id, "action": action},
             channel=channel,
         )
 

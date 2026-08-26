@@ -50,6 +50,11 @@ class User(BaseModel):
     )
 
     # Relationships
+    projects = db.relationship(
+        "Project",
+        back_populates="creator",
+        foreign_keys="Project.created_by",
+    )
     agents = db.relationship(
         "Agent",
         back_populates="creator",

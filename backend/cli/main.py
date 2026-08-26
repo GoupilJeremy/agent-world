@@ -28,6 +28,7 @@ from ..models.template import Template, TemplateVersion
 from ..services.agent_service import AgentService
 from ..services.file_naming import generate_filename, normalize_extension
 from ..services.output_manager import OutputConfigurationError, OutputManager
+from .collaboration import CollaborationCLIHandler
 from .templates import TemplateCLIHandler, add_template_commands
 
 
@@ -74,6 +75,10 @@ Examples:
 
     # Add template commands
     add_template_commands(subparsers)
+    
+    # Add collaboration commands
+    collaboration_handler = CollaborationCLIHandler()
+    collaboration_handler.add_commands(subparsers)
 
     # Create command
     create_parser = subparsers.add_parser(
@@ -299,6 +304,7 @@ class AgentWorldCLI:
         self.verbose = False
         self.format = "table"
         self.template_handler = TemplateCLIHandler()
+        self.collaboration_handler = CollaborationCLIHandler()
 
     def run(self, args: Optional[List[str]] = None) -> int:
         """
@@ -316,6 +322,16 @@ class AgentWorldCLI:
 
         # Route to the appropriate command handler
         command = parsed_args.command
+        
+        # Handle collaboration commands
+        if command in ["invite", "invitations", "accept-invite", "revoke-invite", "create-project", "list-projects"]:
+            self.collaboration_handler.verbose = self.verbose
+            self.collaboration_handler.format = self.format
+            if hasattr(parsed_args, "handler"):
+                return parsed_args.handler(parsed_args)
+            else:
+                print(f"❌ Unknown collaboration command: {command}")
+                return 1
         
         # Handle template subcommands
         if command == "template":

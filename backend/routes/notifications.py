@@ -221,7 +221,7 @@ class NotificationCreateResource(Resource):
                     type: string
                   message:
                     type: string
-                  metadata:
+                  extra_data:
                     type: object
                   send_immediately:
                     type: boolean
@@ -250,7 +250,7 @@ class NotificationCreateResource(Resource):
             channel = NotificationChannel(data.get("channel", "email"))
             title = data["title"]
             message = data["message"]
-            metadata = data.get("metadata", {})
+            extra_data = data.get("extra_data", {})
             send_immediately = data.get("send_immediately", True)
             
             notification = notification_service.create_notification(
@@ -259,7 +259,7 @@ class NotificationCreateResource(Resource):
                 channel=channel,
                 title=title,
                 message=message,
-                metadata=metadata,
+                extra_data=extra_data,
                 send_immediately=send_immediately,
             )
             
