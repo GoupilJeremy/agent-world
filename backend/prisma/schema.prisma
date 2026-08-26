@@ -1,0 +1,369 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// User Models
+// ============================================================================
+
+model User {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  name          String
+  passwordHash  String
+  avatar        String?
+  isActive      Boolean      @default(true)
+  isVerified    Boolean      @default(false)
+  emailToken    String?
+  resetToken    String?
+  resetTokenExpiresAt DateTime?
+  lastLoginAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+  ownedProjects      Project[]         @relation("ProjectOwner")
+  projectMemberships ProjectMember[]
+  sentInvitations     Invitation[]      @relation("SentInvitations")
+  receivedInvitations Invitation[]      @relation("ReceivedInvitations")
+  comments            Comment[]
+  auditLogs           AuditLog[]
+  chatMessages        ChatMessage[]
+  roles               Role[]
+
+  @@map("users")
+}
+
+// ============================================================================
+// Project Models
+// ============================================================================
+
+model Project {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String
+  owner       User        @relation("ProjectOwner", fields: [ownerId], references: [id])
+  isPublic    Boolean      @default(false)
+  shareToken  String?      @unique
+  shareTokenExpiresAt DateTime?
+  settings    Json?        // Project-specific settings
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  members         ProjectMember[]
+  invitations     Invitation[]
+  agents          Agent[]
+  templates       Template[]
+  comments        Comment[]
+  auditLogs       AuditLog[]
+  conflicts       Conflict[]
+  chatMessages    ChatMessage[]
+  roles           Role[]
+
+  @@map("projects")
+}
+
+// Project Member (junction table for many-to-many User-Project with Role)
+model ProjectMember {
+  id            String       @id @default(cuid())
+  projectId     String
+  project       Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleId        String
+  role          Role         @relation(fields: [roleId], references: [id])
+  joinedAt       DateTime     @default(now())
+  lastActiveAt  DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Compound unique constraint: one user can only be a member once per project
+  @@unique([projectId, userId])
+  @@map("project_members")
+}
+
+// ============================================================================
+// Role-Based Access Control
+// ============================================================================
+
+// Permission enum (stored as String in database)
+model Role {
+  id            String       @id @default(cuid())
+  name          String
+  description   String?
+  permissions   String[]    // Array of permission strings (e.g., ["agent:create", "agent:read"])
+  isDefault     Boolean      @default(false)
+  isSystem      Boolean      @default(false)
+  projectId     String?
+  project       Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+  members       ProjectMember[]
+  invitations    Invitation[]
+
+  // Compound unique constraint: one role name per project (null for global roles)
+  @@unique([name, projectId])
+  @@map("roles")
+}
+
+// ============================================================================
+// Invitation System
+// ============================================================================
+
+model Invitation {
+  id              String       @id @default(cuid())
+  projectId       String
+  project         Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  fromUserId      String
+  fromUser       User         @relation("SentInvitations", fields: [fromUserId], references: [id])
+  toUserId        String?
+  toUser         User?        @relation("ReceivedInvitations", fields: [toUserId], references: [id])
+  email           String
+  roleId          String
+  role            Role         @relation(fields: [roleId], references: [id])
+  token           String       @unique
+  status          String       @default("pending") // pending, accepted, rejected, expired, cancelled
+  expiresAt       DateTime
+  acceptedAt      DateTime?
+  rejectedAt      DateTime?
+  cancelledAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Indexes for better query performance
+  @@index([projectId])
+  @@index([email])
+  @@index([token])
+  @@index([status])
+  @@map("invitations")
+}
+
+// ============================================================================
+// Agent Models (Extended from existing MVP)
+// ============================================================================
+
+model Agent {
+  id              String       @id @default(cuid())
+  name            String
+  description     String?
+  projectId       String
+  project         Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  templateId      String?
+  template        Template?    @relation(fields: [templateId], references: [id])
+  modelId         String
+  configuration   Json        // Agent configuration
+  isActive        Boolean      @default(true)
+  version         Int          @default(1)
+  versionHash     String?      // Hash of the configuration for conflict detection
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Relations
+  comments        Comment[]
+  executions      AgentExecution[]
+  conflicts       Conflict[]
+  auditLogs       AuditLog[]
+
+  @@map("agents")
+}
+
+// Agent Execution History (from EPIC 4)
+model AgentExecution {
+  id              String       @id @default(cuid())
+  agentId         String
+  agent           Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  userId          String?
+  user            User?        @relation(fields: [userId], references: [id])
+  input           Json?
+  output          Json?
+  status          String       @default("pending") // pending, running, completed, failed
+  durationMs      Int?
+  errorMessage    String?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime     @default(now())
+
+  @@map("agent_executions")
+}
+
+// ============================================================================
+// Template Models (from EPIC 5)
+// ============================================================================
+
+model Template {
+  id              String       @id @default(cuid())
+  name            String
+  description     String?
+  projectId       String?
+  project         Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  creatorId       String
+  creator         User         @relation(fields: [creatorId], references: [id])
+  category        String?
+  tags            String[]
+  configuration   Json        // Default configuration
+  isPublic        Boolean      @default(false)
+  isOfficial      Boolean      @default(false)
+  version         String       @default("1.0.0")
+  downloadCount   Int          @default(0)
+  likeCount       Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Relations
+  agents          Agent[]
+  auditLogs       AuditLog[]
+
+  @@map("templates")
+}
+
+// ============================================================================
+// Comment System
+// ============================================================================
+
+model Comment {
+  id              String       @id @default(cuid())
+  agentId         String
+  agent           Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  projectId       String
+  project         Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  content         String
+  parentId        String?
+  parent          Comment?     @relation("CommentReplies", fields: [parentId], references: [id])
+  replies         Comment[]    @relation("CommentReplies")
+  mentions        String[]    // Array of mentioned user IDs
+  isEdited       Boolean      @default(false)
+  editedAt        DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Indexes
+  @@index([agentId])
+  @@index([projectId])
+  @@index([parentId])
+  @@map("comments")
+}
+
+// ============================================================================
+// Audit Log System
+// ============================================================================
+
+// Entity types for audit logging
+export type AuditEntityType = 'agent' | 'project' | 'template' | 'comment' | 'invitation' | 'role' | 'member';
+
+// Action types for audit logging
+export type AuditAction = 'create' | 'read' | 'update' | 'delete' | 'execute' | 'share' | 'invite' | 'join' | 'leave';
+
+model AuditLog {
+  id              String       @id @default(cuid())
+  projectId       String?
+  project         Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  userId          String?
+  user            User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action          String       // AuditAction enum
+  entityType      String       // AuditEntityType enum
+  entityId        String
+  oldValue        Json?
+  newValue        Json?
+  changes         Json?        // Structured changes: {field: {old, new}}
+  timestamp       DateTime     @default(now())
+  ipAddress       String?
+  userAgent       String?
+
+  // Indexes for filtering
+  @@index([projectId])
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+// ============================================================================
+// Conflict Detection System
+// ============================================================================
+
+model Conflict {
+  id              String       @id @default(cuid())
+  agentId         String
+  agent           Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  projectId       String
+  project         Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  field           String       // Which field has the conflict
+  baseVersion     String       // Base version hash
+  theirVersion    String       // Their version hash
+  myVersion       String       // Current user's version hash
+  theirValue      Json        // Their proposed value
+  myValue         Json        // Current user's proposed value
+  userIds         String[]    // All user IDs involved in the conflict
+  status          String       @default("open") // open, resolved, merged, dismissed
+  resolvedBy      String?
+  resolvedAt      DateTime?
+  resolution      String?      // How it was resolved: use_mine, use_theirs, merge, custom
+  resolutionNote  String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Indexes
+  @@index([agentId])
+  @@index([projectId])
+  @@index([status])
+  @@map("conflicts")
+}
+
+// ============================================================================
+// Chat System
+// ============================================================================
+
+model ChatMessage {
+  id              String       @id @default(cuid())
+  projectId       String
+  project         Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  content         String
+  attachments     String[]    // Array of file URLs
+  reactions       Json?       // Record<string, string[]> - emoji -> user IDs
+  readBy          String[]    // User IDs who have read the message
+  isEdited        Boolean      @default(false)
+  editedAt        DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Indexes
+  @@index([projectId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("chat_messages")
+}
+
+// ============================================================================
+// User Presence (for chat)
+// ============================================================================
+
+model UserPresence {
+  id              String       @id @default(cuid())
+  userId          String       @unique
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId       String?
+  isOnline        Boolean      @default(false)
+  lastSeenAt      DateTime?
+  lastActiveAt    DateTime?
+  currentProjectId String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@map("user_presence")
+}
