@@ -1,5 +1,5 @@
 # 📋 **Agent World - Backlog Produit Complet**
-*Version : 1.1.0 - Dernière mise à jour : 26 août 2026*
+*Version : 1.2.0 - Dernière mise à jour : 26 août 2026*
 
 ---
 
@@ -174,11 +174,11 @@
 **Description** : Intégrer Agent World avec des outils et services externes.
 **Priorité** : P2 (Could Have)
 **Heures Estimées** : ~35h
-**Statut** : 🚧 **En cours** (Sprint 4)
+**Statut** : ✅ **Terminé** (Version v0.4.1 - 26 août 2026)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
-| US-047   | Intégration GitHub                  | Connecter Agent World à GitHub (ex: créer des PR, commenter des issues).                         | 8h             | P2           | ⏳ To Do    | ✅ Authentification OAuth, ✅ 3+ actions GitHub supportées.                                       |
+| US-047   | Intégration GitHub                  | Connecter Agent World à GitHub (ex: créer des PR, commenter des issues).                         | 8h             | P2           | ✅ Done    | ✅ Authentification OAuth, ✅ 3+ actions GitHub supportées.                                       |
 | US-048   | Intégration Slack                   | Envoyer des notifications et interagir avec Slack.                                               | 5h             | P2           | ✅ Done    | ✅ Webhooks Slack, ✅ Commandes slash, ✅ Messages, ✅ Canaux, ✅ Réactions.                          |
 | US-049   | Intégration Discord                 | Envoyer des notifications et interagir avec Discord.                                             | 5h             | P2           | ✅ Done    | ✅ Webhooks Discord, ✅ Commandes personnalisées, ✅ Messages, ✅ Embeds, ✅ Rôles.               |
 | US-050   | Intégration Notion                  | Synchroniser les agents avec des bases de données Notion.                                        | 6h             | P2           | ⏳ Backlog | ✅ Authentification Notion, ✅ Lecture/écriture des données.                                      |
@@ -256,6 +256,7 @@
 | **Files**           | Épic 3                              | 25 août 2026          | v0.2.1      | ✅ **Terminé**       |
 | **History**         | Épic 4                              | 25 août 2026          | v0.3.0      | ✅ **Terminé**       |
 | **Templates**       | Épic 5                              | 25 août 2026          | v0.3.1      | ✅ **Terminé**       |
+| **Integrations**    | Épic 7                              | 26 août 2026          | v0.4.1      | ✅ **Terminé**       |
 | **Collaboration**   | Épic 6                              | 30 septembre 2026     | v0.4.0      | ⏳ **À venir**       |
 
 ---
@@ -338,12 +339,12 @@
 |----------|------------------------------------|----------------|---------------|------------|--------------|
 | US-040   | Invitation d'utilisateurs          | 5h             | -             | ⏳ To Do    | P2           |
 | US-041   | Gestion des rôles                  | 6h             | -             | ⏳ To Do    | P2           |
-| US-047   | Intégration GitHub                  | 8h             | -             | ⏳ To Do    | P2           |
+| US-047   | Intégration GitHub                  | 8h             | -             | ✅ Done    | P2           |
 
 **Livrables** :
-- ✅ Collaboration complète (invitation et gestion des rôles).
+- ⏳ Collaboration complète (invitation et gestion des rôles).
 - ✅ Intégration GitHub fonctionnelle.
-- ✅ Préparation pour les autres intégrations.
+- ⏳ Préparation pour les autres intégrations.
 
 ---
 
@@ -444,7 +445,7 @@
 | US-044   | Historique des modifications       | Collaboration   | 6h         | ⏳ Backlog      |
 | US-045   | Résolution de conflits              | Collaboration   | 8h         | ⏳ Backlog      |
 | US-046   | Chat en temps réel                 | Collaboration   | 6h         | ⏳ Backlog      |
-| US-047   | Intégration GitHub                  | Integrations    | 8h         | ⏳ To Do        |
+| US-047   | Intégration GitHub                  | Integrations    | 8h         | ✅ Done        |
 | US-048   | Intégration Slack                   | Integrations    | 5h         | ✅ Done        |
 | US-049   | Intégration Discord                 | Integrations    | 5h         | ✅ Done        |
 | US-050   | Intégration Notion                  | Integrations    | 6h         | ⏳ Backlog      |
@@ -510,4 +511,4 @@
 
 ---
 
-*Document généré le 06 août 2026. Dernière mise à jour : 26 août 2026.*
+*Document généré le 06 août 2026. Dernière mise à jour : 26 août 2026 (Version 1.2.0 - Épic 7 terminé).*
