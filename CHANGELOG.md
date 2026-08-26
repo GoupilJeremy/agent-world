@@ -24,7 +24,7 @@ Ce changelog suit les conventions de [Keep a Changelog](https://keepachangelog.c
 *Changements en cours pour la prochaine version*
 
 #### **Added**
-- **Intégrations Externes (Épic 7 - Sprint 4)** :
+- **Intégrations Externes (Épic 7 - Sprint 4-5)** :
   - Intégration Slack complète (US-048) :
     - Envoi de messages aux canaux et utilisateurs.
     - Gestion des canaux (liste, création, rejoindre, quitter).
@@ -44,7 +44,29 @@ Ce changelog suit les conventions de [Keep a Changelog](https://keepachangelog.c
     - Validation des signatures de sécurité.
     - Support des webhooks entrants et sortants.
     - Statistiques et monitoring.
-  - Tests complets pour toutes les intégrations.
+  - **Intégration Notion (US-050 - Sprint 5)** :
+    - Authentification OAuth2 et Internal Integration Token.
+    - Lecture et écriture dans les bases de données Notion.
+    - Création, mise à jour et gestion des pages.
+    - Synchronisation bidirectionnelle entre Agent World et Notion.
+    - Recherche de contenu et gestion des blocs.
+    - 15+ actions supportées.
+  - **Intégration Google Drive (US-051 - Sprint 5)** :
+    - Authentification OAuth2 avec scopes configurables.
+    - Gestion complète des fichiers (upload, download, delete, copy, move).
+    - Création et gestion des dossiers.
+    - Gestion des permissions et partage.
+    - Recherche de fichiers et gestion du quota.
+    - 15+ actions supportées.
+  - **Intégration Trello (US-052 - Sprint 5)** :
+    - Authentification API Key + Token ou OAuth1.
+    - Création et gestion des tableaux (boards).
+    - Création et gestion des listes.
+    - Création et gestion des cartes avec checklists, labels, membres.
+    - Ajout de commentaires et pièces jointes.
+    - Synchronisation des tâches Agent World vers Trello.
+    - 20+ actions supportées.
+  - Tests complets pour toutes les intégrations (117+ tests unitaires).
 - Ajout de la structure complète du backlog (60+ user stories, 10 épics).
 - Création des fichiers de documentation (BACKLOG.md, ROADMAP.md, etc.).
 - Configuration GitHub (labels, milestones, projects).

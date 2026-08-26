@@ -40,6 +40,9 @@ def register_adapter(adapter_class: type) -> type:
 from .github_adapter import GitHubIntegrationAdapter  # noqa: F401
 from .slack_adapter import SlackIntegrationAdapter  # noqa: F401
 from .discord_adapter import DiscordIntegrationAdapter  # noqa: F401
+from .notion_adapter import NotionIntegrationAdapter  # noqa: F401
+from .google_drive_adapter import GoogleDriveIntegrationAdapter  # noqa: F401
+from .trello_adapter import TrelloIntegrationAdapter  # noqa: F401
 
 # Import lazy pour éviter les dépendances circulaires supplémentaires
 def __getattr__(name):
@@ -50,6 +53,12 @@ def __getattr__(name):
         return SlackIntegrationAdapter
     if name == "DiscordIntegrationAdapter":
         return DiscordIntegrationAdapter
+    if name == "NotionIntegrationAdapter":
+        return NotionIntegrationAdapter
+    if name == "GoogleDriveIntegrationAdapter":
+        return GoogleDriveIntegrationAdapter
+    if name == "TrelloIntegrationAdapter":
+        return TrelloIntegrationAdapter
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -60,4 +69,7 @@ __all__ = [
     "GitHubIntegrationAdapter",
     "SlackIntegrationAdapter",
     "DiscordIntegrationAdapter",
+    "NotionIntegrationAdapter",
+    "GoogleDriveIntegrationAdapter",
+    "TrelloIntegrationAdapter",
 ]
