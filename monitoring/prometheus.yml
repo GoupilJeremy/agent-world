@@ -1,0 +1,37 @@
+# Prometheus Configuration for Agent World (Épic 8)
+# Version: 0.4.2
+# Description: Configuration de base pour le monitoring des performances
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Configuration pour Prometheus lui-même
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Configuration pour Redis (exporter)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    metrics_path: '/metrics'
+
+  # Configuration pour PostgreSQL (exporter)
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    metrics_path: '/metrics'
+
+  # Configuration pour l'application Flask
+  # Note: Nécessite l'installation de prometheus_flask_exporter
+  - job_name: 'agent-world'
+    static_configs:
+      - targets: ['backend:5000']
+    metrics_path: '/metrics'
+    scheme: http

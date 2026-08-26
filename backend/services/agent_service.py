@@ -10,11 +10,13 @@ Il fait le lien entre les modèles de données et les contrôleurs.
 """
 
 from typing import Any, Dict, List, Optional
+import logging
 
 from ..models.agent import Agent
 from ..models.agent_history import ActionType
 from ..models.base import db
 from ..models.execution import Execution, ExecutionStatus
+from .agent_cache_service import get_agent_cache_service
 
 
 class AgentService:
@@ -201,6 +203,7 @@ class AgentService:
         model: Optional[str] = None,
         configuration: Optional[Dict[str, Any]] = None,
         executed_by: Optional[int] = None,
+        use_cache: bool = True,
     ) -> Dict[str, Any]:
         """
         Run an agent with the given input.
@@ -211,6 +214,7 @@ class AgentService:
             model: Optional model override
             configuration: Optional configuration override
             executed_by: Optional ID of the user who initiated the execution
+            use_cache: Whether to use cached results if available (default: True)
 
         Returns:
             Dictionary containing execution information
@@ -218,6 +222,7 @@ class AgentService:
         Raises:
             ValueError: If agent not found or not active
         """
+        logger = logging.getLogger(__name__)
         agent = self.get_agent(agent_id)
         if not agent:
             raise ValueError(f"Agent with ID {agent_id} not found")
@@ -228,6 +233,25 @@ class AgentService:
         # Use provided model or agent's default
         model_used = model or agent.model
         config_used = agent.configuration if configuration is None else configuration
+
+        # Vérifier le cache si activé
+        if use_cache:
+            agent_cache = get_agent_cache_service()
+            cached_result = agent_cache.get_execution_result(
+                agent_id=agent_id,
+                input_data=input_data,
+                model=model_used,
+                configuration=config_used
+            )
+            
+            if cached_result is not None:
+                logger.info(f"✅ Cache hit for agent {agent_id} execution")
+                # Retourner le résultat en cache avec un flag
+                return {
+                    **cached_result,
+                    "from_cache": True,
+                    "cache_hit": True,
+                }
 
         # Create execution record
         execution = Execution.create(
@@ -264,6 +288,25 @@ class AgentService:
             }
 
             execution.complete(output_data)
+
+            # Mettre en cache le résultat
+            if use_cache:
+                agent_cache = get_agent_cache_service()
+                agent_cache.cache_execution_result(
+                    agent_id=agent_id,
+                    input_data=input_data,
+                    result={
+                        "execution_id": execution.id,
+                        "agent_id": agent_id,
+                        "status": execution.status.value,
+                        "output": output_data,
+                        "duration_ms": execution.duration_ms,
+                    },
+                    model=model_used,
+                    configuration=config_used,
+                )
+                logger.info(f"📦 Cached agent {agent_id} execution result")
+
         except Exception as error:
             # ``start`` and ``complete`` commit independently. Roll back first
             # so a failed flush/commit cannot prevent the terminal FAILED state
@@ -281,6 +324,8 @@ class AgentService:
             "status": execution.status.value,
             "output": output_data,
             "duration_ms": execution.duration_ms,
+            "from_cache": False,
+            "cache_hit": False,
         }
 
     def get_agent_executions(

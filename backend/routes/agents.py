@@ -16,8 +16,10 @@ from flask_restful import Resource, reqparse
 
 from ..models.agent import Agent
 from ..models.base import db
+from ..services.cache_service import cache_response, invalidate_cache, get_cache_service
 from ..services.file_naming import generate_filename, normalize_extension
 from ..services.file_service import FileServiceError, FileValidationError
+from ..services.pagination_service import PaginationService, PaginationResult
 
 # Initialize parser for request parsing
 parser = reqparse.RequestParser()
@@ -115,24 +117,68 @@ def _generated_content(result):
 class AgentListResource(Resource):
     """Resource for listing and creating agents."""
 
+    @cache_response(timeout=300, key_prefix="agents:list")
     def get(self):
         """
-        List all agents.
+        List all agents with pagination support.
 
         ---
+        parameters:
+          - in: query
+            name: page
+            schema:
+              type: integer
+              default: 1
+            description: Page number (1-based)
+          - in: query
+            name: per_page
+            schema:
+              type: integer
+              default: 20
+              maximum: 100
+            description: Number of items per page
         responses:
           200:
-            description: A list of all agents
+            description: Paginated list of agents
             content:
               application/json:
                 schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Agent'
+                  type: object
+                  properties:
+                    items:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Agent'
+                    pagination:
+                      type: object
+                      properties:
+                        total:
+                          type: integer
+                        page:
+                          type: integer
+                        per_page:
+                          type: integer
+                        total_pages:
+                          type: integer
+                        has_next:
+                          type: boolean
+                        has_prev:
+                          type: boolean
         """
+        # Get pagination parameters
+        page, per_page = PaginationService.get_pagination_params()
+        
+        # Get all agents and paginate
         agents = Agent.get_all()
-        return [agent.to_dict() for agent in agents], 200
+        paginated = PaginationService.paginate_list(
+            [agent.to_dict() for agent in agents],
+            page=page,
+            per_page=per_page
+        )
+        
+        return paginated.to_dict(), 200
 
+    @invalidate_cache(key_prefix="agents:list")
     def post(self):
         """
         Create a new agent.
@@ -208,6 +254,7 @@ class AgentResource(Resource):
 
         return agent.to_dict(), 200
 
+    @invalidate_cache(key_prefix="agents:list")
     def put(self, agent_id):
         """
         Update an existing agent.
@@ -265,6 +312,7 @@ class AgentResource(Resource):
             db.session.rollback()
             return {"error": str(e)}, 500
 
+    @invalidate_cache(key_prefix="agents:list")
     def delete(self, agent_id):
         """
         Delete an agent.

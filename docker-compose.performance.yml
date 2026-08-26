@@ -1,0 +1,120 @@
+# Docker Compose Configuration for Performance Features (Épic 8)
+# Version: 0.4.2
+# Description: Configuration pour Redis et les outils de monitoring
+
+version: '3.8'
+
+services:
+  # Redis pour le cache
+  redis:
+    image: redis:7-alpine
+    container_name: agent_world_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agent_world_network
+
+  # Prometheus pour le monitoring (optionnel - Épic 8)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: agent_world_prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    networks:
+      - agent_world_network
+    depends_on:
+      - redis
+
+  # Grafana pour la visualisation (optionnel - Épic 8)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: agent_world_grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=agentworld
+      - GF_USERS_ALLOW_SIGN_UP=false
+    networks:
+      - agent_world_network
+    depends_on:
+      - prometheus
+
+  # Agent World Backend avec Redis configuré
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agent_world_backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+      - CACHE_DEFAULT_TIMEOUT=3600
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/agent_world
+    volumes:
+      - .:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - agent_world_network
+
+  # Base de données PostgreSQL (déjà existante dans docker-compose.yml)
+  db:
+    image: postgres:15-alpine
+    container_name: agent_world_db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=agent_world
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agent_world_network
+
+networks:
+  agent_world_network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  postgres_data:
+  prometheus_data:
+  grafana_data:

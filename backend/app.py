@@ -15,11 +15,13 @@ from flask_restful import Api
 
 from .config.settings import Config
 from .models.base import init_db
-from .routes import agents_bp, register_resources
+from .routes import agents_bp, register_resources, get_performance_bp
 from .routes.share_auth import register_share_recipient_auth
+from .services.agent_cache_service import AgentCacheService
 from .services.agent_service import AgentService
 from .services.ai_service import AIService
 from .services.auth_service import AuthService
+from .services.cache_service import CacheService, get_cache_service
 from .services.email_service import EmailService
 from .services.file_service import FileService
 from .services.history_service import HistoryService
@@ -61,6 +63,9 @@ def create_app(config_class=Config):
     # Register blueprints
     app.register_blueprint(agents_bp)
     
+    # Register performance blueprint (Épic 8)
+    app.register_blueprint(get_performance_bp())
+    
     # Register integrations blueprint
     from .routes import get_integrations_bp
     app.register_blueprint(get_integrations_bp())
@@ -86,6 +91,15 @@ def create_app(config_class=Config):
         obsolete_ttl_days=app.config.get("FILE_OBSOLETE_TTL_DAYS", 30),
         keep_latest_versions=app.config.get("FILE_KEEP_LATEST_VERSIONS", 3),
     )
+    
+    # Cache service (Épic 8 - Performance)
+    cache_service = CacheService(
+        redis_url=app.config.get("REDIS_URL", "redis://localhost:6379/0"),
+        default_timeout=app.config.get("CACHE_DEFAULT_TIMEOUT", 3600)
+    )
+    
+    # Agent cache service (Épic 8 - Performance)
+    agent_cache_service = AgentCacheService()
     
     # Collaboration services (Épic 6)
     email_service = EmailService(
@@ -117,6 +131,8 @@ def create_app(config_class=Config):
     app.extensions["history_service"] = history_service
     app.extensions["email_service"] = email_service
     app.extensions["invitation_service"] = invitation_service
+    app.extensions["cache_service"] = cache_service
+    app.extensions["agent_cache_service"] = agent_cache_service
     app.extensions["integration_manager"] = integration_manager
     app.extensions["oauth_service"] = oauth_service
     app.extensions["webhook_service"] = webhook_service

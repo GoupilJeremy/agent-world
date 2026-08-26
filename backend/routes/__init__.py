@@ -11,6 +11,7 @@ from .files import register_resources as register_file_resources
 from .history import register_history_resources
 from .invitations import register_resources as register_invitation_resources
 from .notifications import register_resources as register_notification_resources
+from .performance import performance_bp, register_performance_resources
 from .templates import register_resources as register_template_resources
 
 # Créer un blueprint pour les routes des agents
@@ -37,6 +38,8 @@ def register_resources(api):
     register_invitation_resources(api)
     register_notification_resources(api)
     register_template_resources(api)
+    # Performance resources (Épic 8)
+    register_performance_resources(api)
     # Enregistrer les intégrations de manière lazy
     register_integration_resources = _get_register_integration_resources()
     register_integration_resources(api)
@@ -47,4 +50,9 @@ def get_integrations_bp():
     return _get_integrations_bp()
 
 
-__all__ = ["agents_bp", "register_resources", "get_integrations_bp"]
+def get_performance_bp():
+    """Récupère le blueprint des performances."""
+    return performance_bp
+
+
+__all__ = ["agents_bp", "register_resources", "get_integrations_bp", "get_performance_bp"]
