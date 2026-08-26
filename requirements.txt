@@ -20,6 +20,9 @@ httpx==0.26.0
 # Authentication & Security
 pyjwt==2.8.0
 passlib==1.7.4
+pyotp==2.9.0
+cryptography==42.0.5
+flask-limiter==3.5.0
 
 # Performance
 redis==5.0.1

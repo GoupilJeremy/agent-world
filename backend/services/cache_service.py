@@ -13,10 +13,10 @@ import hashlib
 import json
 import logging
 from functools import wraps
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional
 
 import redis
-from flask import current_app, request
+from flask import request
 
 logger = logging.getLogger(__name__)
 
@@ -44,15 +44,20 @@ class CacheService:
                 # Essayer d'obtenir la configuration depuis Flask si disponible
                 try:
                     from flask import current_app
+
                     redis_url = current_app.config.get("REDIS_URL", self.redis_url)
-                    default_timeout = current_app.config.get("CACHE_DEFAULT_TIMEOUT", self.default_timeout)
+                    default_timeout = current_app.config.get(
+                        "CACHE_DEFAULT_TIMEOUT", self.default_timeout
+                    )
                     self.redis_url = redis_url
                     self.default_timeout = default_timeout
                 except RuntimeError:
                     # En dehors du contexte Flask, utiliser les valeurs par défaut
                     pass
-                
-                self._client = redis.Redis.from_url(self.redis_url, decode_responses=True)
+
+                self._client = redis.Redis.from_url(
+                    self.redis_url, decode_responses=True
+                )
                 # Test de connexion
                 self._client.ping()
                 logger.info(f"Redis cache connected to {self.redis_url}")
@@ -172,12 +177,12 @@ class CacheService:
         # Inclure le chemin de la requête et les paramètres
         path = request.path if request else ""
         query_string = request.query_string.decode() if request else ""
-        
+
         # Combiner tous les éléments
         key_parts = [path, query_string]
         key_parts.extend(str(arg) for arg in args)
         key_parts.extend(f"{k}={v}" for k, v in sorted(kwargs.items()))
-        
+
         key_data = "|".join(key_parts)
         return hashlib.sha256(key_data.encode()).hexdigest()
 
@@ -207,18 +212,21 @@ def cache_response(timeout: Optional[int] = None, key_prefix: str = "api:"):
         def get_agents():
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
             cache_service = get_cache_service()
-            
+
             if not cache_service.is_available():
                 logger.debug("⚠️ Cache disabled, executing function directly")
                 return func(*args, **kwargs)
 
             # Générer une clé de cache unique
-            cache_key = f"{key_prefix}{cache_service.generate_cache_key(*args, **kwargs)}"
-            
+            cache_key = (
+                f"{key_prefix}{cache_service.generate_cache_key(*args, **kwargs)}"
+            )
+
             # Essayer de récupérer du cache
             cached_result = cache_service.get(cache_key)
             if cached_result is not None:
@@ -231,10 +239,11 @@ def cache_response(timeout: Optional[int] = None, key_prefix: str = "api:"):
 
             # Stocker dans le cache
             cache_service.set(cache_key, result, timeout)
-            
+
             return result
-        
+
         return wrapper
+
     return decorator
 
 
@@ -250,43 +259,46 @@ def invalidate_cache(key_prefix: str = "api:"):
         def create_agent():
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
             result = func(*args, **kwargs)
-            
+
             cache_service = get_cache_service()
             if cache_service.is_available():
                 pattern = f"{key_prefix}*"
                 count = cache_service.clear(pattern)
-                logger.debug(f"🔄 Invalidated {count} cache entries for pattern '{pattern}'")
-            
+                logger.debug(
+                    f"🔄 Invalidated {count} cache entries for pattern '{pattern}'"
+                )
+
             return result
-        
+
         return wrapper
+
     return decorator
 
 
 # Configuration pour Flask
 class CacheConfig:
     """Configuration du cache pour Flask."""
-    
+
     @staticmethod
     def init_app(app):
         """Initialise le service de cache pour une application Flask."""
         global _cache_service
         _cache_service = CacheService(
             redis_url=app.config.get("REDIS_URL"),
-            default_timeout=app.config.get("CACHE_DEFAULT_TIMEOUT", 3600)
+            default_timeout=app.config.get("CACHE_DEFAULT_TIMEOUT", 3600),
         )
-        
+
         # Ajouter un endpoint pour vider le cache (admin)
         @app.route("/api/cache/clear", methods=["POST"])
         def clear_cache():
             """Endpoint pour vider le cache (admin only)."""
             from flask import jsonify
-            from ..services.auth_service import get_current_user
-            
+
             # Vérifier l'authentification et les permissions
             # (À implémenter dans Épic 10 - Sécurité)
             cache_service = get_cache_service()
@@ -294,6 +306,9 @@ class CacheConfig:
                 count = cache_service.clear()
                 return jsonify({"status": "success", "cleared_keys": count}), 200
             else:
-                return jsonify({"status": "error", "message": "Cache not available"}), 503
-        
+                return (
+                    jsonify({"status": "error", "message": "Cache not available"}),
+                    503,
+                )
+
         app.extensions["cache_service"] = _cache_service

@@ -1,6 +1,6 @@
 # 🧪 Agent World - Performance Tests
 # Version: 0.4.2 (Épic 8 - Performance)
-# Description: Tests pour les fonctionnalités de performance (cache, pagination, optimisation BDD)
+# Description: Tests pour les fonctionnalités de performance
 
 """
 Performance Tests for Agent World.
@@ -13,28 +13,37 @@ Ce module contient les tests pour :
 """
 
 import json
-import pytest
-import time
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from backend.app import create_app
 from backend.config import TestingConfig
 from backend.models.agent import Agent
 from backend.models.base import db
-from backend.services.cache_service import CacheService, get_cache_service, cache_response, invalidate_cache
-from backend.services.agent_cache_service import AgentCacheService, get_agent_cache_service
-from backend.services.pagination_service import PaginationService, PaginationResult
-from backend.services.db_optimization_service import DBOptimizationService, get_db_optimization_service
+from backend.services.agent_cache_service import (
+    get_agent_cache_service,
+)
+from backend.services.cache_service import (
+    CacheService,
+    cache_response,
+    get_cache_service,
+    invalidate_cache,
+)
+from backend.services.db_optimization_service import (
+    get_db_optimization_service,
+)
+from backend.services.pagination_service import PaginationResult, PaginationService
 
 
 @pytest.fixture
 def app():
     """Create application for testing."""
     app = create_app(config_class=TestingConfig)
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    app.config['CACHE_DEFAULT_TIMEOUT'] = 0  # Désactiver le cache en test
-    
+    app.config["TESTING"] = True
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["CACHE_DEFAULT_TIMEOUT"] = 0  # Désactiver le cache en test
+
     with app.app_context():
         db.create_all()
         yield app
@@ -50,6 +59,7 @@ def client(app):
 # ============================================================================
 # Tests du Service de Cache
 # ============================================================================
+
 
 class TestCacheService:
     """Tests pour le service de cache Redis."""
@@ -72,25 +82,30 @@ class TestCacheService:
         mock_redis.delete.return_value = 1
         mock_redis.scan_iter.return_value = []
 
-        with patch('backend.services.cache_service.redis.Redis.from_url', return_value=mock_redis):
-            cache_service = CacheService(redis_url="redis://localhost:6379/0", default_timeout=100)
+        with patch(
+            "backend.services.cache_service.redis.Redis.from_url",
+            return_value=mock_redis,
+        ):
+            cache_service = CacheService(
+                redis_url="redis://localhost:6379/0", default_timeout=100
+            )
             assert cache_service.is_available()
-            
+
             # Test set
             result = cache_service.set("test_key", {"data": "test"}, timeout=50)
             assert result is True
             mock_redis.setex.assert_called_once()
-            
+
             # Test get (cache miss)
             mock_redis.get.return_value = None
             result = cache_service.get("test_key")
             assert result is None
-            
+
             # Test get (cache hit)
             mock_redis.get.return_value = json.dumps({"data": "test"})
             result = cache_service.get("test_key")
             assert result == {"data": "test"}
-            
+
             # Test delete
             result = cache_service.delete("test_key")
             assert result is True
@@ -108,10 +123,11 @@ class TestCacheService:
     def test_cache_response_decorator(self, app):
         """Test le décorateur de cache pour les réponses API."""
         with app.app_context():
+
             @cache_response(timeout=100, key_prefix="test:")
             def mock_endpoint():
                 return {"data": "test"}
-            
+
             # Sans cache disponible, la fonction doit être exécutée
             result = mock_endpoint()
             assert result == {"data": "test"}
@@ -119,10 +135,11 @@ class TestCacheService:
     def test_invalidate_cache_decorator(self, app):
         """Test le décorateur d'invalidation du cache."""
         with app.app_context():
+
             @invalidate_cache(key_prefix="test:")
             def mock_endpoint():
                 return {"data": "test"}
-            
+
             result = mock_endpoint()
             assert result == {"data": "test"}
 
@@ -130,6 +147,7 @@ class TestCacheService:
 # ============================================================================
 # Tests du Service de Cache des Agents
 # ============================================================================
+
 
 class TestAgentCacheService:
     """Tests pour le service de cache des résultats des agents."""
@@ -148,7 +166,7 @@ class TestAgentCacheService:
                 agent_id=1,
                 input_data={"text": "test"},
                 model="mistral-tiny",
-                configuration={"param": "value"}
+                configuration={"param": "value"},
             )
             assert key.startswith("agent:result:")
             assert len(key) > 20
@@ -166,15 +184,15 @@ class TestAgentCacheService:
             mock_cache = MagicMock()
             mock_cache.is_available.return_value = True
             mock_cache.set.return_value = True
-            
-            with patch.object(get_agent_cache_service(), '_cache', mock_cache):
+
+            with patch.object(get_agent_cache_service(), "_cache", mock_cache):
                 agent_cache = get_agent_cache_service()
                 result = agent_cache.cache_execution_result(
                     agent_id=1,
                     input_data={"text": "test"},
                     result={"output": "result"},
                     model="mistral-tiny",
-                    ttl=3600
+                    ttl=3600,
                 )
                 assert result is True
                 mock_cache.set.assert_called_once()
@@ -184,13 +202,14 @@ class TestAgentCacheService:
 # Tests du Service de Pagination
 # ============================================================================
 
+
 class TestPaginationService:
     """Tests pour le service de pagination."""
 
     def test_get_pagination_params_default(self, app):
         """Test la récupération des paramètres de pagination par défaut."""
         with app.app_context():
-            with app.test_request_context('/?page=1&per_page=10'):
+            with app.test_request_context("/?page=1&per_page=10"):
                 page, per_page = PaginationService.get_pagination_params()
                 assert page == 1
                 assert per_page == 10
@@ -199,17 +218,17 @@ class TestPaginationService:
         """Test les cas limites des paramètres de pagination."""
         with app.app_context():
             # Page négative -> 1
-            with app.test_request_context('/?page=-5&per_page=10'):
+            with app.test_request_context("/?page=-5&per_page=10"):
                 page, per_page = PaginationService.get_pagination_params()
                 assert page == 1
-            
+
             # per_page trop grand -> max
-            with app.test_request_context('/?page=1&per_page=200'):
+            with app.test_request_context("/?page=1&per_page=200"):
                 page, per_page = PaginationService.get_pagination_params()
                 assert per_page == PaginationService.MAX_PER_PAGE
-            
+
             # Paramètres invalides -> valeurs par défaut
-            with app.test_request_context('/?page=invalid&per_page=invalid'):
+            with app.test_request_context("/?page=invalid&per_page=invalid"):
                 page, per_page = PaginationService.get_pagination_params()
                 assert page == 1
                 assert per_page == PaginationService.DEFAULT_PER_PAGE
@@ -218,7 +237,7 @@ class TestPaginationService:
         """Test la pagination d'une liste."""
         with app.app_context():
             items = list(range(100))
-            
+
             # Page 1, 10 items
             paginated = PaginationService.paginate_list(items, page=1, per_page=10)
             assert isinstance(paginated, PaginationResult)
@@ -228,17 +247,17 @@ class TestPaginationService:
             assert paginated.per_page == 10
             assert paginated.total_pages == 10
             assert paginated.items == list(range(10))
-            
+
             # Page 2, 10 items
             paginated = PaginationService.paginate_list(items, page=2, per_page=10)
             assert len(paginated.items) == 10
             assert paginated.items == list(range(10, 20))
-            
+
             # Dernière page
             paginated = PaginationService.paginate_list(items, page=10, per_page=10)
             assert len(paginated.items) == 10
             assert paginated.items == list(range(90, 100))
-            
+
             # Page 11 (vide)
             paginated = PaginationService.paginate_list(items, page=11, per_page=10)
             assert len(paginated.items) == 0
@@ -248,13 +267,9 @@ class TestPaginationService:
         with app.app_context():
             items = [{"id": 1}, {"id": 2}]
             paginated = PaginationResult(
-                items=items,
-                total=2,
-                page=1,
-                per_page=10,
-                total_pages=1
+                items=items, total=2, page=1, per_page=10, total_pages=1
             )
-            
+
             result = paginated.to_dict()
             assert "items" in result
             assert "pagination" in result
@@ -269,6 +284,7 @@ class TestPaginationService:
 # Tests d'Intégration des Endpoints API
 # ============================================================================
 
+
 class TestPerformanceEndpoints:
     """Tests d'intégration pour les endpoints de performance."""
 
@@ -280,13 +296,13 @@ class TestPerformanceEndpoints:
                 Agent.create(
                     name=f"test_agent_{i}",
                     description=f"Description {i}",
-                    model="mistral-tiny"
+                    model="mistral-tiny",
                 )
-            
+
             # Tester la pagination
-            response = client.get('/api/agents?page=1&per_page=10')
+            response = client.get("/api/agents?page=1&per_page=10")
             data = json.loads(response.data)
-            
+
             assert response.status_code == 200
             assert "items" in data
             assert "pagination" in data
@@ -296,17 +312,17 @@ class TestPerformanceEndpoints:
             assert data["pagination"]["total_pages"] == 3
             assert data["pagination"]["has_next"] is True
             assert data["pagination"]["has_prev"] is False
-            
+
             # Page 2
-            response = client.get('/api/agents?page=2&per_page=10')
+            response = client.get("/api/agents?page=2&per_page=10")
             data = json.loads(response.data)
             assert len(data["items"]) == 10
             assert data["pagination"]["page"] == 2
             assert data["pagination"]["has_next"] is True
             assert data["pagination"]["has_prev"] is True
-            
+
             # Dernière page
-            response = client.get('/api/agents?page=3&per_page=10')
+            response = client.get("/api/agents?page=3&per_page=10")
             data = json.loads(response.data)
             assert len(data["items"]) == 5
             assert data["pagination"]["page"] == 3
@@ -316,22 +332,29 @@ class TestPerformanceEndpoints:
         """Test l'invalidation du cache lors de la création/modification/suppression."""
         with app.app_context():
             # Créer un agent
-            response = client.post('/api/agents', data=json.dumps({
-                "name": "test_cache_agent",
-                "description": "Test cache invalidation",
-                "model": "mistral-tiny"
-            }), content_type='application/json')
-            
+            response = client.post(
+                "/api/agents",
+                data=json.dumps(
+                    {
+                        "name": "test_cache_agent",
+                        "description": "Test cache invalidation",
+                        "model": "mistral-tiny",
+                    }
+                ),
+                content_type="application/json",
+            )
+
             assert response.status_code == 201
-            
+
             # Lister les agents (le cache doit être invalidé)
-            response = client.get('/api/agents')
+            response = client.get("/api/agents")
             assert response.status_code == 200
 
 
 # ============================================================================
 # Tests du Service d'Optimisation de la Base de Données
 # ============================================================================
+
 
 class TestDBOptimizationService:
     """Tests pour le service d'optimisation de la base de données."""
@@ -349,9 +372,7 @@ class TestDBOptimizationService:
         with app.app_context():
             db_optimization = get_db_optimization_service()
             sql = db_optimization.generate_create_index_sql(
-                table_name="agents",
-                columns=["name"],
-                unique=True
+                table_name="agents", columns=["name"], unique=True
             )
             assert "CREATE UNIQUE INDEX" in sql
             assert "agents" in sql
@@ -362,7 +383,7 @@ class TestDBOptimizationService:
         with app.app_context():
             db_optimization = get_db_optimization_service()
             report = db_optimization.generate_optimization_report()
-            
+
             assert "generated_at" in report
             assert "database_type" in report
             assert "tables" in report
@@ -373,6 +394,7 @@ class TestDBOptimizationService:
 # Tests de Performance
 # ============================================================================
 
+
 class TestPerformanceMetrics:
     """Tests pour les métriques de performance."""
 
@@ -380,26 +402,22 @@ class TestPerformanceMetrics:
         """Test que le cache améliore les temps de réponse."""
         with app.app_context():
             # Créer un agent
-            agent = Agent.create(
+            Agent.create(
                 name="performance_test_agent",
                 description="Test de performance",
-                model="mistral-tiny"
+                model="mistral-tiny",
             )
-            
+
             # Premier appel (sans cache)
-            start_time = time.time()
-            response1 = app.test_client().get('/api/agents')
-            time1 = time.time() - start_time
-            
+            response1 = app.test_client().get("/api/agents")
+
             # Deuxième appel (avec cache potentiel)
-            start_time = time.time()
-            response2 = app.test_client().get('/api/agents')
-            time2 = time.time() - start_time
-            
+            response2 = app.test_client().get("/api/agents")
+
             # Les deux réponses doivent être valides
             assert response1.status_code == 200
             assert response2.status_code == 200
-            
+
             # Note: En test, le cache est désactivé (CACHE_DEFAULT_TIMEOUT = 0)
             # Donc les temps peuvent être similaires
 
@@ -407,6 +425,7 @@ class TestPerformanceMetrics:
 # ============================================================================
 # Tests de Stress (optionnels)
 # ============================================================================
+
 
 @pytest.mark.slow
 class TestStressTests:
@@ -420,19 +439,21 @@ class TestStressTests:
                 Agent.create(
                     name=f"stress_test_agent_{i}",
                     description=f"Stress test {i}",
-                    model="mistral-tiny"
+                    model="mistral-tiny",
                 )
-            
+
             # Envoyer des requêtes concurrentes
             import concurrent.futures
-            
+
             def make_request(page):
-                return client.get(f'/api/agents?page={page}&per_page=10')
-            
+                return client.get(f"/api/agents?page={page}&per_page=10")
+
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 futures = [executor.submit(make_request, page) for page in range(1, 6)]
-                responses = [f.result() for f in concurrent.futures.as_completed(futures)]
-            
+                responses = [
+                    f.result() for f in concurrent.futures.as_completed(futures)
+                ]
+
             # Toutes les réponses doivent être valides
             for response in responses:
                 assert response.status_code == 200

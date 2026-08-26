@@ -17,6 +17,7 @@ from .base import BaseModel, db
 
 class NotificationType(str, Enum):
     """Types de notifications historiques."""
+
     EXECUTION_FAILURE = "execution_failure"
     EXECUTION_SUCCESS = "execution_success"
     AGENT_CREATED = "agent_created"
@@ -28,6 +29,7 @@ class NotificationType(str, Enum):
 
 class NotificationChannel(str, Enum):
     """Canaux de notification."""
+
     EMAIL = "email"
     SLACK = "slack"
     DISCORD = "discord"
@@ -58,7 +60,9 @@ class HistoryNotification(BaseModel):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     notification_type = db.Column(
-        db.Enum(NotificationType), nullable=False, default=NotificationType.EXECUTION_FAILURE
+        db.Enum(NotificationType),
+        nullable=False,
+        default=NotificationType.EXECUTION_FAILURE,
     )
     channel = db.Column(
         db.Enum(NotificationChannel), nullable=False, default=NotificationChannel.EMAIL
@@ -169,14 +173,18 @@ class HistoryNotification(BaseModel):
     @classmethod
     def get_by_user(cls, user_id: int) -> list:
         """Get all notifications for a user."""
-        return cls.query.filter_by(user_id=user_id).order_by(cls.created_at.desc()).all()
+        return (
+            cls.query.filter_by(user_id=user_id).order_by(cls.created_at.desc()).all()
+        )
 
     @classmethod
     def get_unread_by_user(cls, user_id: int) -> list:
         """Get all unread notifications for a user."""
-        return cls.query.filter_by(
-            user_id=user_id, read_at=None, is_active=True
-        ).order_by(cls.created_at.desc()).all()
+        return (
+            cls.query.filter_by(user_id=user_id, read_at=None, is_active=True)
+            .order_by(cls.created_at.desc())
+            .all()
+        )
 
     @classmethod
     def get_by_type(cls, notification_type: NotificationType) -> list:

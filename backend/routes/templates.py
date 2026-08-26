@@ -9,16 +9,11 @@ Ce module contient tous les endpoints REST pour la gestion des templates d'agent
 Il implémente les opérations CRUD et les fonctionnalités de recherche.
 """
 
-import json
-from typing import Any, Dict, List, Optional
-
-from flask import current_app, request
+from flask import request
 from flask_restful import Resource, reqparse
 
 from ..models.base import db
 from ..models.template import Template, TemplateVersion
-from ..models.user import User
-
 
 # Initialize parser for request parsing
 parser = reqparse.RequestParser()
@@ -769,9 +764,7 @@ class TemplateRestoreResource(Resource):
             template.configuration = template_data.get(
                 "configuration", template.configuration
             )
-            template.parameters = template_data.get(
-                "parameters", template.parameters
-            )
+            template.parameters = template_data.get("parameters", template.parameters)
             template.category = template_data.get("category", template.category)
             template.tags = template_data.get("tags", template.tags)
             template.version = version
@@ -978,18 +971,14 @@ class TemplateShareResource(Resource):
 
             # Handle share token generation
             if data.get("generate_token", False):
-                token_permission = data.get(
-                    "token_permission", SharePermission.READ
-                )
+                token_permission = data.get("token_permission", SharePermission.READ)
                 expires_in_days = data.get("token_expires_in")
-                
+
                 expires_at = None
                 if expires_in_days:
-                    expires_at = datetime.utcnow() + timedelta(
-                        days=expires_in_days
-                    )
+                    expires_at = datetime.utcnow() + timedelta(days=expires_in_days)
 
-                token = ShareToken.create(
+                ShareToken.create(
                     template_id=template_id,
                     permission_level=token_permission,
                     created_by=template.created_by,
@@ -997,7 +986,7 @@ class TemplateShareResource(Resource):
                 )
 
             db.session.commit()
-            
+
             return {
                 "message": "Template shared successfully",
                 "template": template.to_dict_minimal(),
@@ -1008,7 +997,7 @@ class TemplateShareResource(Resource):
 
 
 # Import datetime for use in resources
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta  # noqa: E402
 
 
 def register_resources(api):
@@ -1017,10 +1006,13 @@ def register_resources(api):
     api.add_resource(TemplateResource, "/templates/<int:template_id>")
     api.add_resource(TemplateExportResource, "/templates/<int:template_id>/export")
     api.add_resource(TemplateImportResource, "/templates/import")
-    api.add_resource(TemplateCustomizeResource, "/templates/<int:template_id>/customize")
+    api.add_resource(
+        TemplateCustomizeResource, "/templates/<int:template_id>/customize"
+    )
     api.add_resource(TemplateVersionsResource, "/templates/<int:template_id>/versions")
     api.add_resource(
-        TemplateRestoreResource, "/templates/<int:template_id>/versions/<string:version>/restore"
+        TemplateRestoreResource,
+        "/templates/<int:template_id>/versions/<string:version>/restore",
     )
     api.add_resource(TemplateCategoriesResource, "/templates/categories")
     api.add_resource(TemplateTagsResource, "/templates/tags")

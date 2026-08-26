@@ -5,6 +5,7 @@
 
 from .agent import Agent
 from .agent_history import ActionType, AgentHistory
+from .audit_log import AuditLog
 from .execution import Execution
 from .generated_file import FileShare, FileVersion, GeneratedFile
 from .history_notification import (
@@ -14,6 +15,7 @@ from .history_notification import (
 )
 from .invitation import Invitation, InvitationStatus
 from .project import Project
+from .role import Role
 from .template import Template, TemplateVersion
 from .template_share import SharePermission, ShareToken
 from .user import User
@@ -23,6 +25,7 @@ __all__ = [
     "Agent",
     "AgentHistory",
     "ActionType",
+    "AuditLog",
     "User",
     "Workflow",
     "Execution",
@@ -39,4 +42,5 @@ __all__ = [
     "Project",
     "Invitation",
     "InvitationStatus",
+    "Role",
 ]

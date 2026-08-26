@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional
 
 class OAuthProvider(Enum):
     """Fournisseurs OAuth2 supportés."""
-    
+
     GITHUB = "github"
     SLACK = "slack"
     DISCORD = "discord"
@@ -29,26 +29,26 @@ class OAuthProvider(Enum):
 @dataclass
 class OAuthTokenData:
     """Données d'un token OAuth2."""
-    
+
     access_token: str
     token_type: str = "Bearer"
     expires_in: Optional[int] = None  # Secondes avant expiration
     refresh_token: Optional[str] = None
     scope: Optional[str] = None
-    
+
     @property
     def expiry(self) -> Optional[datetime]:
         """Calcule la date d'expiration."""
         if self.expires_in:
             return datetime.utcnow() + timedelta(seconds=self.expires_in)
         return None
-    
+
     def is_expired(self) -> bool:
         """Vérifie si le token est expiré."""
         if self.expiry:
             return datetime.utcnow() > self.expiry
         return False
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convertit en dictionnaire."""
         return {
@@ -60,7 +60,7 @@ class OAuthTokenData:
             "expiry": self.expiry.isoformat() if self.expiry else None,
             "is_expired": self.is_expired(),
         }
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "OAuthTokenData":
         """Crée un OAuthTokenData à partir d'un dictionnaire."""
@@ -76,18 +76,18 @@ class OAuthTokenData:
 @dataclass
 class OAuthState:
     """État OAuth2 pour la sécurité CSRF."""
-    
+
     state: str
     provider: OAuthProvider
     redirect_path: str
     user_id: Optional[int] = None
     integration_id: Optional[int] = None
     created_at: datetime = field(default_factory=datetime.utcnow)
-    
+
     def is_valid(self, ttl_seconds: int = 300) -> bool:
         """Vérifie si l'état est encore valide."""
         return (datetime.utcnow() - self.created_at).total_seconds() < ttl_seconds
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convertit en dictionnaire."""
         return {
@@ -104,7 +104,7 @@ class OAuthState:
 @dataclass
 class OAuthProviderConfig:
     """Configuration pour un fournisseur OAuth2."""
-    
+
     provider: OAuthProvider
     client_id: str
     client_secret: str
@@ -113,12 +113,12 @@ class OAuthProviderConfig:
     token_url: str
     userinfo_url: Optional[str] = None
     scope: List[str] = field(default_factory=list)
-    
+
     # Configuration supplémentaire
     pkce_enabled: bool = True
     token_expiry_seconds: int = 3600
     refresh_token_enabled: bool = True
-    
+
     def to_dict(self, include_secrets: bool = False) -> Dict[str, Any]:
         """Convertit en dictionnaire."""
         result = {
@@ -132,13 +132,13 @@ class OAuthProviderConfig:
             "token_expiry_seconds": self.token_expiry_seconds,
             "refresh_token_enabled": self.refresh_token_enabled,
         }
-        
+
         if include_secrets:
             result["client_id"] = self.client_id
             result["client_secret"] = self.client_secret
-        
+
         return result
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "OAuthProviderConfig":
         """Crée une OAuthProviderConfig à partir d'un dictionnaire."""

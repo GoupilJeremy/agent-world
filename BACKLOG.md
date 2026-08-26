@@ -225,16 +225,16 @@
 **Description** : Renforcer la sécurité et la conformité de la plateforme.
 **Priorité** : P2 (Could Have)
 **Heures Estimées** : ~35h
-**Statut** : ✅ **Terminé** (Version v0.3.0 - 25 août 2026)
+**Statut** : ✅ **Terminé** (Version v0.5.0 - 26 août 2026)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
-| US-065   | Authentification forte             | Ajouter une authentification à 2 facteurs (2FA).                                                  | 6h             | P2           | ⏳ To Do    | ✅ Intégration avec TOTP (Google Authenticator), ✅ Sauvegarde des codes de secours.               |
-| US-066   | Gestion des permissions            | Définir des permissions fines pour les utilisateurs et les rôles.                                | 5h             | P2           | ⏳ To Do    | ✅ Matrice des permissions, ✅ Tests de sécurité.                                                |
-| US-067   | Chiffrement des données            | Chiffrer les données sensibles (ex: clés API, messages privés).                                  | 8h             | P2           | ⏳ Backlog | ✅ Chiffrement AES-256, ✅ Gestion des clés.                                                       |
-| US-068   | Audit des logs                     | Enregistrer et auditer les actions des utilisateurs.                                            | 4h             | P2           | ⏳ Backlog | ✅ Journal d'audit, ✅ Export des logs.                                                          |
-| US-069   | Conformité RGPD                    | Rendre la plateforme conforme au RGPD.                                                           | 6h             | P2           | ⏳ Backlog | ✅ Politique de confidentialité, ✅ Droit à l'oubli.                                             |
-| US-070   | Protection contre les attaques     | Protéger l'application contre les attaques courantes (XSS, CSRF, SQL Injection).               | 6h             | P2           | ⏳ Backlog | ✅ Tests de pénétration, ✅ Corrections des vulnérabilités.                                      |
+| US-065   | Authentification forte             | Ajouter une authentification à 2 facteurs (2FA).                                                  | 6h             | P2           | ✅ Done    | ✅ Intégration avec TOTP (Google Authenticator), ✅ Sauvegarde des codes de secours.               |
+| US-066   | Gestion des permissions            | Définir des permissions fines pour les utilisateurs et les rôles.                                | 5h             | P2           | ✅ Done    | ✅ Matrice des permissions, ✅ Tests de sécurité.                                                |
+| US-067   | Chiffrement des données            | Chiffrer les données sensibles (ex: clés API, messages privés).                                  | 8h             | P2           | ✅ Done    | ✅ Chiffrement AES-256, ✅ Gestion des clés.                                                       |
+| US-068   | Audit des logs                     | Enregistrer et auditer les actions des utilisateurs.                                            | 4h             | P2           | ✅ Done    | ✅ Journal d'audit, ✅ Export des logs.                                                          |
+| US-069   | Conformité RGPD                    | Rendre la plateforme conforme au RGPD.                                                           | 6h             | P2           | ✅ Done    | ✅ Politique de confidentialité, ✅ Droit à l'oubli.                                             |
+| US-070   | Protection contre les attaques     | Protéger l'application contre les attaques courantes (XSS, CSRF, SQL Injection).               | 6h             | P2           | ✅ Done    | ✅ Tests de pénétration, ✅ Corrections des vulnérabilités.                                      |
 
 ---
 
@@ -259,6 +259,7 @@
 | **Integrations**    | Épic 7                              | 26 août 2026          | v0.4.1      | ✅ **Terminé**       |
 | **Performance**     | Épic 8                              | 26 août 2026          | v0.4.2      | ✅ **Terminé**       |
 | **UX**              | Épic 9                              | 26 août 2026          | v0.4.3      | ✅ **Terminé**       |
+| **Security**        | Épic 10                             | 26 août 2026          | v0.5.0      | ✅ **Terminé**       |
 | **Collaboration**   | Épic 6                              | 30 septembre 2026     | v0.4.0      | ⏳ **À venir**       |
 
 ---
@@ -435,7 +436,7 @@
 **Épics** : Collaboration, Integrations, UX, Security
 **User Stories** : US-040 à US-070
 **Heures** : ~166h
-**Statut** : ⏳ To Do
+**Statut** : ✅ Done
 
 | **ID**   | **Titre**                          | **Épic**         | **Heures** | **Statut**      |
 |----------|------------------------------------|------------------|------------|-----------------|
@@ -461,12 +462,12 @@
 | US-062   | Internationalisation (i18n)        | UX              | 4h         | ✅ Done        |
 | US-063   | Thème personnalisable              | UX              | 5h         | ✅ Done        |
 | US-064   | Animations et transitions           | UX              | 3h         | ✅ Done        |
-| US-065   | Authentification forte             | Security        | 6h         | ⏳ To Do        |
-| US-066   | Gestion des permissions            | Security        | 5h         | ⏳ To Do        |
-| US-067   | Chiffrement des données            | Security        | 8h         | ⏳ Backlog      |
-| US-068   | Audit des logs                     | Security        | 4h         | ⏳ Backlog      |
-| US-069   | Conformité RGPD                    | Security        | 6h         | ⏳ Backlog      |
-| US-070   | Protection contre les attaques     | Security        | 6h         | ⏳ Backlog      |
+| US-065   | Authentification forte             | Security        | 6h         | ✅ Done        |
+| US-066   | Gestion des permissions            | Security        | 5h         | ✅ Done        |
+| US-067   | Chiffrement des données            | Security        | 8h         | ✅ Done        |
+| US-068   | Audit des logs                     | Security        | 4h         | ✅ Done        |
+| US-069   | Conformité RGPD                    | Security        | 6h         | ✅ Done        |
+| US-070   | Protection contre les attaques     | Security        | 6h         | ✅ Done        |
 
 ---
 
@@ -493,7 +494,7 @@
 - **Phase 2 (VS Code + Files)** : 1 mois (août - septembre 2026) → ⏳ **En cours**
 - **Phase 3 (History + Templates)** : 1.5 mois (septembre - octobre 2026) → ⏳ **À venir**
 - **Phase 4 (Collaboration + Integrations)** : 2 mois (novembre 2026 - janvier 2027) → ⏳ **À venir**
-- **Phase 5 (Performance + UX + Security)** : 2 mois (février - avril 2027) → ⏳ **À venir**
+- **Phase 5 (Performance + UX + Security)** : 2 mois (février - avril 2027) → ✅ **Terminé**
 
 ---
 
@@ -515,4 +516,4 @@
 
 ---
 
-*Document généré le 06 août 2026. Dernière mise à jour : 26 août 2026 (Version 1.3.0 - Épic 8 Sprint 5 terminé).*
+*Document généré le 06 août 2026. Dernière mise à jour : 26 août 2026 (Version 1.4.0 - Épic 10 Security terminé).*

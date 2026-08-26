@@ -12,11 +12,11 @@ Ce module contient les endpoints pour :
 - Obtenir des rapports d'optimisation
 """
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, request
 from flask_restful import Resource
 
-from ..services.cache_service import get_cache_service
 from ..services.agent_cache_service import get_agent_cache_service
+from ..services.cache_service import get_cache_service
 from ..services.db_optimization_service import get_db_optimization_service
 
 # Créer un blueprint pour les routes de performance
@@ -64,9 +64,17 @@ class CacheStatsResource(Resource):
                     "uptime_seconds": info.get("uptime_in_seconds", 0),
                     "commands_processed": info.get("total_commands_processed", 0),
                     "keys": {
-                        "total": info.get("db0", {}).get("keys", {}).get("total", 0) if isinstance(info.get("db0"), dict) else 0,
-                        "expires": info.get("db0", {}).get("keys", {}).get("expires", 0) if isinstance(info.get("db0"), dict) else 0,
-                    }
+                        "total": (
+                            info.get("db0", {}).get("keys", {}).get("total", 0)
+                            if isinstance(info.get("db0"), dict)
+                            else 0
+                        ),
+                        "expires": (
+                            info.get("db0", {}).get("keys", {}).get("expires", 0)
+                            if isinstance(info.get("db0"), dict)
+                            else 0
+                        ),
+                    },
                 }
             except Exception as e:
                 stats["redis_info"] = {"error": str(e)}
@@ -162,7 +170,7 @@ class DBOptimizationIndexResource(Resource):
                       type: object
         """
         db_optimization = get_db_optimization_service()
-        table_name = request.args.get('table', None)
+        table_name = request.args.get("table", None)
 
         created_indexes = db_optimization.create_missing_indexes(table_name)
 
@@ -239,7 +247,7 @@ class DBVacuumResource(Resource):
                       type: string
         """
         db_optimization = get_db_optimization_service()
-        table_name = request.args.get('table', None)
+        table_name = request.args.get("table", None)
 
         success = db_optimization.run_vacuum_analyze(table_name)
 
@@ -300,7 +308,11 @@ def register_performance_resources(api):
     api.add_resource(CacheClearResource, "/performance/cache/clear")
     api.add_resource(DBOptimizationResource, "/performance/db/optimize")
     api.add_resource(DBOptimizationIndexResource, "/performance/db/indexes")
-    api.add_resource(DBStatsResource, "/performance/db/stats", "/performance/db/stats/<string:table_name>")
+    api.add_resource(
+        DBStatsResource,
+        "/performance/db/stats",
+        "/performance/db/stats/<string:table_name>",
+    )
     api.add_resource(DBVacuumResource, "/performance/db/vacuum")
 
 

@@ -16,7 +16,7 @@ avec une stratégie d'invalidation basée sur :
 import hashlib
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, Optional
 
 from .cache_service import get_cache_service
@@ -30,8 +30,8 @@ class AgentCacheService:
     # Durées de vie par défaut pour différents types de cache
     DEFAULT_TTL_SECONDS = {
         "execution_result": 3600,  # 1 heure pour les résultats d'exécution
-        "agent_metadata": 86400,   # 24 heures pour les métadonnées des agents
-        "template_result": 7200,   # 2 heures pour les résultats de templates
+        "agent_metadata": 86400,  # 24 heures pour les métadonnées des agents
+        "template_result": 7200,  # 2 heures pour les résultats de templates
     }
 
     def __init__(self):
@@ -43,7 +43,7 @@ class AgentCacheService:
         agent_id: int,
         input_data: Any,
         model: Optional[str] = None,
-        configuration: Optional[Dict] = None
+        configuration: Optional[Dict] = None,
     ) -> str:
         """
         Génère une clé de cache unique pour un résultat d'exécution d'agent.
@@ -80,7 +80,7 @@ class AgentCacheService:
         result: Any,
         model: Optional[str] = None,
         configuration: Optional[Dict] = None,
-        ttl: Optional[int] = None
+        ttl: Optional[int] = None,
     ) -> bool:
         """
         Met en cache le résultat d'une exécution d'agent.
@@ -126,7 +126,7 @@ class AgentCacheService:
         agent_id: int,
         input_data: Any,
         model: Optional[str] = None,
-        configuration: Optional[Dict] = None
+        configuration: Optional[Dict] = None,
     ) -> Optional[Any]:
         """
         Récupère un résultat d'exécution depuis le cache.
@@ -153,7 +153,9 @@ class AgentCacheService:
         logger.debug(f"✅ Cache hit for agent {agent_id} execution")
         return cached_data.get("result")
 
-    def cache_agent_metadata(self, agent_id: int, metadata: Dict, ttl: Optional[int] = None) -> bool:
+    def cache_agent_metadata(
+        self, agent_id: int, metadata: Dict, ttl: Optional[int] = None
+    ) -> bool:
         """
         Met en cache les métadonnées d'un agent.
 
@@ -218,7 +220,7 @@ class AgentCacheService:
             return 0
 
         # Invalider les résultats d'exécution
-        pattern_result = f"agent:result:*"
+        pattern_result = "agent:result:*"
         # Invalider les métadonnées
         pattern_metadata = f"agent:metadata:{agent_id}"
 
@@ -227,9 +229,10 @@ class AgentCacheService:
         # Invalider les résultats
         for key in self._cache.client.scan_iter(pattern_result):
             key_str = key.decode() if isinstance(key, bytes) else key
-            if f"agent:result:" in key_str:
+            if "agent:result:" in key_str:
                 # Vérifier si la clé correspond à cet agent
-                # (Les clés de résultat contiennent le hash de l'input, pas l'agent_id directement)
+                # (Les clés de résultat contiennent le hash de l'input,
+                # pas l'agent_id directement)
                 # On invalide tout pour simplifier
                 self._cache.client.delete(key)
                 count += 1
@@ -297,11 +300,11 @@ class AgentCacheService:
         try:
             client = self._cache.client
             info = client.info()
-            
+
             # Compter les clés liées aux agents
             result_keys = len(list(client.scan_iter("agent:result:*")))
             metadata_keys = len(list(client.scan_iter("agent:metadata:*")))
-            
+
             return {
                 "available": True,
                 "agent_result_keys": result_keys,
@@ -311,7 +314,7 @@ class AgentCacheService:
                     "used_memory": info.get("used_memory_human", "N/A"),
                     "connected_clients": info.get("connected_clients", 0),
                     "uptime": info.get("uptime_in_seconds", 0),
-                }
+                },
             }
         except Exception as e:
             logger.error(f"❌ Error getting cache stats: {e}")

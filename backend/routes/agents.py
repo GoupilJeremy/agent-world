@@ -16,10 +16,10 @@ from flask_restful import Resource, reqparse
 
 from ..models.agent import Agent
 from ..models.base import db
-from ..services.cache_service import cache_response, invalidate_cache, get_cache_service
+from ..services.cache_service import cache_response, invalidate_cache
 from ..services.file_naming import generate_filename, normalize_extension
 from ..services.file_service import FileServiceError, FileValidationError
-from ..services.pagination_service import PaginationService, PaginationResult
+from ..services.pagination_service import PaginationService
 
 # Initialize parser for request parsing
 parser = reqparse.RequestParser()
@@ -83,8 +83,10 @@ def _parse_save_request(data):
                 raise FileValidationError("save.name extension must match save.format")
 
     for key in ("prefix", "suffix"):
-        if key in options and options[key] is not None and not isinstance(
-            options[key], str
+        if (
+            key in options
+            and options[key] is not None
+            and not isinstance(options[key], str)
         ):
             raise FileValidationError(f"save.{key} must be a string")
     is_temporary = options.get("is_temporary", False)
@@ -167,15 +169,13 @@ class AgentListResource(Resource):
         """
         # Get pagination parameters
         page, per_page = PaginationService.get_pagination_params()
-        
+
         # Get all agents and paginate
         agents = Agent.get_all()
         paginated = PaginationService.paginate_list(
-            [agent.to_dict() for agent in agents],
-            page=page,
-            per_page=per_page
+            [agent.to_dict() for agent in agents], page=page, per_page=per_page
         )
-        
+
         return paginated.to_dict(), 200
 
     @invalidate_cache(key_prefix="agents:list")
@@ -458,7 +458,9 @@ class AgentRunResource(Resource):
                         prefix=save_request["prefix"],
                         suffix=suffix,
                     )
-                content = result if file_format == "json" else _generated_content(result)
+                content = (
+                    result if file_format == "json" else _generated_content(result)
+                )
                 file_service = current_app.extensions["file_service"]
                 generated_file, management_token = file_service.create_file(
                     agent_id=agent_id,

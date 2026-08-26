@@ -52,7 +52,36 @@ class Config:
     OPENAPI_SWAGGER_UI_URL = "/api/docs/"
 
     # CORS settings
-    CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*").split(",")
+    CORS_ORIGINS = os.environ.get(
+        "CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"
+    ).split(",")
+
+    # Rate limiting settings
+    RATE_LIMIT_AUTH = os.environ.get("RATE_LIMIT_AUTH", "10 per minute")
+    RATE_LIMIT_DEFAULT = os.environ.get("RATE_LIMIT_DEFAULT", "100 per minute")
+
+    # Encryption settings
+    ENCRYPTION_KEY = os.environ.get("ENCRYPTION_KEY")
+
+    # Auth enforcement
+    AUTH_ENFORCE_ALL = os.environ.get("AUTH_ENFORCE_ALL", "false").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+    # Session cookie settings
+    SESSION_COOKIE_SECURE = os.environ.get(
+        "SESSION_COOKIE_SECURE", "false"
+    ).lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = os.environ.get("SESSION_COOKIE_SAMESITE", "Lax")
 
     # AI Model settings
     MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
@@ -98,9 +127,13 @@ class Config:
         "yes",
         "on",
     }
-    COMPRESSION_DEFAULT_FORMAT = os.environ.get("COMPRESSION_DEFAULT_FORMAT", "gzip").lower()
+    COMPRESSION_DEFAULT_FORMAT = os.environ.get(
+        "COMPRESSION_DEFAULT_FORMAT", "gzip"
+    ).lower()
     COMPRESSION_LEVEL = int(os.environ.get("COMPRESSION_LEVEL", "6"))
-    COMPRESSION_KEEP_ORIGINAL = os.environ.get("COMPRESSION_KEEP_ORIGINAL", "true").lower() in {
+    COMPRESSION_KEEP_ORIGINAL = os.environ.get(
+        "COMPRESSION_KEEP_ORIGINAL", "true"
+    ).lower() in {
         "1",
         "true",
         "yes",
@@ -129,6 +162,7 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"  # In-memory database for tests
     SQLALCHEMY_ECHO = False
     CACHE_DEFAULT_TIMEOUT = 0  # Disable cache in tests
+    REDIS_URL = "memory://"
     LOG_LEVEL = "WARNING"
 
 

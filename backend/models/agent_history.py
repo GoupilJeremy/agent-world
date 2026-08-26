@@ -6,7 +6,7 @@
 Agent History Model for Agent World.
 
 Ce modèle représente l'historique des modifications apportées aux agents IA.
-Il permet de tracer toutes les actions (création, mise à jour, suppression) 
+Il permet de tracer toutes les actions (création, mise à jour, suppression)
 sur un agent, avec les valeurs avant/après et les métadonnées associées.
 """
 
@@ -61,9 +61,7 @@ class AgentHistory(BaseModel):
 
     # Relationships
     agent = db.relationship("Agent", backref=db.backref("histories", lazy=True))
-    author = db.relationship(
-        "User", backref=db.backref("agent_histories", lazy=True)
-    )
+    author = db.relationship("User", backref=db.backref("agent_histories", lazy=True))
 
     def __init__(
         self,
@@ -152,9 +150,9 @@ class AgentHistory(BaseModel):
         Returns:
             List of AgentHistory instances
         """
-        return cls.query.filter_by(agent_id=agent_id).order_by(
-            cls.timestamp.desc()
-        ).all()
+        return (
+            cls.query.filter_by(agent_id=agent_id).order_by(cls.timestamp.desc()).all()
+        )
 
     @classmethod
     def get_by_action_type(
@@ -228,7 +226,32 @@ class AgentHistory(BaseModel):
         Returns:
             List of AgentHistory instances
         """
-        return cls.query.order_by(cls.timestamp.desc()).offset(offset).limit(limit).all()
+        return (
+            cls.query.order_by(cls.timestamp.desc()).offset(offset).limit(limit).all()
+        )
+
+    @classmethod
+    def get_by_author(
+        cls, author_id: int, limit: int = 100, offset: int = 0
+    ) -> List["AgentHistory"]:
+        """
+        Get history entries by author ID.
+
+        Args:
+            author_id: ID of the author
+            limit: Maximum number of entries to return (default: 100)
+            offset: Number of entries to skip (default: 0)
+
+        Returns:
+            List of AgentHistory instances
+        """
+        return (
+            cls.query.filter_by(author_id=author_id)
+            .order_by(cls.timestamp.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
 
     @classmethod
     def delete_by_agent(cls, agent_id: int) -> int:

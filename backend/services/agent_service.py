@@ -9,8 +9,8 @@ Ce service contient la logique métier pour la gestion des agents IA.
 Il fait le lien entre les modèles de données et les contrôleurs.
 """
 
-from typing import Any, Dict, List, Optional
 import logging
+from typing import Any, Dict, List, Optional
 
 from ..models.agent import Agent
 from ..models.agent_history import ActionType
@@ -123,7 +123,9 @@ class AgentService:
             return self.agent_model.get_active()
         return self.agent_model.get_all()
 
-    def update_agent(self, agent_id: int, author_id: Optional[int] = None, **kwargs) -> Optional[Agent]:
+    def update_agent(
+        self, agent_id: int, author_id: Optional[int] = None, **kwargs
+    ) -> Optional[Agent]:
         """
         Update an agent.
 
@@ -241,9 +243,9 @@ class AgentService:
                 agent_id=agent_id,
                 input_data=input_data,
                 model=model_used,
-                configuration=config_used
+                configuration=config_used,
             )
-            
+
             if cached_result is not None:
                 logger.info(f"✅ Cache hit for agent {agent_id} execution")
                 # Retourner le résultat en cache avec un flag

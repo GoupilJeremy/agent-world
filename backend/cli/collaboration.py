@@ -14,12 +14,11 @@ Ce module contient les commandes CLI pour :
 
 import argparse
 import json
-from typing import Any, Dict, List, Optional
+from typing import List
 
-from ..models.invitation import Invitation, InvitationStatus
+from ..models.invitation import Invitation
 from ..models.project import Project
-from ..models.user import User
-from ..services.invitation_service import InvitationService, InvitationError
+from ..services.invitation_service import InvitationError, InvitationService
 
 
 class CollaborationCLIHandler:
@@ -33,7 +32,7 @@ class CollaborationCLIHandler:
 
     def add_commands(self, subparsers: argparse._SubParsersAction) -> None:
         """Add collaboration commands to the CLI parser."""
-        
+
         # Invite command
         invite_parser = subparsers.add_parser(
             "invite",
@@ -94,9 +93,7 @@ class CollaborationCLIHandler:
             help="Accept an invitation",
             description="Accept a project invitation using the token",
         )
-        invite_accept_parser.add_argument(
-            "token", type=str, help="Invitation token"
-        )
+        invite_accept_parser.add_argument("token", type=str, help="Invitation token")
         invite_accept_parser.set_defaults(handler=self.handle_accept_invite)
 
         # Invite revoke command
@@ -178,6 +175,7 @@ class CollaborationCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"❌ Unexpected error: {e}")
             return 1
@@ -186,13 +184,24 @@ class CollaborationCLIHandler:
         """Handle the invitations list command."""
         try:
             if args.project:
-                invitations = self.invitation_service.get_invitations_by_project(args.project)
+                invitations = self.invitation_service.get_invitations_by_project(
+                    args.project
+                )
             elif args.email:
                 if args.status == "pending":
-                    invitations = self.invitation_service.get_pending_invitations_by_email(args.email)
+                    invitations = (
+                        self.invitation_service.get_pending_invitations_by_email(
+                            args.email
+                        )
+                    )
                 else:
                     # TODO: Filter by other statuses
-                    invitations = Invitation.get_by_email_and_project(args.email, args.project or 0) or []
+                    invitations = (
+                        Invitation.get_by_email_and_project(
+                            args.email, args.project or 0
+                        )
+                        or []
+                    )
                     invitations = [invitations] if invitations else []
             else:
                 invitations = Invitation.query.all()
@@ -207,6 +216,7 @@ class CollaborationCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"❌ Error listing invitations: {e}")
             return 1
@@ -222,7 +232,7 @@ class CollaborationCLIHandler:
                 user_id=user_id,
             )
 
-            print(f"✅ Invitation accepted!")
+            print("✅ Invitation accepted!")
             print(f"   Project ID: {invitation.project_id}")
             print(f"   Role: {invitation.role}")
 
@@ -235,6 +245,7 @@ class CollaborationCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"❌ Unexpected error: {e}")
             return 1
@@ -250,7 +261,7 @@ class CollaborationCLIHandler:
                 revoked_by=revoked_by,
             )
 
-            print(f"✅ Invitation revoked")
+            print("✅ Invitation revoked")
             self.print_invitation(invitation)
             return 0
 
@@ -260,6 +271,7 @@ class CollaborationCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"❌ Unexpected error: {e}")
             return 1
@@ -286,6 +298,7 @@ class CollaborationCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"❌ Error creating project: {e}")
             return 1
@@ -308,6 +321,7 @@ class CollaborationCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"❌ Error listing projects: {e}")
             return 1
@@ -335,11 +349,19 @@ class CollaborationCLIHandler:
         else:
             print(f"\n🎫 Invitations ({len(invitations)})")
             print("=" * 80)
-            print(f"{'ID':<5} {'Project':<8} {'Email':<25} {'Role':<10} {'Status':<12} {'Token':<20}")
+            print(
+                f"{'ID':<5} {'Project':<8} {'Email':<25} "
+                f"{'Role':<10} {'Status':<12} {'Token':<20}"
+            )
             print("-" * 80)
             for inv in invitations:
-                token_display = inv.token[:8] + "..." if len(inv.token) > 8 else inv.token
-                print(f"{inv.id:<5} {inv.project_id:<8} {inv.email:<25} {inv.role:<10} {inv.status.value:<12} {token_display:<20}")
+                token_display = (
+                    inv.token[:8] + "..." if len(inv.token) > 8 else inv.token
+                )
+                print(
+                    f"{inv.id:<5} {inv.project_id:<8} {inv.email:<25} "
+                    f"{inv.role:<10} {inv.status.value:<12} {token_display:<20}"
+                )
 
     def print_project(self, project: Project) -> None:
         """Print project information."""
@@ -366,4 +388,7 @@ class CollaborationCLIHandler:
             print(f"{'ID':<5} {'Name':<25} {'Creator':<10} {'Public':<8} {'Shared':<8}")
             print("-" * 80)
             for p in projects:
-                print(f"{p.id:<5} {p.name:<25} {p.created_by:<10} {str(p.is_public):<8} {str(p.is_shared):<8}")
+                print(
+                    f"{p.id:<5} {p.name:<25} {p.created_by:<10} "
+                    f"{str(p.is_public):<8} {str(p.is_shared):<8}"
+                )
