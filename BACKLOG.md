@@ -1,5 +1,5 @@
 # 📋 **Agent World - Backlog Produit Complet**
-*Version : 1.2.0 - Dernière mise à jour : 26 août 2026*
+*Version : 1.4.0 - Dernière mise à jour : 26 août 2026*
 
 ---
 
@@ -209,15 +209,15 @@
 **Description** : Améliorer l'expérience utilisateur de la plateforme.
 **Priorité** : P2 (Could Have)
 **Heures Estimées** : ~25h
-**Statut** : ✅ **Terminé** (Version v0.3.0 - 25 août 2026)
+**Statut** : ✅ **Terminé** (Version v0.4.3 - 26 août 2026)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
-| US-060   | Design System                      | Créer un design system cohérent pour l'UI (couleurs, typographie, composants).                   | 8h             | P2           | ⏳ To Do    | ✅ Guide de style, ✅ Bibliothèque de composants.                                                |
-| US-061   | Accessibilité                      | Rendre l'application accessible (WCAG 2.1 AA).                                                   | 5h             | P2           | ⏳ Backlog | ✅ Audit d'accessibilité, ✅ Corrections des problèmes.                                           |
-| US-062   | Internationalisation (i18n)        | Traduire l'application en français et anglais.                                                  | 4h             | P2           | ⏳ Backlog | ✅ Fichiers de traduction, ✅ Sélecteur de langue.                                               |
-| US-063   | Thème personnalisable              | Permettre aux utilisateurs de personnaliser le thème (couleurs, mode clair/sombre).               | 5h             | P2           | ⏳ Backlog | ✅ Éditeur de thème, ✅ Aperçu en temps réel.                                                    |
-| US-064   | Animations et transitions           | Ajouter des animations fluides pour améliorer l'UX.                                             | 3h             | P2           | ⏳ Backlog | ✅ Animations CSS/JS, ✅ Performances > 60 FPS.                                                   |
+| US-060   | Design System                      | Créer un design system cohérent pour l'UI (couleurs, typographie, composants).                   | 8h             | P2           | ✅ Done    | ✅ Guide de style, ✅ Bibliothèque de composants.                                                |
+| US-061   | Accessibilité                      | Rendre l'application accessible (WCAG 2.1 AA).                                                   | 5h             | P2           | ✅ Done    | ✅ Audit d'accessibilité, ✅ Corrections des problèmes.                                           |
+| US-062   | Internationalisation (i18n)        | Traduire l'application en français et anglais.                                                  | 4h             | P2           | ✅ Done    | ✅ Fichiers de traduction, ✅ Sélecteur de langue.                                               |
+| US-063   | Thème personnalisable              | Permettre aux utilisateurs de personnaliser le thème (couleurs, mode clair/sombre).               | 5h             | P2           | ✅ Done    | ✅ Éditeur de thème, ✅ Aperçu en temps réel.                                                    |
+| US-064   | Animations et transitions           | Ajouter des animations fluides pour améliorer l'UX.                                             | 3h             | P2           | ✅ Done    | ✅ Animations CSS/JS, ✅ Performances > 60 FPS.                                                   |
 
 ---
 
@@ -258,6 +258,7 @@
 | **Templates**       | Épic 5                              | 25 août 2026          | v0.3.1      | ✅ **Terminé**       |
 | **Integrations**    | Épic 7                              | 26 août 2026          | v0.4.1      | ✅ **Terminé**       |
 | **Performance**     | Épic 8                              | 26 août 2026          | v0.4.2      | ✅ **Terminé**       |
+| **UX**              | Épic 9                              | 26 août 2026          | v0.4.3      | ✅ **Terminé**       |
 | **Collaboration**   | Épic 6                              | 30 septembre 2026     | v0.4.0      | ⏳ **À venir**       |
 
 ---
@@ -455,11 +456,11 @@
 | US-051   | Intégration Google Drive            | Integrations    | 5h         | ⏳ Backlog      |
 | US-052   | Intégration Trello                  | Integrations    | 4h         | ⏳ Backlog      |
 | US-053   | Webhooks personnalisés             | Integrations    | 2h         | ✅ Done        |
-| US-060   | Design System                      | UX              | 8h         | ⏳ To Do        |
-| US-061   | Accessibilité                      | UX              | 5h         | ⏳ Backlog      |
-| US-062   | Internationalisation (i18n)        | UX              | 4h         | ⏳ Backlog      |
-| US-063   | Thème personnalisable              | UX              | 5h         | ⏳ Backlog      |
-| US-064   | Animations et transitions           | UX              | 3h         | ⏳ Backlog      |
+| US-060   | Design System                      | UX              | 8h         | ✅ Done        |
+| US-061   | Accessibilité                      | UX              | 5h         | ✅ Done        |
+| US-062   | Internationalisation (i18n)        | UX              | 4h         | ✅ Done        |
+| US-063   | Thème personnalisable              | UX              | 5h         | ✅ Done        |
+| US-064   | Animations et transitions           | UX              | 3h         | ✅ Done        |
 | US-065   | Authentification forte             | Security        | 6h         | ⏳ To Do        |
 | US-066   | Gestion des permissions            | Security        | 5h         | ⏳ To Do        |
 | US-067   | Chiffrement des données            | Security        | 8h         | ⏳ Backlog      |
