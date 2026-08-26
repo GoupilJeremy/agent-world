@@ -25,6 +25,16 @@ try:
 except ImportError:
     pass
 
+try:
+    from .adapters import SlackIntegrationAdapter  # noqa: F401
+except ImportError:
+    pass
+
+try:
+    from .adapters import DiscordIntegrationAdapter  # noqa: F401
+except ImportError:
+    pass
+
 from .base_adapter import (
     AuthenticationError,
     ConnectionError,

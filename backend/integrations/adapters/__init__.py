@@ -36,11 +36,20 @@ def register_adapter(adapter_class: type) -> type:
 
 
 # Importer les adapters (ils s'enregistrent automatiquement via @register_adapter)
-# Import lazy pour éviter les dépendances circulaires
+# Import direct pour enregistrer les adapters dans le registre
+from .github_adapter import GitHubIntegrationAdapter  # noqa: F401
+from .slack_adapter import SlackIntegrationAdapter  # noqa: F401
+from .discord_adapter import DiscordIntegrationAdapter  # noqa: F401
+
+# Import lazy pour éviter les dépendances circulaires supplémentaires
 def __getattr__(name):
+    # Ces adapters sont déjà importés ci-dessus, mais on garde la fonction pour compatibilité
     if name == "GitHubIntegrationAdapter":
-        from .github_adapter import GitHubIntegrationAdapter
         return GitHubIntegrationAdapter
+    if name == "SlackIntegrationAdapter":
+        return SlackIntegrationAdapter
+    if name == "DiscordIntegrationAdapter":
+        return DiscordIntegrationAdapter
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -49,4 +58,6 @@ __all__ = [
     "ADAPTER_REGISTRY",
     "register_adapter",
     "GitHubIntegrationAdapter",
+    "SlackIntegrationAdapter",
+    "DiscordIntegrationAdapter",
 ]

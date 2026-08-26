@@ -92,7 +92,7 @@ class WebhookService:
         webhook_id = secrets.token_urlsafe(16)
         
         subscription = WebhookSubscription(
-            id=None,  # L'ID sera attribué par la base de données
+            id=webhook_id,  # Utiliser le webhook_id comme ID pour les abonnements en mémoire
             name=name,
             url=url,
             events=events,

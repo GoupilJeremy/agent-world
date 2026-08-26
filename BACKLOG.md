@@ -1,5 +1,5 @@
 # 📋 **Agent World - Backlog Produit Complet**
-*Version : 1.0.0 - Dernière mise à jour : 25 août 2026*
+*Version : 1.1.0 - Dernière mise à jour : 26 août 2026*
 
 ---
 
@@ -174,17 +174,17 @@
 **Description** : Intégrer Agent World avec des outils et services externes.
 **Priorité** : P2 (Could Have)
 **Heures Estimées** : ~35h
-**Statut** : ⏳ **À venir**
+**Statut** : 🚧 **En cours** (Sprint 4)
 
 | **ID**   | **Titre**                          | **Description**                                                                                     | **Estimation** | **Priorité** | **Statut** | **Critères d'Acceptation**                                                                                     |
 |----------|------------------------------------|-----------------------------------------------------------------------------------------------------|----------------|--------------|------------|-------------------------------------------------------------------------------------------------------------|
 | US-047   | Intégration GitHub                  | Connecter Agent World à GitHub (ex: créer des PR, commenter des issues).                         | 8h             | P2           | ⏳ To Do    | ✅ Authentification OAuth, ✅ 3+ actions GitHub supportées.                                       |
-| US-048   | Intégration Slack                   | Envoyer des notifications et interagir avec Slack.                                               | 5h             | P2           | ⏳ Backlog | ✅ Webhooks Slack, ✅ Commandes slash.                                                           |
-| US-049   | Intégration Discord                 | Envoyer des notifications et interagir avec Discord.                                             | 5h             | P2           | ⏳ Backlog | ✅ Webhooks Discord, ✅ Commandes personnalisées.                                                |
+| US-048   | Intégration Slack                   | Envoyer des notifications et interagir avec Slack.                                               | 5h             | P2           | ✅ Done    | ✅ Webhooks Slack, ✅ Commandes slash, ✅ Messages, ✅ Canaux, ✅ Réactions.                          |
+| US-049   | Intégration Discord                 | Envoyer des notifications et interagir avec Discord.                                             | 5h             | P2           | ✅ Done    | ✅ Webhooks Discord, ✅ Commandes personnalisées, ✅ Messages, ✅ Embeds, ✅ Rôles.               |
 | US-050   | Intégration Notion                  | Synchroniser les agents avec des bases de données Notion.                                        | 6h             | P2           | ⏳ Backlog | ✅ Authentification Notion, ✅ Lecture/écriture des données.                                      |
 | US-051   | Intégration Google Drive            | Stocker et récupérer des fichiers depuis Google Drive.                                           | 5h             | P2           | ⏳ Backlog | ✅ Authentification Google, ✅ Gestion des fichiers.                                             |
 | US-052   | Intégration Trello                  | Créer des cartes Trello à partir des tâches des agents.                                          | 4h             | P2           | ⏳ Backlog | ✅ Authentification Trello, ✅ Synchronisation des cartes.                                       |
-| US-053   | Webhooks personnalisés             | Permettre aux utilisateurs de configurer des webhooks personnalisés.                            | 2h             | P2           | ⏳ Backlog | ✅ Interface de configuration, ✅ Tests de webhooks.                                             |
+| US-053   | Webhooks personnalisés             | Permettre aux utilisateurs de configurer des webhooks personnalisés.                            | 2h             | P2           | ✅ Done    | ✅ Interface de configuration, ✅ Tests de webhooks, ✅ Gestion des événements.                  |
 
 ---
 
@@ -329,6 +329,46 @@
 
 ---
 
+### **🔹 Sprint 3 (10 septembre - 23 septembre 2026)**
+**Objectif** : Commencer les intégrations externes (EPIC 7) et finaliser la collaboration.
+**Version Cible** : v0.4.0
+**Heures Totales** : ~25h
+
+| **ID**   | **Titre**                          | **Estimation** | **Assigné à** | **Statut** | **Priorité** |
+|----------|------------------------------------|----------------|---------------|------------|--------------|
+| US-040   | Invitation d'utilisateurs          | 5h             | -             | ⏳ To Do    | P2           |
+| US-041   | Gestion des rôles                  | 6h             | -             | ⏳ To Do    | P2           |
+| US-047   | Intégration GitHub                  | 8h             | -             | ⏳ To Do    | P2           |
+
+**Livrables** :
+- ✅ Collaboration complète (invitation et gestion des rôles).
+- ✅ Intégration GitHub fonctionnelle.
+- ✅ Préparation pour les autres intégrations.
+
+---
+
+### **🔹 Sprint 4 (24 septembre - 07 octobre 2026)**
+**Objectif** : Finaliser les intégrations Slack, Discord et les webhooks personnalisés (EPIC 7 - US-048, US-049, US-053).
+**Version Cible** : v0.4.1
+**Heures Totales** : ~20h
+
+| **ID**   | **Titre**                          | **Estimation** | **Assigné à** | **Statut** | **Priorité** |
+|----------|------------------------------------|----------------|---------------|------------|--------------|
+| US-048   | Intégration Slack                   | 5h             | -             | ✅ Done    | P2           |
+| US-049   | Intégration Discord                 | 5h             | -             | ✅ Done    | P2           |
+| US-053   | Webhooks personnalisés             | 2h             | -             | ✅ Done    | P2           |
+| US-042   | Partage de projets                 | 4h             | -             | ⏳ To Do    | P2           |
+| US-043   | Commentaires sur les agents        | 5h             | -             | ⏳ Backlog | P2           |
+
+**Livrables** :
+- ✅ Intégration Slack complète (envoi de messages, gestion des canaux, réactions).
+- ✅ Intégration Discord complète (envoi de messages, embeds, gestion des salons).
+- ✅ Système de webhooks personnalisés fonctionnel.
+- ✅ Tests complets pour toutes les intégrations.
+- ✅ Documentation des API d'intégration.
+
+---
+
 ## 🎨 **Priorisation (MoSCoW)**
 
 ### **🔴 P0 (Must Have)**
@@ -405,12 +445,12 @@
 | US-045   | Résolution de conflits              | Collaboration   | 8h         | ⏳ Backlog      |
 | US-046   | Chat en temps réel                 | Collaboration   | 6h         | ⏳ Backlog      |
 | US-047   | Intégration GitHub                  | Integrations    | 8h         | ⏳ To Do        |
-| US-048   | Intégration Slack                   | Integrations    | 5h         | ⏳ Backlog      |
-| US-049   | Intégration Discord                 | Integrations    | 5h         | ⏳ Backlog      |
+| US-048   | Intégration Slack                   | Integrations    | 5h         | ✅ Done        |
+| US-049   | Intégration Discord                 | Integrations    | 5h         | ✅ Done        |
 | US-050   | Intégration Notion                  | Integrations    | 6h         | ⏳ Backlog      |
 | US-051   | Intégration Google Drive            | Integrations    | 5h         | ⏳ Backlog      |
 | US-052   | Intégration Trello                  | Integrations    | 4h         | ⏳ Backlog      |
-| US-053   | Webhooks personnalisés             | Integrations    | 2h         | ⏳ Backlog      |
+| US-053   | Webhooks personnalisés             | Integrations    | 2h         | ✅ Done        |
 | US-060   | Design System                      | UX              | 8h         | ⏳ To Do        |
 | US-061   | Accessibilité                      | UX              | 5h         | ⏳ Backlog      |
 | US-062   | Internationalisation (i18n)        | UX              | 4h         | ⏳ Backlog      |
@@ -439,6 +479,8 @@
 - **Sprint 0** : 21h (6 août - 12 août 2026)
 - **Sprint 1** : 30h (13 août - 26 août 2026)
 - **Sprint 2** : 35h (27 août - 9 septembre 2026)
+- **Sprint 3** : 25h (10 septembre - 23 septembre 2026)
+- **Sprint 4** : 20h (24 septembre - 7 octobre 2026)
 - **Sprints suivants** : ~30-40h chacun
 
 ### **📅 Planning sur 8-9 Mois (Temps Partiel)**
@@ -468,4 +510,4 @@
 
 ---
 
-*Document généré le 06 août 2026. Dernière mise à jour : 25 août 2026.*
+*Document généré le 06 août 2026. Dernière mise à jour : 26 août 2026.*

@@ -24,6 +24,27 @@ Ce changelog suit les conventions de [Keep a Changelog](https://keepachangelog.c
 *Changements en cours pour la prochaine version*
 
 #### **Added**
+- **Intégrations Externes (Épic 7 - Sprint 4)** :
+  - Intégration Slack complète (US-048) :
+    - Envoi de messages aux canaux et utilisateurs.
+    - Gestion des canaux (liste, création, rejoindre, quitter).
+    - Gestion des utilisateurs et réactions.
+    - Support OAuth2 et Bot Token.
+    - plus de 20 actions supportées.
+  - Intégration Discord complète (US-049) :
+    - Envoi de messages et embeds riches.
+    - Gestion des salons (canaux) et serveurs (guildes).
+    - Gestion des rôles et membres.
+    - Support des commandes slash personnalisées.
+    - Gestion des webhooks Discord.
+    - plus de 34 actions supportées.
+  - Webhooks personnalisés (US-053) :
+    - Système de gestion des abonnements webhooks.
+    - Distribution des événements aux handlers appropriés.
+    - Validation des signatures de sécurité.
+    - Support des webhooks entrants et sortants.
+    - Statistiques et monitoring.
+  - Tests complets pour toutes les intégrations.
 - Ajout de la structure complète du backlog (60+ user stories, 10 épics).
 - Création des fichiers de documentation (BACKLOG.md, ROADMAP.md, etc.).
 - Configuration GitHub (labels, milestones, projects).
@@ -189,4 +210,4 @@ Ce changelog suit les conventions de [Keep a Changelog](https://keepachangelog.c
 
 ---
 
-*Document généré le 06 août 2026. Dernière mise à jour : 25 août 2026.*
+*Document généré le 06 août 2026. Dernière mise à jour : 26 août 2026.*
