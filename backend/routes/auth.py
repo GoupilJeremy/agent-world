@@ -69,6 +69,16 @@ class LoginResource(Resource):
         if not isinstance(identifier, str) or not isinstance(password, str):
             raise InvalidCredentialsError("Invalid username/email or password")
         user, access_token = _service().login(identifier, password)
+        if user.totp_enabled:
+            step_token = _service().issue_access_token(user)
+            return _response(
+                {
+                    "pending_step": "two_factor",
+                    "step_token": step_token,
+                    "user": user.to_dict(),
+                },
+                200,
+            )
         return _response(
             {
                 "access_token": access_token,

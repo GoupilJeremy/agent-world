@@ -44,6 +44,12 @@ class User(BaseModel):
     last_name = db.Column(db.String(50), nullable=True)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
+    totp_secret = db.Column(db.String(255), nullable=True)
+    totp_enabled = db.Column(db.Boolean, nullable=False, default=False)
+    totp_verified_at = db.Column(db.DateTime, nullable=True)
+    backup_codes = db.Column(db.JSON, nullable=True)
+    consent_given_at = db.Column(db.DateTime, nullable=True)
+    data_deleted_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
@@ -69,6 +75,11 @@ class User(BaseModel):
         "Execution",
         back_populates="executor",
         foreign_keys="Execution.executed_by",
+    )
+    roles = db.relationship(
+        "Role",
+        secondary="user_roles",
+        back_populates="users",
     )
 
     def __init__(

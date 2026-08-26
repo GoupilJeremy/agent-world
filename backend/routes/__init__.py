@@ -13,6 +13,7 @@ from .history import register_history_resources
 from .invitations import register_resources as register_invitation_resources
 from .notifications import register_resources as register_notification_resources
 from .performance import performance_bp, register_performance_resources
+from .security import security_bp
 from .templates import register_resources as register_template_resources
 
 # Créer un blueprint pour les routes des agents
@@ -43,6 +44,9 @@ def register_resources(api):
     register_performance_resources(api)
     # Compression resources (Épic 8 - US-058)
     register_compression_resources(api)
+    # Security resources (Épic 10)
+    from .security import register_resources as register_security_resources
+    register_security_resources(api)
     # Enregistrer les intégrations de manière lazy
     register_integration_resources = _get_register_integration_resources()
     register_integration_resources(api)
@@ -63,10 +67,17 @@ def get_compression_bp():
     return compression_bp
 
 
+def get_security_bp():
+    """Récupère le blueprint de sécurité."""
+    return security_bp
+
+
 __all__ = [
     "agents_bp", 
     "register_resources", 
     "get_integrations_bp", 
     "get_performance_bp",
-    "get_compression_bp"
+    "get_compression_bp",
+    "get_security_bp",
+    "security_bp",
 ]

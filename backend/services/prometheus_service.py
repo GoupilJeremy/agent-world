@@ -28,7 +28,7 @@ PROMETHEUS_REGISTRY = CollectorRegistry()
 
 # Configuration du multiprocess mode pour Gunicorn/UWSGI
 # Cela permet de partager les métriques entre les workers
-if multiprocess.MultiprocessMode.needs_prometheus:
+if hasattr(multiprocess, "MultiprocessMode") and getattr(multiprocess.MultiprocessMode, "needs_prometheus", False):
     multiprocess.MultiprocessMode.use_prometheus(PROMETHEUS_REGISTRY)
 
 
@@ -64,54 +64,48 @@ class PrometheusService:
         # ========================================================================
         
         # Compteur de requêtes HTTP
-        self.http_requests_total = Counter(
+        self.http_requests_total = self._get_or_create_counter(
             "flask_http_request_total",
             "Total number of HTTP requests",
             ["method", "endpoint", "status", "http_version"],
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Compteur d'erreurs HTTP
-        self.http_errors_total = Counter(
+        self.http_errors_total = self._get_or_create_counter(
             "flask_http_errors_total",
             "Total number of HTTP errors",
             ["method", "endpoint", "status"],
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Histogram de la durée des requêtes
-        self.http_request_duration_seconds = Histogram(
+        self.http_request_duration_seconds = self._get_or_create_histogram(
             "flask_http_request_duration_seconds",
             "HTTP request duration in seconds",
             ["method", "endpoint", "status"],
             buckets=[0.001, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10],
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Histogram de la taille des requêtes
-        self.http_request_size_bytes = Histogram(
+        self.http_request_size_bytes = self._get_or_create_histogram(
             "flask_http_request_size_bytes",
             "HTTP request size in bytes",
             ["method", "endpoint"],
             buckets=[100, 1000, 10000, 100000, 1000000, 10000000],
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Histogram de la taille des réponses
-        self.http_response_size_bytes = Histogram(
+        self.http_response_size_bytes = self._get_or_create_histogram(
             "flask_http_response_size_bytes",
             "HTTP response size in bytes",
             ["method", "endpoint", "status"],
             buckets=[100, 1000, 10000, 100000, 1000000, 10000000],
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Gauge du nombre de requêtes en cours
-        self.http_requests_in_progress = Gauge(
+        self.http_requests_in_progress = self._get_or_create_gauge(
             "flask_http_requests_in_progress",
             "Number of HTTP requests currently in progress",
             ["method", "endpoint"],
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # ========================================================================
@@ -119,50 +113,44 @@ class PrometheusService:
         # ========================================================================
         
         # Compteur de création d'agents
-        self.agents_created_total = Counter(
+        self.agents_created_total = self._get_or_create_counter(
             "agent_world_agents_created_total",
             "Total number of agents created",
             ["agent_type", "model"],
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Compteur de suppression d'agents
-        self.agents_deleted_total = Counter(
+        self.agents_deleted_total = self._get_or_create_counter(
             "agent_world_agents_deleted_total",
             "Total number of agents deleted",
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Compteur d'exécutions d'agents
-        self.agents_executed_total = Counter(
+        self.agents_executed_total = self._get_or_create_counter(
             "agent_world_agents_executed_total",
             "Total number of agent executions",
             ["agent_id", "status"],
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Histogram de la durée d'exécution des agents
-        self.agents_execution_duration_seconds = Histogram(
+        self.agents_execution_duration_seconds = self._get_or_create_histogram(
             "agent_world_agents_execution_duration_seconds",
             "Agent execution duration in seconds",
             ["agent_id"],
             buckets=[0.1, 0.5, 1, 5, 10, 30, 60, 120, 300, 600],
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Compteur de fichiers générés
-        self.files_generated_total = Counter(
+        self.files_generated_total = self._get_or_create_counter(
             "agent_world_files_generated_total",
             "Total number of files generated",
             ["file_type", "agent_id"],
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Gauge de la taille totale des fichiers générés
-        self.files_total_size_bytes = Gauge(
+        self.files_total_size_bytes = self._get_or_create_gauge(
             "agent_world_files_total_size_bytes",
             "Total size of generated files in bytes",
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # ========================================================================
@@ -170,32 +158,28 @@ class PrometheusService:
         # ========================================================================
         
         # Gauge de l'utilisation CPU
-        self.system_cpu_usage = Gauge(
+        self.system_cpu_usage = self._get_or_create_gauge(
             "agent_world_system_cpu_usage",
             "System CPU usage percentage",
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Gauge de l'utilisation mémoire
-        self.system_memory_usage = Gauge(
+        self.system_memory_usage = self._get_or_create_gauge(
             "agent_world_system_memory_usage",
             "System memory usage in bytes",
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Gauge du nombre de connexions à la base de données
-        self.db_connections = Gauge(
+        self.db_connections = self._get_or_create_gauge(
             "agent_world_db_connections",
             "Number of active database connections",
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Compteur d'erreurs de base de données
-        self.db_errors_total = Counter(
+        self.db_errors_total = self._get_or_create_counter(
             "agent_world_db_errors_total",
             "Total number of database errors",
             ["operation", "error_type"],
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # ========================================================================
@@ -203,28 +187,46 @@ class PrometheusService:
         # ========================================================================
         
         # Compteur de hits/misses du cache
-        self.cache_hits_total = Counter(
+        self.cache_hits_total = self._get_or_create_counter(
             "agent_world_cache_hits_total",
             "Total number of cache hits",
             ["cache_type", "key"],
-            registry=PROMETHEUS_REGISTRY,
         )
         
-        self.cache_misses_total = Counter(
+        self.cache_misses_total = self._get_or_create_counter(
             "agent_world_cache_misses_total",
             "Total number of cache misses",
             ["cache_type", "key"],
-            registry=PROMETHEUS_REGISTRY,
         )
         
         # Gauge de la taille du cache
-        self.cache_size_bytes = Gauge(
+        self.cache_size_bytes = self._get_or_create_gauge(
             "agent_world_cache_size_bytes",
             "Total size of cache in bytes",
             ["cache_type"],
-            registry=PROMETHEUS_REGISTRY,
         )
     
+    def _get_or_create_counter(self, name, documentation, labelnames=()):
+        existing = PROMETHEUS_REGISTRY._names_to_collectors.get(name)
+        if existing is not None:
+            return existing
+        return Counter(name, documentation, list(labelnames), registry=PROMETHEUS_REGISTRY)
+
+    def _get_or_create_histogram(self, name, documentation, labelnames=(), buckets=None):
+        existing = PROMETHEUS_REGISTRY._names_to_collectors.get(name)
+        if existing is not None:
+            return existing
+        kwargs = {"registry": PROMETHEUS_REGISTRY}
+        if buckets is not None:
+            kwargs["buckets"] = buckets
+        return Histogram(name, documentation, list(labelnames), **kwargs)
+
+    def _get_or_create_gauge(self, name, documentation, labelnames=()):
+        existing = PROMETHEUS_REGISTRY._names_to_collectors.get(name)
+        if existing is not None:
+            return existing
+        return Gauge(name, documentation, list(labelnames), registry=PROMETHEUS_REGISTRY)
+
     def init_app(self, app):
         """
         Initialise le service avec une application Flask.

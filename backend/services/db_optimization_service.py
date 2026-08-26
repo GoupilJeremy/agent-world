@@ -89,6 +89,8 @@ class DBOptimizationService:
         ],
     }
 
+    ALLOWED_TABLES = set(RECOMMENDED_INDEXES.keys())
+
     def __init__(self):
         """Initialise le service d'optimisation de la base de données."""
         self._engine = db.get_engine()
@@ -174,6 +176,8 @@ class DBOptimizationService:
         Returns:
             Dictionnaire avec les tables et leurs index manquants
         """
+        if table_name is not None:
+            self._validate_table_name(table_name)
         tables_to_check = [table_name] if table_name else self.RECOMMENDED_INDEXES.keys()
         missing_indexes = {}
 
@@ -197,6 +201,11 @@ class DBOptimizationService:
                 missing_indexes[table] = table_missing
 
         return missing_indexes
+
+    def _validate_table_name(self, table_name: str) -> None:
+        """Validate that table_name is in the allowed whitelist."""
+        if table_name not in self.ALLOWED_TABLES:
+            raise ValueError(f"Table name '{table_name}' is not allowed")
 
     def generate_create_index_sql(
         self,
@@ -385,6 +394,7 @@ class DBOptimizationService:
         Returns:
             Dictionnaire avec les statistiques
         """
+        self._validate_table_name(table_name)
         try:
             if self._engine.dialect.name == "postgresql":
                 with self._engine.connect() as conn:
@@ -406,7 +416,7 @@ class DBOptimizationService:
 
                     # Nombre de lignes
                     count_result = conn.execute(
-                        text(f"SELECT COUNT(*) as row_count FROM {table_name}")
+                        text("SELECT COUNT(*) as row_count FROM " + table_name)
                     ).first()
 
                     # Statistiques d'utilisation
@@ -449,7 +459,7 @@ class DBOptimizationService:
             elif self._engine.dialect.name == "sqlite":
                 with self._engine.connect() as conn:
                     count_result = conn.execute(
-                        text(f"SELECT COUNT(*) as row_count FROM {table_name}")
+                        text("SELECT COUNT(*) as row_count FROM " + table_name)
                     ).first()
 
                     return {
@@ -612,8 +622,9 @@ def downgrade():
 
         try:
             if table_name:
+                self._validate_table_name(table_name)
                 with self._engine.connect() as conn:
-                    conn.execute(text(f"VACUUM ANALYZE {table_name}"))
+                    conn.execute(text("VACUUM ANALYZE " + table_name))
                     conn.commit()
                 logger.info(f"✅ VACUUM ANALYZE executed on table {table_name}")
             else:

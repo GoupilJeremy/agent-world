@@ -12,10 +12,31 @@ Il initialise SQLAlchemy et fournit des fonctionnalités communes.
 from typing import Any
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import String
+from sqlalchemy.types import TypeDecorator
 
 # Initialize SQLAlchemy without binding to any app
 # The app will be bound in the factory function
 db = SQLAlchemy()  # type: ignore[name-defined]
+
+
+class EncryptedString(TypeDecorator):
+    """Transparently encrypt/decrypt string values using the EncryptionService."""
+
+    impl = String
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):  # type: ignore[override]
+        if value is None:
+            return None
+        from ..services.encryption_service import get_encryption_service
+        return get_encryption_service().encrypt(value)
+
+    def process_result_value(self, value, dialect):  # type: ignore[override]
+        if value is None:
+            return None
+        from ..services.encryption_service import get_encryption_service
+        return get_encryption_service().decrypt(value)
 
 
 class BaseModel(db.Model):  # type: ignore[name-defined]
@@ -68,11 +89,13 @@ def init_db(app):
     from . import (  # noqa: F401
         agent,
         agent_history,
+        audit_log,
         execution,
         generated_file,
         history_notification,
         invitation,
         project,
+        role,
         template,
         template_share,
         user,

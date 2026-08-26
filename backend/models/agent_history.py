@@ -231,6 +231,27 @@ class AgentHistory(BaseModel):
         return cls.query.order_by(cls.timestamp.desc()).offset(offset).limit(limit).all()
 
     @classmethod
+    def get_by_author(cls, author_id: int, limit: int = 100, offset: int = 0) -> List["AgentHistory"]:
+        """
+        Get history entries by author ID.
+
+        Args:
+            author_id: ID of the author
+            limit: Maximum number of entries to return (default: 100)
+            offset: Number of entries to skip (default: 0)
+
+        Returns:
+            List of AgentHistory instances
+        """
+        return (
+            cls.query.filter_by(author_id=author_id)
+            .order_by(cls.timestamp.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
+
+    @classmethod
     def delete_by_agent(cls, agent_id: int) -> int:
         """
         Delete all history entries for a specific agent.
