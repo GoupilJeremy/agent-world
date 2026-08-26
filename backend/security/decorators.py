@@ -38,6 +38,7 @@ def require_permission(permission: str) -> Callable[..., Any]:
             if not current_app.config.get("AUTH_ENFORCE_ALL", False):
                 return function(*args, **kwargs)
             from ..services.permission_service import has_permission
+
             user = kwargs.get("user")
             if user is None:
                 auth_service: AuthService = current_app.extensions["auth_service"]

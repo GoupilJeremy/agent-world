@@ -5,16 +5,17 @@
 Unit tests for the IntegrationManager class.
 """
 
-import pytest
 from datetime import datetime
 
+import pytest
+
+from ..integration_manager import IntegrationManager
 from ..integration_types import (
     IntegrationConfig,
     IntegrationCredentials,
     IntegrationStatus,
     IntegrationType,
 )
-from ..integration_manager import IntegrationManager
 from ..oauth.oauth_service import OAuthService
 from ..webhooks.webhook_service import WebhookService
 
@@ -40,7 +41,7 @@ class TestIntegrationManager:
             name="Test GitHub Integration",
             description="Test description",
         )
-        
+
         assert config is not None
         assert config.id is not None
         assert config.integration_type == IntegrationType.GITHUB
@@ -55,10 +56,10 @@ class TestIntegrationManager:
             integration_type=IntegrationType.GITHUB,
             name="Test GitHub Integration",
         )
-        
+
         # Get it back
         retrieved_config = integration_manager.get_integration(created_config.id)
-        
+
         assert retrieved_config is not None
         assert retrieved_config.id == created_config.id
         assert retrieved_config.name == created_config.name
@@ -74,10 +75,10 @@ class TestIntegrationManager:
             integration_type=IntegrationType.SLACK,
             name="Slack 1",
         )
-        
+
         # List all
         integrations = integration_manager.list_integrations()
-        
+
         assert len(integrations) >= 2
 
     def test_update_integration(self, integration_manager):
@@ -87,14 +88,14 @@ class TestIntegrationManager:
             integration_type=IntegrationType.GITHUB,
             name="Original Name",
         )
-        
+
         # Update it
         updated_config = integration_manager.update_integration(
             config.id,
             name="Updated Name",
             description="New description",
         )
-        
+
         assert updated_config is not None
         assert updated_config.name == "Updated Name"
         assert updated_config.description == "New description"
@@ -106,34 +107,31 @@ class TestIntegrationManager:
             integration_type=IntegrationType.GITHUB,
             name="To Delete",
         )
-        
+
         # Delete it
         result = integration_manager.delete_integration(config.id)
-        
+
         assert result is True
-        
+
         # Verify it's gone
         assert integration_manager.get_integration(config.id) is None
 
     def test_get_supported_integrations(self, integration_manager):
         """Test getting supported integrations."""
         supported = integration_manager.get_supported_integrations()
-        
+
         assert len(supported) > 0
-        
+
         # Check that GitHub is supported
         github_supported = any(
-            integration["type"] == "github" 
-            for integration in supported
+            integration["type"] == "github" for integration in supported
         )
         assert github_supported
 
     def test_get_integration_metadata(self, integration_manager):
         """Test getting integration metadata."""
-        metadata = integration_manager.get_integration_metadata(
-            IntegrationType.GITHUB
-        )
-        
+        metadata = integration_manager.get_integration_metadata(IntegrationType.GITHUB)
+
         assert metadata is not None
         assert "type" in metadata
         assert metadata["type"] == "github"
@@ -151,9 +149,9 @@ class TestIntegrationManager:
             integration_type=IntegrationType.SLACK,
             name="Slack",
         )
-        
+
         stats = integration_manager.get_statistics()
-        
+
         assert "total_integrations" in stats
         assert stats["total_integrations"] >= 2
         assert "active_integrations" in stats
@@ -169,13 +167,13 @@ class TestIntegrationWithCredentials:
             access_token="test_token_123",
             api_key="test_api_key",
         )
-        
+
         config = integration_manager.create_integration(
             integration_type=IntegrationType.GITHUB,
             name="GitHub with Credentials",
             credentials=credentials,
         )
-        
+
         assert config is not None
         assert config.credentials.access_token == "test_token_123"
         assert config.credentials.api_key == "test_api_key"
@@ -185,14 +183,14 @@ class TestIntegrationWithCredentials:
         credentials = IntegrationCredentials(
             access_token="valid_token",
         )
-        
+
         assert credentials.is_valid() is True
-        
+
         expired_credentials = IntegrationCredentials(
             access_token="token",
             token_expiry=datetime(2020, 1, 1),  # Long expired
         )
-        
+
         assert expired_credentials.is_valid() is False
 
 
@@ -208,9 +206,9 @@ class TestIntegrationConfig:
             name="Test Integration",
             credentials=IntegrationCredentials(access_token="token123"),
         )
-        
+
         data = config.to_dict(include_secrets=False)
-        
+
         assert data["id"] == 1
         assert data["user_id"] == 123
         assert data["integration_type"] == "github"
@@ -226,9 +224,9 @@ class TestIntegrationConfig:
             name="Test Integration",
             credentials=IntegrationCredentials(access_token="token123"),
         )
-        
+
         data = config.to_dict(include_secrets=True)
-        
+
         assert data["credentials"]["access_token"] == "token123"
 
     def test_from_dict(self):
@@ -242,9 +240,9 @@ class TestIntegrationConfig:
                 "access_token": "token123",
             },
         }
-        
+
         config = IntegrationConfig.from_dict(data)
-        
+
         assert config.id == 1
         assert config.user_id == 123
         assert config.integration_type == IntegrationType.GITHUB

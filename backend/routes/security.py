@@ -51,7 +51,11 @@ def _error_response(error: Any) -> tuple[Any, int, dict[str, str]]:
     headers = dict(NO_STORE_HEADERS)
     if getattr(error, "status_code", None) == 401:
         headers["WWW-Authenticate"] = "Bearer"
-    return {"error": error.message, "code": error.error_code}, getattr(error, "status_code", 400), headers
+    return (
+        {"error": error.message, "code": error.error_code},
+        getattr(error, "status_code", 400),
+        headers,
+    )
 
 
 class TwoFactorSetupResource(Resource):
@@ -61,10 +65,12 @@ class TwoFactorSetupResource(Resource):
         user = _authenticate()
         service = _two_factor_service()
         secret, uri = service.enroll(user)
-        return _response({
-            "secret": secret,
-            "provisioning_uri": uri,
-        })
+        return _response(
+            {
+                "secret": secret,
+                "provisioning_uri": uri,
+            }
+        )
 
 
 class TwoFactorEnableResource(Resource):
@@ -75,7 +81,9 @@ class TwoFactorEnableResource(Resource):
         data = request.get_json(silent=True) or {}
         code = data.get("code")
         if not isinstance(code, str):
-            return _response({"error": "code is required", "code": "invalid_request"}, 400)
+            return _response(
+                {"error": "code is required", "code": "invalid_request"}, 400
+            )
         service = _two_factor_service()
         service.enable(user, code)
         return _response({"totp_enabled": True})
@@ -99,7 +107,9 @@ class TwoFactorBackupCodesResource(Resource):
     def post(self) -> tuple[Any, int, dict[str, str]]:
         user = _authenticate()
         if not user.totp_enabled:
-            return _response({"error": "2FA is not enabled", "code": "two_factor_disabled"}, 400)
+            return _response(
+                {"error": "2FA is not enabled", "code": "two_factor_disabled"}, 400
+            )
         service = _two_factor_service()
         codes = service.generate_backup_codes(user)
         return _response({"backup_codes": codes})
@@ -119,7 +129,10 @@ class LoginTwoFactorResource(Resource):
             or not isinstance(code, str)
         ):
             return _response(
-                {"error": "identifier, password and code are required", "code": "invalid_request"},
+                {
+                    "error": "identifier, password and code are required",
+                    "code": "invalid_request",
+                },
                 400,
             )
         auth_service = _auth_service()
@@ -131,19 +144,26 @@ class LoginTwoFactorResource(Resource):
             )
         if not user.totp_enabled:
             return _response(
-                {"error": "Two-factor authentication is not enabled for this account", "code": "two_factor_not_enabled"},
+                {
+                    "error": "Two-factor authentication is not enabled for this account",
+                    "code": "two_factor_not_enabled",
+                },
                 400,
             )
         service = _two_factor_service()
         if service.verify(user, code) or service.verify_backup_code(user, code):
             token = auth_service.issue_access_token(user)
-            return _response({
-                "access_token": token,
-                "token_type": "Bearer",
-                "expires_in": auth_service.access_token_ttl_seconds,
-                "user": user.to_dict(),
-            })
-        return _response({"error": "Invalid two-factor code", "code": "invalid_2fa_code"}, 401)
+            return _response(
+                {
+                    "access_token": token,
+                    "token_type": "Bearer",
+                    "expires_in": auth_service.access_token_ttl_seconds,
+                    "user": user.to_dict(),
+                }
+            )
+        return _response(
+            {"error": "Invalid two-factor code", "code": "invalid_2fa_code"}, 401
+        )
 
 
 class AccountExportResource(Resource):
@@ -169,7 +189,9 @@ class LegalPrivacyResource(Resource):
     """Return privacy policy text from config."""
 
     def get(self) -> tuple[Any, int, dict[str, str]]:
-        policy = current_app.config.get("PRIVACY_POLICY_TEXT", "Privacy policy not configured.")
+        policy = current_app.config.get(
+            "PRIVACY_POLICY_TEXT", "Privacy policy not configured."
+        )
         return _response({"policy": policy})
 
 
@@ -186,7 +208,9 @@ class AdminRoleListResource(Resource):
         name = data.get("name")
         permissions = data.get("permissions", [])
         if not isinstance(name, str) or not name.strip():
-            return _response({"error": "name is required", "code": "invalid_request"}, 400)
+            return _response(
+                {"error": "name is required", "code": "invalid_request"}, 400
+            )
         if Role.get_by_name(name):
             return _response({"error": "Role already exists", "code": "conflict"}, 409)
         role = Role.create(name=name.strip(), permissions=permissions)
@@ -204,17 +228,23 @@ class AdminUserRolesResource(Resource):
         data = request.get_json(silent=True) or {}
         role_names = data.get("roles", [])
         if not isinstance(role_names, list):
-            return _response({"error": "roles must be a list", "code": "invalid_request"}, 400)
+            return _response(
+                {"error": "roles must be a list", "code": "invalid_request"}, 400
+            )
         roles = []
         for name in role_names:
             role = Role.get_by_name(name)
             if role is None:
-                return _response({"error": f"Role '{name}' not found", "code": "not_found"}, 404)
+                return _response(
+                    {"error": f"Role '{name}' not found", "code": "not_found"}, 404
+                )
             roles.append(role)
         user.roles = roles
         db.session.add(user)
         db.session.commit()
-        return _response({"user_id": user.id, "roles": [r.to_dict() for r in user.roles]})
+        return _response(
+            {"user_id": user.id, "roles": [r.to_dict() for r in user.roles]}
+        )
 
 
 class AdminAuditListResource(Resource):
@@ -234,12 +264,14 @@ class AdminAuditListResource(Resource):
             query = query.filter(AuditLog.actor_id == int(actor_id))
         total = query.count()
         items = query.offset((page - 1) * per_page).limit(per_page).all()
-        return _response({
-            "items": [entry.to_dict() for entry in items],
-            "total": total,
-            "page": page,
-            "per_page": per_page,
-        })
+        return _response(
+            {
+                "items": [entry.to_dict() for entry in items],
+                "total": total,
+                "page": page,
+                "per_page": per_page,
+            }
+        )
 
 
 class AdminAuditExportResource(Resource):
@@ -251,18 +283,33 @@ class AdminAuditExportResource(Resource):
         entries = AuditLog.get_all(limit=1000)
         if fmt == "csv":
             output = io.StringIO()
-            writer = csv.DictWriter(output, fieldnames=["id", "actor_id", "action", "resource_type", "resource_id", "ip", "created_at"])
+            writer = csv.DictWriter(
+                output,
+                fieldnames=[
+                    "id",
+                    "actor_id",
+                    "action",
+                    "resource_type",
+                    "resource_id",
+                    "ip",
+                    "created_at",
+                ],
+            )
             writer.writeheader()
             for entry in entries:
-                writer.writerow({
-                    "id": entry.id,
-                    "actor_id": entry.actor_id,
-                    "action": entry.action,
-                    "resource_type": entry.resource_type,
-                    "resource_id": entry.resource_id,
-                    "ip": entry.ip,
-                    "created_at": entry.created_at.isoformat() if entry.created_at else "",
-                })
+                writer.writerow(
+                    {
+                        "id": entry.id,
+                        "actor_id": entry.actor_id,
+                        "action": entry.action,
+                        "resource_type": entry.resource_type,
+                        "resource_id": entry.resource_id,
+                        "ip": entry.ip,
+                        "created_at": (
+                            entry.created_at.isoformat() if entry.created_at else ""
+                        ),
+                    }
+                )
             return _response(output.getvalue(), 200, {"Content-Type": "text/csv"})
         return _response({"items": [entry.to_dict() for entry in entries]})
 
@@ -285,6 +332,7 @@ def _authenticate() -> User:
 
 def _require_admin() -> None:
     from ..services.permission_service import has_permission
+
     user = _authenticate()
     if not has_permission(user, "security:manage"):
         raise PermissionDeniedError("Permission denied")
@@ -303,4 +351,3 @@ def register_resources(api: Any) -> None:
     api.add_resource(AdminUserRolesResource, "/admin/users/<int:user_id>/roles")
     api.add_resource(AdminAuditListResource, "/admin/audit")
     api.add_resource(AdminAuditExportResource, "/admin/audit/export")
-

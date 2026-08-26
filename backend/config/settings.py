@@ -52,7 +52,9 @@ class Config:
     OPENAPI_SWAGGER_UI_URL = "/api/docs/"
 
     # CORS settings
-    CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+    CORS_ORIGINS = os.environ.get(
+        "CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"
+    ).split(",")
 
     # Rate limiting settings
     RATE_LIMIT_AUTH = os.environ.get("RATE_LIMIT_AUTH", "10 per minute")
@@ -70,7 +72,9 @@ class Config:
     }
 
     # Session cookie settings
-    SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "false").lower() in {
+    SESSION_COOKIE_SECURE = os.environ.get(
+        "SESSION_COOKIE_SECURE", "false"
+    ).lower() in {
         "1",
         "true",
         "yes",
@@ -123,9 +127,13 @@ class Config:
         "yes",
         "on",
     }
-    COMPRESSION_DEFAULT_FORMAT = os.environ.get("COMPRESSION_DEFAULT_FORMAT", "gzip").lower()
+    COMPRESSION_DEFAULT_FORMAT = os.environ.get(
+        "COMPRESSION_DEFAULT_FORMAT", "gzip"
+    ).lower()
     COMPRESSION_LEVEL = int(os.environ.get("COMPRESSION_LEVEL", "6"))
-    COMPRESSION_KEEP_ORIGINAL = os.environ.get("COMPRESSION_KEEP_ORIGINAL", "true").lower() in {
+    COMPRESSION_KEEP_ORIGINAL = os.environ.get(
+        "COMPRESSION_KEEP_ORIGINAL", "true"
+    ).lower() in {
         "1",
         "true",
         "yes",

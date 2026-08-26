@@ -272,9 +272,7 @@ class TestAgentsAPI:
         assert preview.status_code == 200
         assert "Mock response" in preview.get_json()["html"]
 
-    def test_run_agent_rejects_invalid_save_options_before_execution(
-        self, app, client
-    ):
+    def test_run_agent_rejects_invalid_save_options_before_execution(self, app, client):
         """Invalid file options never trigger the expensive execution."""
 
         create_response = client.post(

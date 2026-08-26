@@ -24,7 +24,9 @@ class EncryptionService:
         try:
             base64.urlsafe_b64decode(key.encode())
         except Exception as exc:
-            raise EncryptionError("ENCRYPTION_KEY must be a valid base64 url-safe 32-byte key") from exc
+            raise EncryptionError(
+                "ENCRYPTION_KEY must be a valid base64 url-safe 32-byte key"
+            ) from exc
         self._fernet = Fernet(key.encode())
 
     def encrypt(self, plaintext: str) -> str:

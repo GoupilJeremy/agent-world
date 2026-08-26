@@ -56,9 +56,7 @@ class Template(BaseModel):
     )
 
     # Relationships
-    creator = db.relationship(
-        "User", foreign_keys=[created_by]
-    )
+    creator = db.relationship("User", foreign_keys=[created_by])
     # For versioning: a template can have multiple versions
     # This will be handled through TemplateVersion model
 
@@ -195,6 +193,7 @@ class Template(BaseModel):
         # For JSON arrays, we use like with JSON string matching
         # This works for both PostgreSQL and SQLite
         import json
+
         # Escape the tag for JSON (in case it contains special characters)
         escaped_tag = json.dumps(tag)[1:-1]  # Remove quotes
         return cls.query.filter(Template.tags.like(f'%"{escaped_tag}"%')).all()  # type: ignore[arg-type]
@@ -240,6 +239,7 @@ class Template(BaseModel):
             for tag in tags:
                 # For JSON arrays in SQLite, we use like with JSON string matching
                 import json
+
                 escaped_tag = json.dumps(tag)[1:-1]
                 search_query = search_query.filter(Template.tags.like(f'%"{escaped_tag}"%'))  # type: ignore[arg-type]
 
@@ -310,9 +310,7 @@ class TemplateVersion(BaseModel):
     __tablename__ = "template_versions"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    template_id = db.Column(
-        db.Integer, db.ForeignKey("templates.id"), nullable=False
-    )
+    template_id = db.Column(db.Integer, db.ForeignKey("templates.id"), nullable=False)
     version = db.Column(db.String(20), nullable=False)
     data = db.Column(db.JSON, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

@@ -17,7 +17,13 @@ from flask_restful import Api
 
 from .config.settings import Config
 from .models.base import init_db
-from .routes import agents_bp, get_compression_bp, get_performance_bp, get_security_bp, register_resources
+from .routes import (
+    agents_bp,
+    get_compression_bp,
+    get_performance_bp,
+    get_security_bp,
+    register_resources,
+)
 from .routes.share_auth import register_share_recipient_auth
 from .services.agent_cache_service import AgentCacheService
 from .services.agent_service import AgentService
@@ -109,9 +115,13 @@ def create_app(config_class=Config):
     def set_security_headers(response):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
-        response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'none'; frame-ancestors 'none'"
+        )
         if app.config.get("SESSION_COOKIE_SECURE"):
-            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+            response.headers["Strict-Transport-Security"] = (
+                "max-age=31536000; includeSubDomains"
+            )
         return response
 
     # Register Flask-RESTful resources
@@ -120,15 +130,16 @@ def create_app(config_class=Config):
     # Register blueprints
     app.register_blueprint(agents_bp)
     app.register_blueprint(get_security_bp())
-    
+
     # Register performance blueprint (Épic 8)
     app.register_blueprint(get_performance_bp())
-    
+
     # Register compression blueprint (Épic 8 - US-058)
     app.register_blueprint(get_compression_bp())
-    
+
     # Register integrations blueprint
     from .routes import get_integrations_bp
+
     app.register_blueprint(get_integrations_bp())
 
     # Initialize services
@@ -144,24 +155,30 @@ def create_app(config_class=Config):
         output_dir=app.config.get("OUTPUT_DIR", "outputs"),
         preview_max_bytes=app.config.get("FILE_PREVIEW_MAX_BYTES", 1024 * 1024),
         write_max_bytes=app.config.get("FILE_WRITE_MAX_BYTES", 1024 * 1024),
-        share_default_ttl_seconds=app.config.get("FILE_SHARE_DEFAULT_TTL_SECONDS", 7 * 24 * 60 * 60),
-        share_max_ttl_seconds=app.config.get("FILE_SHARE_MAX_TTL_SECONDS", 30 * 24 * 60 * 60),
+        share_default_ttl_seconds=app.config.get(
+            "FILE_SHARE_DEFAULT_TTL_SECONDS", 7 * 24 * 60 * 60
+        ),
+        share_max_ttl_seconds=app.config.get(
+            "FILE_SHARE_MAX_TTL_SECONDS", 30 * 24 * 60 * 60
+        ),
         cleanup_enabled=app.config.get("FILE_CLEANUP_ENABLED", False),
-        cleanup_interval_seconds=app.config.get("FILE_CLEANUP_INTERVAL_SECONDS", 24 * 60 * 60),
+        cleanup_interval_seconds=app.config.get(
+            "FILE_CLEANUP_INTERVAL_SECONDS", 24 * 60 * 60
+        ),
         temporary_ttl_hours=app.config.get("FILE_TEMPORARY_TTL_HOURS", 24),
         obsolete_ttl_days=app.config.get("FILE_OBSOLETE_TTL_DAYS", 30),
         keep_latest_versions=app.config.get("FILE_KEEP_LATEST_VERSIONS", 3),
     )
-    
+
     # Cache service (Épic 8 - Performance)
     cache_service = CacheService(
         redis_url=app.config.get("REDIS_URL", "redis://localhost:6379/0"),
-        default_timeout=app.config.get("CACHE_DEFAULT_TIMEOUT", 3600)
+        default_timeout=app.config.get("CACHE_DEFAULT_TIMEOUT", 3600),
     )
-    
+
     # Agent cache service (Épic 8 - Performance)
     agent_cache_service = AgentCacheService()
-    
+
     # Compression service (Épic 8 - US-058)
     compression_service = CompressionService(
         enabled=app.config.get("COMPRESSION_ENABLED", True),
@@ -169,11 +186,12 @@ def create_app(config_class=Config):
         compression_level=app.config.get("COMPRESSION_LEVEL", 6),
         keep_original=app.config.get("COMPRESSION_KEEP_ORIGINAL", True),
     )
-    
+
     # Prometheus service (Épic 8 - US-059)
     from .services.prometheus_service import PrometheusService
+
     prometheus_service = PrometheusService(app=app)
-    
+
     # Collaboration services (Épic 6)
     email_service = EmailService(
         provider=app.config.get("EMAIL_PROVIDER", "smtp"),
@@ -188,7 +206,7 @@ def create_app(config_class=Config):
     from .integrations.integration_manager import IntegrationManager
     from .integrations.oauth.oauth_service import OAuthService
     from .integrations.webhooks.webhook_service import WebhookService
-    
+
     oauth_service = OAuthService()
     webhook_service = WebhookService()
     integration_manager = IntegrationManager(

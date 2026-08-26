@@ -73,7 +73,9 @@ class AuditLog(BaseModel):
         return entry
 
     @classmethod
-    def get_by_action(cls, action: str, limit: int = 100, offset: int = 0) -> list["AuditLog"]:
+    def get_by_action(
+        cls, action: str, limit: int = 100, offset: int = 0
+    ) -> list["AuditLog"]:
         return (
             cls.query.filter_by(action=action)
             .order_by(cls.created_at.desc())
@@ -83,7 +85,9 @@ class AuditLog(BaseModel):
         )
 
     @classmethod
-    def get_by_actor(cls, actor_id: int, limit: int = 100, offset: int = 0) -> list["AuditLog"]:
+    def get_by_actor(
+        cls, actor_id: int, limit: int = 100, offset: int = 0
+    ) -> list["AuditLog"]:
         return (
             cls.query.filter_by(actor_id=actor_id)
             .order_by(cls.created_at.desc())

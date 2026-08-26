@@ -61,9 +61,7 @@ class AgentHistory(BaseModel):
 
     # Relationships
     agent = db.relationship("Agent", backref=db.backref("histories", lazy=True))
-    author = db.relationship(
-        "User", backref=db.backref("agent_histories", lazy=True)
-    )
+    author = db.relationship("User", backref=db.backref("agent_histories", lazy=True))
 
     def __init__(
         self,
@@ -152,9 +150,9 @@ class AgentHistory(BaseModel):
         Returns:
             List of AgentHistory instances
         """
-        return cls.query.filter_by(agent_id=agent_id).order_by(
-            cls.timestamp.desc()
-        ).all()
+        return (
+            cls.query.filter_by(agent_id=agent_id).order_by(cls.timestamp.desc()).all()
+        )
 
     @classmethod
     def get_by_action_type(
@@ -228,10 +226,14 @@ class AgentHistory(BaseModel):
         Returns:
             List of AgentHistory instances
         """
-        return cls.query.order_by(cls.timestamp.desc()).offset(offset).limit(limit).all()
+        return (
+            cls.query.order_by(cls.timestamp.desc()).offset(offset).limit(limit).all()
+        )
 
     @classmethod
-    def get_by_author(cls, author_id: int, limit: int = 100, offset: int = 0) -> List["AgentHistory"]:
+    def get_by_author(
+        cls, author_id: int, limit: int = 100, offset: int = 0
+    ) -> List["AgentHistory"]:
         """
         Get history entries by author ID.
 

@@ -37,18 +37,10 @@ class SharePermission(BaseModel):
     ADMIN = "admin"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    template_id = db.Column(
-        db.Integer, db.ForeignKey("templates.id"), nullable=False
-    )
-    shared_with_id = db.Column(
-        db.Integer, db.ForeignKey("users.id"), nullable=False
-    )
-    permission_level = db.Column(
-        db.String(20), nullable=False, default=READ
-    )
-    shared_by = db.Column(
-        db.Integer, db.ForeignKey("users.id"), nullable=True
-    )
+    template_id = db.Column(db.Integer, db.ForeignKey("templates.id"), nullable=False)
+    shared_with_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    permission_level = db.Column(db.String(20), nullable=False, default=READ)
+    shared_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime, nullable=True)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
@@ -58,9 +50,7 @@ class SharePermission(BaseModel):
     shared_with = db.relationship(
         "User", foreign_keys=[shared_with_id], backref="shared_templates"
     )
-    sharer = db.relationship(
-        "User", foreign_keys=[shared_by], backref="shared_by_me"
-    )
+    sharer = db.relationship("User", foreign_keys=[shared_by], backref="shared_by_me")
 
     def __init__(
         self,
@@ -134,9 +124,7 @@ class SharePermission(BaseModel):
     @classmethod
     def get_active_shares(cls, template_id: int) -> list:
         """Get all active share permissions for a template."""
-        return cls.query.filter_by(
-            template_id=template_id, is_active=True
-        ).all()
+        return cls.query.filter_by(template_id=template_id, is_active=True).all()
 
     @classmethod
     def get_share_with_user(
@@ -200,16 +188,12 @@ class ShareToken(BaseModel):
     __tablename__ = "share_tokens"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    template_id = db.Column(
-        db.Integer, db.ForeignKey("templates.id"), nullable=False
-    )
+    template_id = db.Column(db.Integer, db.ForeignKey("templates.id"), nullable=False)
     token = db.Column(db.String(64), nullable=False, unique=True)
     permission_level = db.Column(
         db.String(20), nullable=False, default=SharePermission.READ
     )
-    created_by = db.Column(
-        db.Integer, db.ForeignKey("users.id"), nullable=True
-    )
+    created_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime, nullable=True)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
@@ -303,9 +287,7 @@ class ShareToken(BaseModel):
     @classmethod
     def get_active_tokens(cls, template_id: int) -> list:
         """Get all active share tokens for a template."""
-        return cls.query.filter_by(
-            template_id=template_id, is_active=True
-        ).all()
+        return cls.query.filter_by(template_id=template_id, is_active=True).all()
 
     def is_valid(self) -> bool:
         """Check if the token is still valid."""

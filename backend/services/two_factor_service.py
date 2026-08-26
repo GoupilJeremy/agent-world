@@ -97,7 +97,7 @@ class TwoFactorService:
         codes = list(user.backup_codes)
         for index, stored in enumerate(codes):
             if _constant_time_compare(stored, hashed):
-                user.backup_codes = codes[:index] + codes[index + 1:]
+                user.backup_codes = codes[:index] + codes[index + 1 :]
                 db.session.add(user)
                 db.session.commit()
                 return True

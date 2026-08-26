@@ -101,9 +101,7 @@ def add_template_commands(subparsers: argparse._SubParsersAction) -> None:
         help="List all templates",
         description="List all available agent templates with filters",
     )
-    template_list_parser.add_argument(
-        "--category", "-g", help="Filter by category"
-    )
+    template_list_parser.add_argument("--category", "-g", help="Filter by category")
     template_list_parser.add_argument("--tag", "-t", help="Filter by tag")
     template_list_parser.add_argument(
         "--search", "-s", help="Search in name and description"
@@ -131,9 +129,7 @@ def add_template_commands(subparsers: argparse._SubParsersAction) -> None:
         help="Show template details",
         description="Show detailed information about a specific template",
     )
-    template_show_parser.add_argument(
-        "id", type=int, help="ID of the template to show"
-    )
+    template_show_parser.add_argument("id", type=int, help="ID of the template to show")
     template_show_parser.add_argument(
         "--versions",
         "-v",
@@ -147,12 +143,18 @@ def add_template_commands(subparsers: argparse._SubParsersAction) -> None:
         help="Update a template",
         description="Update an existing template",
     )
-    template_update_parser.add_argument("id", type=int, help="ID of the template to update")
-    template_update_parser.add_argument("--name", "-n", help="New name for the template")
+    template_update_parser.add_argument(
+        "id", type=int, help="ID of the template to update"
+    )
+    template_update_parser.add_argument(
+        "--name", "-n", help="New name for the template"
+    )
     template_update_parser.add_argument(
         "--description", "-d", help="New description for the template"
     )
-    template_update_parser.add_argument("--model", "-m", help="New AI model for the template")
+    template_update_parser.add_argument(
+        "--model", "-m", help="New AI model for the template"
+    )
     template_update_parser.add_argument(
         "--config",
         "-c",
@@ -195,7 +197,9 @@ def add_template_commands(subparsers: argparse._SubParsersAction) -> None:
         help="Delete a template",
         description="Delete an existing template from the database",
     )
-    template_delete_parser.add_argument("id", type=int, help="ID of the template to delete")
+    template_delete_parser.add_argument(
+        "id", type=int, help="ID of the template to delete"
+    )
     template_delete_parser.add_argument(
         "--force", "-f", action="store_true", help="Force deletion without confirmation"
     )
@@ -206,7 +210,9 @@ def add_template_commands(subparsers: argparse._SubParsersAction) -> None:
         help="Export a template",
         description="Export a template to JSON or YAML format",
     )
-    template_export_parser.add_argument("id", type=int, help="ID of the template to export")
+    template_export_parser.add_argument(
+        "id", type=int, help="ID of the template to export"
+    )
     template_export_parser.add_argument(
         "--format",
         "-f",
@@ -295,6 +301,7 @@ class TemplateCLIHandler:
         """Handle the template create command."""
         try:
             from flask import has_app_context
+
             from ..app import app
 
             if not has_app_context():
@@ -305,6 +312,7 @@ class TemplateCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"Error creating template: {str(e)}")
             return 1
@@ -349,6 +357,7 @@ class TemplateCLIHandler:
         """Handle the template list command."""
         try:
             from flask import has_app_context
+
             from ..app import app
 
             if not has_app_context():
@@ -359,6 +368,7 @@ class TemplateCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"Error listing templates: {str(e)}")
             return 1
@@ -393,6 +403,7 @@ class TemplateCLIHandler:
         """Handle the template show command."""
         try:
             from flask import has_app_context
+
             from ..app import app
 
             if not has_app_context():
@@ -403,6 +414,7 @@ class TemplateCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"Error showing template: {str(e)}")
             return 1
@@ -434,6 +446,7 @@ class TemplateCLIHandler:
         """Handle the template update command."""
         try:
             from flask import has_app_context
+
             from ..app import app
 
             if not has_app_context():
@@ -444,6 +457,7 @@ class TemplateCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"Error updating template: {str(e)}")
             return 1
@@ -511,6 +525,7 @@ class TemplateCLIHandler:
         """Handle the template delete command."""
         try:
             from flask import has_app_context
+
             from ..app import app
 
             if not has_app_context():
@@ -521,6 +536,7 @@ class TemplateCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"Error deleting template: {str(e)}")
             return 1
@@ -551,6 +567,7 @@ class TemplateCLIHandler:
         """Handle the template export command."""
         try:
             from flask import has_app_context
+
             from ..app import app
 
             if not has_app_context():
@@ -561,6 +578,7 @@ class TemplateCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"Error exporting template: {str(e)}")
             return 1
@@ -581,6 +599,7 @@ class TemplateCLIHandler:
         if args.format == "yaml":
             try:
                 import yaml
+
                 output = yaml.dump(
                     template_data, default_flow_style=False, allow_unicode=True
                 )
@@ -606,6 +625,7 @@ class TemplateCLIHandler:
         """Handle the template import command."""
         try:
             from flask import has_app_context
+
             from ..app import app
 
             if not has_app_context():
@@ -616,6 +636,7 @@ class TemplateCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"Error importing template: {str(e)}")
             return 1
@@ -623,6 +644,7 @@ class TemplateCLIHandler:
     def _import_template(self, args: argparse.Namespace) -> int:
         """Import a template from JSON or YAML file."""
         import os
+
         if not os.path.exists(args.file):
             print(f"File not found: {args.file}")
             return 1
@@ -639,6 +661,7 @@ class TemplateCLIHandler:
         except json.JSONDecodeError:
             try:
                 import yaml
+
                 data = yaml.safe_load(content)
             except Exception as e:
                 print(f"Invalid file format: {str(e)}")
@@ -682,6 +705,7 @@ class TemplateCLIHandler:
         """Handle the template customize command."""
         try:
             from flask import has_app_context
+
             from ..app import app
 
             if not has_app_context():
@@ -692,6 +716,7 @@ class TemplateCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"Error customizing template: {str(e)}")
             return 1
@@ -739,6 +764,7 @@ class TemplateCLIHandler:
         """Handle the template versions list command."""
         try:
             from flask import has_app_context
+
             from ..app import app
 
             if not has_app_context():
@@ -749,6 +775,7 @@ class TemplateCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"Error listing versions: {str(e)}")
             return 1
@@ -776,7 +803,9 @@ class TemplateCLIHandler:
         """Handle the template versions restore command."""
         try:
             from datetime import datetime
+
             from flask import has_app_context
+
             from ..app import app
             from ..models.base import db
 
@@ -788,6 +817,7 @@ class TemplateCLIHandler:
         except Exception as e:
             if self.verbose:
                 import traceback
+
                 traceback.print_exc()
             print(f"Error restoring version: {str(e)}")
             return 1
@@ -795,6 +825,7 @@ class TemplateCLIHandler:
     def _restore_version(self, args: argparse.Namespace) -> int:
         """Restore a specific version of a template."""
         from datetime import datetime
+
         from ..models.base import db
 
         template = Template.get_by_id(args.id)
@@ -816,7 +847,9 @@ class TemplateCLIHandler:
         template.name = template_data.get("name", template.name)
         template.description = template_data.get("description", template.description)
         template.model = template_data.get("model", template.model)
-        template.configuration = template_data.get("configuration", template.configuration)
+        template.configuration = template_data.get(
+            "configuration", template.configuration
+        )
         template.parameters = template_data.get("parameters", template.parameters)
         template.category = template_data.get("category", template.category)
         template.tags = template_data.get("tags", template.tags)
@@ -838,7 +871,9 @@ class TemplateCLIHandler:
             if detailed:
                 print(json.dumps(template.to_dict(), indent=2, ensure_ascii=False))
             else:
-                print(json.dumps(template.to_dict_minimal(), indent=2, ensure_ascii=False))
+                print(
+                    json.dumps(template.to_dict_minimal(), indent=2, ensure_ascii=False)
+                )
         else:
             print(f"Template: {template.name}")
             print(f"   ID: {template.id}")
@@ -852,7 +887,9 @@ class TemplateCLIHandler:
             print(f"   Public: {template.is_public}")
             print(f"   Created: {template.created_at}")
             if detailed:
-                print(f"   Configuration: {json.dumps(template.configuration, indent=2)}")
+                print(
+                    f"   Configuration: {json.dumps(template.configuration, indent=2)}"
+                )
                 print(f"   Parameters: {json.dumps(template.parameters, indent=2)}")
 
     def print_template_table(self, templates: List[Template]) -> None:
@@ -860,7 +897,9 @@ class TemplateCLIHandler:
         if not templates:
             print("No templates to display")
             return
-        print(f"\n{'ID':<5} {'Name':<25} {'Version':<10} {'Category':<15} {'Official':<10} {'Public':<10}")
+        print(
+            f"\n{'ID':<5} {'Name':<25} {'Version':<10} {'Category':<15} {'Official':<10} {'Public':<10}"
+        )
         print("-" * 80)
         for template in templates:
             official = "Yes" if template.is_official else "No"

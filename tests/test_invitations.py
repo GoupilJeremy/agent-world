@@ -13,15 +13,16 @@ Ces tests couvrent :
 - Expiration des invitations
 """
 
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
 
 from backend.app import create_app
 from backend.models.base import db
+from backend.models.invitation import Invitation, InvitationStatus
 from backend.models.project import Project
 from backend.models.user import User
-from backend.models.invitation import Invitation, InvitationStatus
-from backend.services.invitation_service import InvitationService, InvitationError
+from backend.services.invitation_service import InvitationError, InvitationService
 
 
 @pytest.fixture
@@ -80,6 +81,7 @@ def test_project(app, test_user):
 # ============================================================================
 # Tests for Invitation Model
 # ============================================================================
+
 
 class TestInvitationModel:
     """Tests for the Invitation model."""
@@ -243,6 +245,7 @@ class TestInvitationModel:
 # Tests for Invitation Service
 # ============================================================================
 
+
 class TestInvitationService:
     """Tests for the InvitationService."""
 
@@ -277,7 +280,9 @@ class TestInvitationService:
             assert invitation.created_by == test_user.id
             assert invitation.status == InvitationStatus.PENDING
 
-    def test_create_invitation_invalid_project(self, app, invitation_service, test_user):
+    def test_create_invitation_invalid_project(
+        self, app, invitation_service, test_user
+    ):
         """Test creating an invitation with invalid project ID."""
         with app.app_context():
             with pytest.raises(InvitationError) as exc_info:
@@ -289,7 +294,9 @@ class TestInvitationService:
 
             assert "Projet 99999 introuvable" in str(exc_info.value)
 
-    def test_create_invitation_duplicate(self, app, invitation_service, test_user, test_project):
+    def test_create_invitation_duplicate(
+        self, app, invitation_service, test_user, test_project
+    ):
         """Test creating a duplicate invitation for the same email and project."""
         with app.app_context():
             # Create first invitation
@@ -339,7 +346,9 @@ class TestInvitationService:
 
             assert "Invitation introuvable" in str(exc_info.value)
 
-    def test_accept_invitation_already_accepted(self, app, invitation_service, test_user, test_project):
+    def test_accept_invitation_already_accepted(
+        self, app, invitation_service, test_user, test_project
+    ):
         """Test accepting an already accepted invitation."""
         with app.app_context():
             # Create and accept an invitation
@@ -380,7 +389,9 @@ class TestInvitationService:
 
             assert revoked.status == InvitationStatus.REVOKED
 
-    def test_revoke_invitation_not_creator(self, app, invitation_service, test_user, test_project):
+    def test_revoke_invitation_not_creator(
+        self, app, invitation_service, test_user, test_project
+    ):
         """Test that only the creator or admin can revoke an invitation."""
         with app.app_context():
             # Create another user
@@ -406,7 +417,9 @@ class TestInvitationService:
 
             assert "Seul le créateur" in str(exc_info.value)
 
-    def test_get_invitations_by_project(self, app, invitation_service, test_user, test_project):
+    def test_get_invitations_by_project(
+        self, app, invitation_service, test_user, test_project
+    ):
         """Test getting invitations by project."""
         with app.app_context():
             # Create invitations for the project
@@ -426,7 +439,9 @@ class TestInvitationService:
             assert len(invitations) == 2
             assert all(inv.project_id == test_project.id for inv in invitations)
 
-    def test_get_pending_invitations_by_email(self, app, invitation_service, test_user, test_project):
+    def test_get_pending_invitations_by_email(
+        self, app, invitation_service, test_user, test_project
+    ):
         """Test getting pending invitations by email."""
         with app.app_context():
             # Create pending invitation
@@ -444,13 +459,19 @@ class TestInvitationService:
             )
             accepted_inv.accept()
 
-            pending = invitation_service.get_pending_invitations_by_email("pending@example.com")
-            accepted = invitation_service.get_pending_invitations_by_email("accepted@example.com")
+            pending = invitation_service.get_pending_invitations_by_email(
+                "pending@example.com"
+            )
+            accepted = invitation_service.get_pending_invitations_by_email(
+                "accepted@example.com"
+            )
 
             assert len(pending) == 1
             assert len(accepted) == 0
 
-    def test_cleanup_expired_invitations(self, app, invitation_service, test_user, test_project):
+    def test_cleanup_expired_invitations(
+        self, app, invitation_service, test_user, test_project
+    ):
         """Test cleaning up expired invitations."""
         with app.app_context():
             # Create a pending invitation that will expire
@@ -477,6 +498,7 @@ class TestInvitationService:
 # Tests for Invitation API Endpoints
 # ============================================================================
 
+
 class TestInvitationAPI:
     """Tests for the Invitation API endpoints."""
 
@@ -499,7 +521,9 @@ class TestInvitationAPI:
             assert data["role"] == "member"
             assert data["status"] == "PENDING"
 
-    def test_get_invitation_by_token_endpoint(self, client, app, test_user, test_project):
+    def test_get_invitation_by_token_endpoint(
+        self, client, app, test_user, test_project
+    ):
         """Test the GET /api/invitations/<token> endpoint."""
         with app.app_context():
             # Create an invitation
@@ -543,7 +567,9 @@ class TestInvitationAPI:
             data = response.get_json()
             assert data["status"] == "ACCEPTED"
 
-    def test_accept_invitation_missing_user_id(self, client, app, test_user, test_project):
+    def test_accept_invitation_missing_user_id(
+        self, client, app, test_user, test_project
+    ):
         """Test the POST /api/invitations/<token>/accept endpoint without user_id."""
         with app.app_context():
             invitation = Invitation.create(
@@ -584,7 +610,9 @@ class TestInvitationAPI:
             assert isinstance(data, list)
             assert len(data) >= 2
 
-    def test_get_project_invitations_endpoint(self, client, app, test_user, test_project):
+    def test_get_project_invitations_endpoint(
+        self, client, app, test_user, test_project
+    ):
         """Test the GET /api/projects/<project_id>/invitations endpoint."""
         with app.app_context():
             # Create invitations for the project

@@ -138,6 +138,7 @@ class PermissionServiceTestCase(unittest.TestCase):
                 password="pass",
             )
             from ..models.role import Role, user_roles
+
             role = Role.create(name="member")
             user.roles = [role]
             self.assertTrue(has_permission(user, "agent:write"))
@@ -159,6 +160,7 @@ class SecurityHeadersTestCase(unittest.TestCase):
 class CORSConfigurationTestCase(unittest.TestCase):
     def test_default_cors_is_not_wildcard(self):
         from ..config.settings import Config
+
         self.assertNotEqual(Config.CORS_ORIGINS, ["*"])
 
 
@@ -175,6 +177,7 @@ class SQLInjectionTestCase(unittest.TestCase):
 
     def test_table_name_validation(self):
         from ..services.db_optimization_service import DBOptimizationService
+
         with self.app.app_context():
             service = DBOptimizationService()
             with self.assertRaises(ValueError):

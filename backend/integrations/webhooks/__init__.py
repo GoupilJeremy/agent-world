@@ -8,7 +8,7 @@ Webhooks package for Agent World.
 Ce package contient le service pour gérer les webhooks entrants et sortants.
 """
 
-from .webhook_service import WebhookService, WebhookHandler
+from .webhook_service import WebhookHandler, WebhookService
 from .webhook_types import WebhookEvent, WebhookPayload, WebhookResponse
 
 __all__ = [

@@ -5,9 +5,12 @@
 Unit tests for the TrelloIntegrationAdapter class.
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
 
+import pytest
+
+from ..adapters.trello_adapter import TrelloIntegrationAdapter
+from ..base_adapter import ActionNotSupportedError, AuthenticationError
 from ..integration_types import (
     IntegrationAction,
     IntegrationConfig,
@@ -15,8 +18,6 @@ from ..integration_types import (
     IntegrationResult,
     IntegrationType,
 )
-from ..adapters.trello_adapter import TrelloIntegrationAdapter
-from ..base_adapter import ActionNotSupportedError, AuthenticationError
 
 
 @pytest.fixture
@@ -68,7 +69,10 @@ class TestTrelloIntegrationAdapter:
         """Test adapter properties."""
         assert trello_adapter.type == IntegrationType.TRELLO
         assert trello_adapter.name == "Trello"
-        assert trello_adapter.description == "Intégration avec Trello pour créer et gérer des cartes de tâches"
+        assert (
+            trello_adapter.description
+            == "Intégration avec Trello pour créer et gérer des cartes de tâches"
+        )
         assert trello_adapter.auth_type.value == "oauth2"
         assert "create_card" in trello_adapter.supported_actions
         assert "create_board" in trello_adapter.supported_actions
@@ -86,7 +90,7 @@ class TestTrelloIntegrationAdapter:
     def test_get_metadata(self, trello_adapter):
         """Test getting adapter metadata."""
         metadata = trello_adapter.get_metadata()
-        
+
         assert metadata["type"] == "trello"
         assert metadata["name"] == "Trello"
         assert metadata["auth_type"] == "oauth2"
@@ -97,7 +101,7 @@ class TestTrelloIntegrationAdapter:
     def test_get_oauth_scopes(self, trello_adapter):
         """Test getting OAuth scopes."""
         scopes = trello_adapter.get_oauth_scopes()
-        
+
         assert isinstance(scopes, list)
         assert len(scopes) > 0
         assert "read" in scopes
@@ -107,7 +111,7 @@ class TestTrelloIntegrationAdapter:
     def test_get_configuration_schema(self, trello_adapter):
         """Test getting configuration schema."""
         schema = trello_adapter.get_configuration_schema()
-        
+
         assert isinstance(schema, dict)
         assert "properties" in schema
         assert "name" in schema["properties"]
@@ -118,9 +122,9 @@ class TestTrelloIntegrationAdapter:
     def test_get_action_schema(self, trello_adapter):
         """Test getting action schema."""
         schema = trello_adapter.get_action_schema("create_card")
-        
+
         assert isinstance(schema, dict)
-        
+
         # Test with unsupported action
         with pytest.raises(ValueError):
             trello_adapter.get_action_schema("unknown_action")
@@ -128,7 +132,7 @@ class TestTrelloIntegrationAdapter:
     def test_authentication_with_api_key(self, trello_adapter):
         """Test authentication with API key and token."""
         params = trello_adapter._get_auth_params()
-        
+
         assert "key" in params
         assert "token" in params
         assert params["key"] == "test_api_key"
@@ -137,7 +141,7 @@ class TestTrelloIntegrationAdapter:
     def test_authentication_with_oauth(self, trello_adapter_oauth):
         """Test authentication with OAuth token."""
         params = trello_adapter_oauth._get_auth_params()
-        
+
         assert "key" in params
         assert "token" in params
         assert params["key"] == "test_client_id"
@@ -148,7 +152,7 @@ class TestTrelloIntegrationAdapter:
         with pytest.raises(AuthenticationError):
             trello_adapter_no_creds._get_auth_params()
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_test_connection_success(self, mock_make_request, trello_adapter):
         """Test successful connection test."""
         mock_make_request.return_value = {
@@ -158,26 +162,26 @@ class TestTrelloIntegrationAdapter:
             "email": "test@example.com",
             "avatarUrl": "https://avatar.url",
         }
-        
+
         result = trello_adapter.test_connection()
-        
+
         assert result.success is True
         assert "user" in result.data
         assert result.data["user"]["id"] == "member-123"
         assert result.data["user"]["username"] == "testuser"
         assert result.data["user"]["full_name"] == "Test User"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_test_connection_failure(self, mock_make_request, trello_adapter):
         """Test failed connection test."""
         mock_make_request.side_effect = Exception("Connection failed")
-        
+
         result = trello_adapter.test_connection()
-        
+
         assert result.success is False
         assert "Connection failed" in result.error
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_list_boards(self, mock_make_request, trello_adapter):
         """Test listing boards."""
         mock_make_request.return_value = [
@@ -193,14 +197,14 @@ class TestTrelloIntegrationAdapter:
                 "closed": False,
             },
         ]
-        
+
         result = trello_adapter._list_boards({"member_id": "me"})
-        
+
         assert result.success is True
         assert len(result.data["boards"]) == 2
         assert result.data["count"] == 2
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_get_board(self, mock_make_request, trello_adapter):
         """Test getting a board."""
         mock_make_request.return_value = {
@@ -211,14 +215,14 @@ class TestTrelloIntegrationAdapter:
             "members": [],
             "lists": [],
         }
-        
+
         result = trello_adapter._get_board({"board_id": "board-123"})
-        
+
         assert result.success is True
         assert result.data["board"]["id"] == "board-123"
         assert result.data["board"]["name"] == "Test Board"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_create_board(self, mock_make_request, trello_adapter):
         """Test creating a board."""
         mock_make_request.return_value = {
@@ -227,18 +231,20 @@ class TestTrelloIntegrationAdapter:
             "desc": "Board description",
             "closed": False,
         }
-        
-        result = trello_adapter._create_board({
-            "name": "New Board",
-            "description": "Board description",
-            "default_lists": True,
-        })
-        
+
+        result = trello_adapter._create_board(
+            {
+                "name": "New Board",
+                "description": "Board description",
+                "default_lists": True,
+            }
+        )
+
         assert result.success is True
         assert result.data["board"]["id"] == "board-new"
         assert result.data["board"]["name"] == "New Board"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_list_lists(self, mock_make_request, trello_adapter):
         """Test listing lists on a board."""
         mock_make_request.return_value = [
@@ -261,14 +267,14 @@ class TestTrelloIntegrationAdapter:
                 "pos": 3,
             },
         ]
-        
+
         result = trello_adapter._list_lists({"board_id": "board-123"})
-        
+
         assert result.success is True
         assert len(result.data["lists"]) == 3
         assert result.data["count"] == 3
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_get_list(self, mock_make_request, trello_adapter):
         """Test getting a list."""
         mock_make_request.return_value = {
@@ -278,14 +284,14 @@ class TestTrelloIntegrationAdapter:
             "pos": 1,
             "idBoard": "board-123",
         }
-        
+
         result = trello_adapter._get_list({"list_id": "list-123"})
-        
+
         assert result.success is True
         assert result.data["list"]["id"] == "list-123"
         assert result.data["list"]["name"] == "To Do"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_create_list(self, mock_make_request, trello_adapter):
         """Test creating a list."""
         mock_make_request.return_value = {
@@ -295,18 +301,20 @@ class TestTrelloIntegrationAdapter:
             "pos": 3,
             "idBoard": "board-123",
         }
-        
-        result = trello_adapter._create_list({
-            "board_id": "board-123",
-            "name": "New List",
-            "position": "bottom",
-        })
-        
+
+        result = trello_adapter._create_list(
+            {
+                "board_id": "board-123",
+                "name": "New List",
+                "position": "bottom",
+            }
+        )
+
         assert result.success is True
         assert result.data["list"]["id"] == "list-new"
         assert result.data["list"]["name"] == "New List"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_list_cards(self, mock_make_request, trello_adapter):
         """Test listing cards from a list."""
         mock_make_request.return_value = [
@@ -325,14 +333,14 @@ class TestTrelloIntegrationAdapter:
                 "idList": "list-1",
             },
         ]
-        
+
         result = trello_adapter._list_cards({"list_id": "list-1"})
-        
+
         assert result.success is True
         assert len(result.data["cards"]) == 2
         assert result.data["count"] == 2
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_get_card(self, mock_make_request, trello_adapter):
         """Test getting a card."""
         mock_make_request.return_value = {
@@ -345,14 +353,14 @@ class TestTrelloIntegrationAdapter:
             "idMembers": [],
             "idLabels": [],
         }
-        
+
         result = trello_adapter._get_card({"card_id": "card-123"})
-        
+
         assert result.success is True
         assert result.data["card"]["id"] == "card-123"
         assert result.data["card"]["name"] == "Test Card"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_create_card(self, mock_make_request, trello_adapter):
         """Test creating a card."""
         mock_make_request.return_value = {
@@ -363,18 +371,20 @@ class TestTrelloIntegrationAdapter:
             "idList": "list-1",
             "idBoard": "board-1",
         }
-        
-        result = trello_adapter._create_card({
-            "list_id": "list-1",
-            "name": "New Task",
-            "description": "Task description",
-        })
-        
+
+        result = trello_adapter._create_card(
+            {
+                "list_id": "list-1",
+                "name": "New Task",
+                "description": "Task description",
+            }
+        )
+
         assert result.success is True
         assert result.data["card"]["id"] == "card-new"
         assert result.data["card"]["name"] == "New Task"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_update_card(self, mock_make_request, trello_adapter):
         """Test updating a card."""
         mock_make_request.return_value = {
@@ -384,19 +394,21 @@ class TestTrelloIntegrationAdapter:
             "closed": False,
             "idList": "list-2",
         }
-        
-        result = trello_adapter._update_card({
-            "card_id": "card-123",
-            "name": "Updated Task",
-            "description": "Updated description",
-            "list_id": "list-2",
-        })
-        
+
+        result = trello_adapter._update_card(
+            {
+                "card_id": "card-123",
+                "name": "Updated Task",
+                "description": "Updated description",
+                "list_id": "list-2",
+            }
+        )
+
         assert result.success is True
         assert result.data["card"]["id"] == "card-123"
         assert result.data["card"]["name"] == "Updated Task"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_delete_card(self, mock_make_request, trello_adapter):
         """Test deleting (archiving) a card."""
         mock_make_request.return_value = {
@@ -404,45 +416,49 @@ class TestTrelloIntegrationAdapter:
             "name": "Archived Task",
             "closed": True,
         }
-        
+
         result = trello_adapter._delete_card({"card_id": "card-123"})
-        
+
         assert result.success is True
         assert result.data["archived"] is True
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_move_card_to_list(self, mock_make_request, trello_adapter):
         """Test moving a card to another list."""
         mock_make_request.return_value = {
             "_value": "list-2",
         }
-        
-        result = trello_adapter._move_card({
-            "card_id": "card-123",
-            "list_id": "list-2",
-        })
-        
+
+        result = trello_adapter._move_card(
+            {
+                "card_id": "card-123",
+                "list_id": "list-2",
+            }
+        )
+
         assert result.success is True
         assert result.data["card_id"] == "card-123"
         assert result.data["moved_to"] == "list-2"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_move_card_to_position(self, mock_make_request, trello_adapter):
         """Test moving a card to a position."""
         mock_make_request.return_value = {
             "_value": "top",
         }
-        
-        result = trello_adapter._move_card({
-            "card_id": "card-123",
-            "position": "top",
-        })
-        
+
+        result = trello_adapter._move_card(
+            {
+                "card_id": "card-123",
+                "position": "top",
+            }
+        )
+
         assert result.success is True
         assert result.data["card_id"] == "card-123"
         assert result.data["moved_to"] == "top"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_add_comment(self, mock_make_request, trello_adapter):
         """Test adding a comment to a card."""
         mock_make_request.return_value = {
@@ -452,17 +468,19 @@ class TestTrelloIntegrationAdapter:
             "idCard": "card-123",
             "idMember": "member-1",
         }
-        
-        result = trello_adapter._add_comment({
-            "card_id": "card-123",
-            "text": "Test comment",
-        })
-        
+
+        result = trello_adapter._add_comment(
+            {
+                "card_id": "card-123",
+                "text": "Test comment",
+            }
+        )
+
         assert result.success is True
         assert result.data["comment"]["id"] == "comment-1"
         assert result.data["comment"]["text"] == "Test comment"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_list_comments(self, mock_make_request, trello_adapter):
         """Test listing comments on a card."""
         mock_make_request.return_value = [
@@ -484,14 +502,14 @@ class TestTrelloIntegrationAdapter:
                 "type": "createCard",
             },
         ]
-        
+
         result = trello_adapter._list_comments({"card_id": "card-123"})
-        
+
         assert result.success is True
         assert len(result.data["comments"]) == 2
         assert result.data["count"] == 2
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_list_labels(self, mock_make_request, trello_adapter):
         """Test listing labels."""
         mock_make_request.return_value = [
@@ -506,71 +524,79 @@ class TestTrelloIntegrationAdapter:
                 "color": "green",
             },
         ]
-        
+
         result = trello_adapter._list_labels({"board_id": "board-123"})
-        
+
         assert result.success is True
         assert len(result.data["labels"]) == 2
         assert result.data["count"] == 2
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_add_label_to_card_existing(self, mock_make_request, trello_adapter):
         """Test adding an existing label to a card."""
         mock_make_request.return_value = {
             "_value": "label-1",
         }
-        
-        result = trello_adapter._add_label_to_card({
-            "card_id": "card-123",
-            "label_id": "label-1",
-        })
-        
+
+        result = trello_adapter._add_label_to_card(
+            {
+                "card_id": "card-123",
+                "label_id": "label-1",
+            }
+        )
+
         assert result.success is True
         assert result.data["label_added"] == "label-1"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
-    @patch.object(TrelloIntegrationAdapter, '_list_labels')
-    def test_add_label_to_card_new(self, mock_list_labels, mock_make_request, trello_adapter):
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
+    @patch.object(TrelloIntegrationAdapter, "_list_labels")
+    def test_add_label_to_card_new(
+        self, mock_list_labels, mock_make_request, trello_adapter
+    ):
         """Test creating and adding a new label to a card."""
         # Mock list_labels to return no existing label
         mock_list_labels.return_value = IntegrationResult(
             success=True,
             data={"labels": [], "count": 0},
         )
-        
+
         # First call: create label
         # Second call: add label to card
         mock_make_request.side_effect = [
             {"id": "label-new", "name": "Priority", "color": "red"},
             {"_value": "label-new"},
         ]
-        
-        result = trello_adapter._add_label_to_card({
-            "card_id": "card-123",
-            "board_id": "board-123",
-            "label_name": "Priority",
-            "label_color": "red",
-        })
-        
+
+        result = trello_adapter._add_label_to_card(
+            {
+                "card_id": "card-123",
+                "board_id": "board-123",
+                "label_name": "Priority",
+                "label_color": "red",
+            }
+        )
+
         assert result.success is True
         # Le label_id est retourné, pas le label_name
         assert result.data["label_added"] == "label-new"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_remove_label_from_card(self, mock_make_request, trello_adapter):
         """Test removing a label from a card."""
         mock_make_request.return_value = ""  # Empty response for DELETE
-        
-        result = trello_adapter._remove_label_from_card({
-            "card_id": "card-123",
-            "label_id": "label-1",
-        })
-        
+
+        result = trello_adapter._remove_label_from_card(
+            {
+                "card_id": "card-123",
+                "label_id": "label-1",
+            }
+        )
+
         assert result.success is True
         assert result.data["removed"] is True
         assert result.data["label_id"] == "label-1"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_add_checklist(self, mock_make_request, trello_adapter):
         """Test adding a checklist to a card."""
         mock_make_request.return_value = {
@@ -579,17 +605,19 @@ class TestTrelloIntegrationAdapter:
             "checkItems": [],
             "idCard": "card-123",
         }
-        
-        result = trello_adapter._add_checklist({
-            "card_id": "card-123",
-            "name": "Tasks",
-        })
-        
+
+        result = trello_adapter._add_checklist(
+            {
+                "card_id": "card-123",
+                "name": "Tasks",
+            }
+        )
+
         assert result.success is True
         assert result.data["checklist"]["id"] == "checklist-1"
         assert result.data["checklist"]["name"] == "Tasks"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_add_checklist_item(self, mock_make_request, trello_adapter):
         """Test adding an item to a checklist."""
         mock_make_request.return_value = {
@@ -598,18 +626,20 @@ class TestTrelloIntegrationAdapter:
             "checked": False,
             "idChecklist": "checklist-1",
         }
-        
-        result = trello_adapter._add_checklist_item({
-            "checklist_id": "checklist-1",
-            "name": "Task 1",
-            "checked": False,
-        })
-        
+
+        result = trello_adapter._add_checklist_item(
+            {
+                "checklist_id": "checklist-1",
+                "name": "Task 1",
+                "checked": False,
+            }
+        )
+
         assert result.success is True
         assert result.data["checklist_item"]["id"] == "item-1"
         assert result.data["checklist_item"]["name"] == "Task 1"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_update_checklist_item(self, mock_make_request, trello_adapter):
         """Test updating a checklist item."""
         mock_make_request.return_value = {
@@ -618,18 +648,20 @@ class TestTrelloIntegrationAdapter:
             "checked": True,
             "idChecklist": "checklist-1",
         }
-        
-        result = trello_adapter._update_checklist_item({
-            "item_id": "item-1",
-            "name": "Updated Task",
-            "checked": True,
-        })
-        
+
+        result = trello_adapter._update_checklist_item(
+            {
+                "item_id": "item-1",
+                "name": "Updated Task",
+                "checked": True,
+            }
+        )
+
         assert result.success is True
         assert result.data["checklist_item"]["id"] == "item-1"
         assert result.data["checklist_item"]["checked"] is True
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_add_attachment(self, mock_make_request, trello_adapter):
         """Test adding an attachment to a card."""
         mock_make_request.return_value = {
@@ -638,18 +670,20 @@ class TestTrelloIntegrationAdapter:
             "url": "https://example.com/document.pdf",
             "idCard": "card-123",
         }
-        
-        result = trello_adapter._add_attachment({
-            "card_id": "card-123",
-            "url": "https://example.com/document.pdf",
-            "name": "document.pdf",
-        })
-        
+
+        result = trello_adapter._add_attachment(
+            {
+                "card_id": "card-123",
+                "url": "https://example.com/document.pdf",
+                "name": "document.pdf",
+            }
+        )
+
         assert result.success is True
         assert result.data["attachment"]["id"] == "attachment-1"
         assert result.data["attachment"]["url"] == "https://example.com/document.pdf"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_list_attachments(self, mock_make_request, trello_adapter):
         """Test listing attachments on a card."""
         mock_make_request.return_value = [
@@ -664,14 +698,14 @@ class TestTrelloIntegrationAdapter:
                 "url": "https://example.com/file2.jpg",
             },
         ]
-        
+
         result = trello_adapter._list_attachments({"card_id": "card-123"})
-        
+
         assert result.success is True
         assert len(result.data["attachments"]) == 2
         assert result.data["count"] == 2
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_list_members(self, mock_make_request, trello_adapter):
         """Test listing members."""
         mock_make_request.return_value = [
@@ -686,44 +720,48 @@ class TestTrelloIntegrationAdapter:
                 "fullName": "User Two",
             },
         ]
-        
+
         result = trello_adapter._list_members({"board_id": "board-123"})
-        
+
         assert result.success is True
         assert len(result.data["members"]) == 2
         assert result.data["count"] == 2
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_add_member_to_card(self, mock_make_request, trello_adapter):
         """Test adding a member to a card."""
         mock_make_request.return_value = {
             "_value": "member-1",
         }
-        
-        result = trello_adapter._add_member_to_card({
-            "card_id": "card-123",
-            "member_id": "member-1",
-        })
-        
+
+        result = trello_adapter._add_member_to_card(
+            {
+                "card_id": "card-123",
+                "member_id": "member-1",
+            }
+        )
+
         assert result.success is True
         assert result.data["member_added"] == "member-1"
         assert result.data["card_id"] == "card-123"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_remove_member_from_card(self, mock_make_request, trello_adapter):
         """Test removing a member from a card."""
         mock_make_request.return_value = ""  # Empty response for DELETE
-        
-        result = trello_adapter._remove_member_from_card({
-            "card_id": "card-123",
-            "member_id": "member-1",
-        })
-        
+
+        result = trello_adapter._remove_member_from_card(
+            {
+                "card_id": "card-123",
+                "member_id": "member-1",
+            }
+        )
+
         assert result.success is True
         assert result.data["removed"] is True
         assert result.data["member_id"] == "member-1"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_create_webhook(self, mock_make_request, trello_adapter):
         """Test creating a webhook."""
         mock_make_request.return_value = {
@@ -733,42 +771,44 @@ class TestTrelloIntegrationAdapter:
             "active": True,
             "idModel": "board-123",
         }
-        
-        result = trello_adapter._create_webhook({
-            "board_id": "board-123",
-            "callback_url": "https://callback.com",
-            "description": "Agent World Webhook",
-        })
-        
+
+        result = trello_adapter._create_webhook(
+            {
+                "board_id": "board-123",
+                "callback_url": "https://callback.com",
+                "description": "Agent World Webhook",
+            }
+        )
+
         assert result.success is True
         assert result.data["webhook"]["id"] == "webhook-1"
 
-    @patch.object(TrelloIntegrationAdapter, '_make_request')
+    @patch.object(TrelloIntegrationAdapter, "_make_request")
     def test_delete_webhook(self, mock_make_request, trello_adapter):
         """Test deleting a webhook."""
         mock_make_request.return_value = ""  # Empty response for DELETE
-        
+
         result = trello_adapter._delete_webhook({"webhook_id": "webhook-1"})
-        
+
         assert result.success is True
         assert result.data["deleted"] is True
         assert result.data["webhook_id"] == "webhook-1"
 
     def test_execute_supported_action(self, trello_adapter):
         """Test executing a supported action."""
-        with patch.object(trello_adapter, '_list_boards') as mock_list_boards:
+        with patch.object(trello_adapter, "_list_boards") as mock_list_boards:
             mock_list_boards.return_value = IntegrationResult(
                 success=True,
                 data={"boards": [], "count": 0},
             )
-            
+
             action = IntegrationAction(
                 action_type="list_boards",
                 payload={},
             )
-            
+
             result = trello_adapter.execute(action)
-            
+
             assert result.success is True
             mock_list_boards.assert_called_once()
 
@@ -778,7 +818,7 @@ class TestTrelloIntegrationAdapter:
             action_type="unknown_action",
             payload={},
         )
-        
+
         with pytest.raises(ActionNotSupportedError):
             trello_adapter.execute(action)
 
@@ -789,10 +829,12 @@ class TestTrelloIntegrationAdapter:
         trello_adapter.oauth_config.client_id = "test_client_id"
         trello_adapter.oauth_config.redirect_uri = "https://callback.com"
         trello_adapter.oauth_config.scope = ["read", "write"]
-        trello_adapter.oauth_config.authorization_url = "https://trello.com/1/OAuthAuthorizeToken"
-        
+        trello_adapter.oauth_config.authorization_url = (
+            "https://trello.com/1/OAuthAuthorizeToken"
+        )
+
         url = trello_adapter.get_authentication_url()
-        
+
         assert "https://trello.com/1/OAuthAuthorizeToken" in url
         assert "key=test_client_id" in url
         # L'URL est encodée
@@ -805,7 +847,7 @@ class TestTrelloIntegrationAdapter:
         """Test exchanging code for token (OAuth1)."""
         # With OAuth1, the code IS the token
         credentials = trello_adapter.exchange_code_for_token("oauth_token_123")
-        
+
         assert credentials.access_token == "oauth_token_123"
         assert credentials.token_expiry is None  # OAuth1 tokens don't expire
 
@@ -820,12 +862,12 @@ class TestTrelloIntegrationAdapter:
             api_key="valid_key",
             client_secret="valid_token",
         )
-        
-        with patch.object(trello_adapter, 'test_connection') as mock_test:
+
+        with patch.object(trello_adapter, "test_connection") as mock_test:
             mock_test.return_value = IntegrationResult(success=True)
-            
+
             result = trello_adapter.authenticate(credentials)
-            
+
             assert result is True
 
     def test_authenticate_failure(self, trello_adapter):
@@ -834,10 +876,10 @@ class TestTrelloIntegrationAdapter:
             api_key="invalid_key",
             client_secret="invalid_token",
         )
-        
-        with patch.object(trello_adapter, 'test_connection') as mock_test:
+
+        with patch.object(trello_adapter, "test_connection") as mock_test:
             mock_test.return_value = IntegrationResult(success=False)
-            
+
             result = trello_adapter.authenticate(credentials)
-            
+
             assert result is False

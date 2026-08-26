@@ -13,30 +13,38 @@ from typing import Any, Optional
 from flask import current_app, request
 from flask_restful import Resource, reqparse
 
+from ..models.base import db
 from ..models.history_notification import (
     HistoryNotification,
     NotificationChannel,
     NotificationType,
 )
-from ..models.base import db
 from ..services.notification_service import (
     UserNotificationPreferences,
     notification_service,
 )
 
-
 # Initialize parser for request parsing
 parser = reqparse.RequestParser()
 parser.add_argument("user_id", type=int, required=True, help="User ID is required")
-parser.add_argument("notification_type", type=str, required=True, 
-                   help="Notification type is required")
-parser.add_argument("channel", type=str, default="email", 
-                   help="Notification channel (email, slack, discord)")
-parser.add_argument("title", type=str, required=True, help="Notification title is required")
-parser.add_argument("message", type=str, required=True, 
-                   help="Notification message is required")
-parser.add_argument("send_immediately", type=bool, default=True,
-                   help="Send notification immediately")
+parser.add_argument(
+    "notification_type", type=str, required=True, help="Notification type is required"
+)
+parser.add_argument(
+    "channel",
+    type=str,
+    default="email",
+    help="Notification channel (email, slack, discord)",
+)
+parser.add_argument(
+    "title", type=str, required=True, help="Notification title is required"
+)
+parser.add_argument(
+    "message", type=str, required=True, help="Notification message is required"
+)
+parser.add_argument(
+    "send_immediately", type=bool, default=True, help="Send notification immediately"
+)
 
 # Parser for preferences
 preferences_parser = reqparse.RequestParser()
@@ -93,16 +101,16 @@ class NotificationListResource(Resource):
         args = request.args
         unread_only = args.get("unread", "false").lower() == "true"
         limit = int(args.get("limit", 10))
-        
+
         # For now, we'll use user_id from header or default to 1
         # In production, this would come from authentication
         user_id = 1  # Default user for demo purposes
-        
+
         if unread_only:
             notifications = HistoryNotification.get_unread_by_user(user_id)
         else:
             notifications = HistoryNotification.get_by_user(user_id)
-        
+
         return [n.to_dict_minimal() for n in notifications[:limit]], 200
 
 
@@ -133,7 +141,7 @@ class NotificationResource(Resource):
         notification = HistoryNotification.get_by_id(notification_id)
         if not notification:
             return {"error": f"Notification with ID {notification_id} not found"}, 404
-        
+
         return notification.to_dict(), 200
 
     def delete(self, notification_id: int):
@@ -156,7 +164,7 @@ class NotificationResource(Resource):
         notification = HistoryNotification.get_by_id(notification_id)
         if not notification:
             return {"error": f"Notification with ID {notification_id} not found"}, 404
-        
+
         notification.delete()
         return "", 204
 
@@ -184,7 +192,7 @@ class NotificationMarkReadResource(Resource):
         notification = HistoryNotification.get_by_id(notification_id)
         if not notification:
             return {"error": f"Notification with ID {notification_id} not found"}, 404
-        
+
         notification.mark_as_read()
         return {"message": "Notification marked as read", "id": notification_id}, 200
 
@@ -237,13 +245,13 @@ class NotificationCreateResource(Resource):
             description: Invalid input data
         """
         data = request.get_json(silent=True) or {}
-        
+
         # Validate required fields
         required_fields = ["user_id", "notification_type", "title", "message"]
         for field in required_fields:
             if field not in data:
                 return {"error": f"{field} is required"}, 400
-        
+
         try:
             user_id = data["user_id"]
             notification_type = NotificationType(data["notification_type"])
@@ -252,7 +260,7 @@ class NotificationCreateResource(Resource):
             message = data["message"]
             extra_data = data.get("extra_data", {})
             send_immediately = data.get("send_immediately", True)
-            
+
             notification = notification_service.create_notification(
                 user_id=user_id,
                 notification_type=notification_type,
@@ -262,7 +270,7 @@ class NotificationCreateResource(Resource):
                 extra_data=extra_data,
                 send_immediately=send_immediately,
             )
-            
+
             return notification.to_dict(), 201
         except ValueError as e:
             return {"error": f"Invalid value: {str(e)}"}, 400
@@ -314,7 +322,7 @@ class NotificationPreferencesResource(Resource):
                 "discord_notifications": False,
                 "important_events_only": False,
             }, 200
-        
+
         return {
             "user_id": preferences.user_id,
             "email_notifications": preferences.email_notifications,
@@ -354,7 +362,7 @@ class NotificationPreferencesResource(Resource):
             description: Preferences updated successfully
         """
         data = request.get_json(silent=True) or {}
-        
+
         preferences = UserNotificationPreferences(
             user_id=user_id,
             email_notifications=data.get("email_notifications", True),
@@ -362,9 +370,9 @@ class NotificationPreferencesResource(Resource):
             discord_notifications=data.get("discord_notifications", False),
             important_events_only=data.get("important_events_only", False),
         )
-        
+
         notification_service.set_user_preferences(preferences)
-        
+
         return {
             "message": "Preferences updated",
             "user_id": user_id,
@@ -397,7 +405,7 @@ class NotificationRetryResource(Resource):
         try:
             pending_count = len(HistoryNotification.get_pending())
             sent_count = notification_service.retry_pending_notifications()
-            
+
             return {
                 "message": "Retry completed",
                 "retried": pending_count,
@@ -453,11 +461,13 @@ def register_resources(api):
     """Register notification resources with the Flask-RESTful API."""
     api.add_resource(NotificationListResource, "/notifications")
     api.add_resource(NotificationResource, "/notifications/<int:notification_id>")
-    api.add_resource(NotificationMarkReadResource, 
-                    "/notifications/<int:notification_id>/read")
+    api.add_resource(
+        NotificationMarkReadResource, "/notifications/<int:notification_id>/read"
+    )
     api.add_resource(NotificationCreateResource, "/notifications/create")
-    api.add_resource(NotificationPreferencesResource, 
-                    "/notifications/preferences/<int:user_id>")
+    api.add_resource(
+        NotificationPreferencesResource, "/notifications/preferences/<int:user_id>"
+    )
     api.add_resource(NotificationRetryResource, "/notifications/retry")
     api.add_resource(NotificationTypesResource, "/notifications/types")
     api.add_resource(NotificationChannelsResource, "/notifications/channels")

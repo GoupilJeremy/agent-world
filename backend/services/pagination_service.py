@@ -9,22 +9,18 @@ Ce module fournit des utilitaires pour paginer les résultats des requêtes,
 réduisant ainsi la charge sur le serveur et améliorant les performances.
 """
 
-from typing import Any, Dict, List, Optional, Tuple, TypeVar, Generic
+from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar
+
 from flask import request
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class PaginationResult(Generic[T]):
     """Résultat paginé avec métadonnées."""
 
     def __init__(
-        self,
-        items: List[T],
-        total: int,
-        page: int,
-        per_page: int,
-        total_pages: int
+        self, items: List[T], total: int, page: int, per_page: int, total_pages: int
     ):
         self.items = items
         self.total = total
@@ -43,7 +39,7 @@ class PaginationResult(Generic[T]):
                 "total_pages": self.total_pages,
                 "has_next": self.page < self.total_pages,
                 "has_prev": self.page > 1,
-            }
+            },
         }
 
 
@@ -62,13 +58,15 @@ class PaginationService:
             Tuple de (page, per_page)
         """
         try:
-            page = int(request.args.get('page', 1))
+            page = int(request.args.get("page", 1))
             page = max(1, page)
         except (ValueError, TypeError):
             page = 1
 
         try:
-            per_page = int(request.args.get('per_page', PaginationService.DEFAULT_PER_PAGE))
+            per_page = int(
+                request.args.get("per_page", PaginationService.DEFAULT_PER_PAGE)
+            )
             per_page = max(1, min(per_page, PaginationService.MAX_PER_PAGE))
         except (ValueError, TypeError):
             per_page = PaginationService.DEFAULT_PER_PAGE
@@ -77,9 +75,7 @@ class PaginationService:
 
     @staticmethod
     def paginate(
-        query: Any,
-        page: Optional[int] = None,
-        per_page: Optional[int] = None
+        query: Any, page: Optional[int] = None, per_page: Optional[int] = None
     ) -> PaginationResult:
         """
         Applique la pagination à une requête SQLAlchemy ou une liste.
@@ -96,10 +92,14 @@ class PaginationService:
             page, per_page = PaginationService.get_pagination_params()
 
         # Cas 1: C'est une requête SQLAlchemy
-        if hasattr(query, 'count') and hasattr(query, 'offset') and hasattr(query, 'limit'):
+        if (
+            hasattr(query, "count")
+            and hasattr(query, "offset")
+            and hasattr(query, "limit")
+        ):
             total = query.count()
             total_pages = (total + per_page - 1) // per_page
-            
+
             items = query.offset((page - 1) * per_page).limit(per_page).all()
             return PaginationResult(items, total, page, per_page, total_pages)
 
@@ -107,11 +107,11 @@ class PaginationService:
         elif isinstance(query, list):
             total = len(query)
             total_pages = (total + per_page - 1) // per_page
-            
+
             start_idx = (page - 1) * per_page
             end_idx = start_idx + per_page
             items = query[start_idx:end_idx]
-            
+
             return PaginationResult(items, total, page, per_page, total_pages)
 
         else:
@@ -119,9 +119,7 @@ class PaginationService:
 
     @staticmethod
     def paginate_list(
-        items: List[T],
-        page: Optional[int] = None,
-        per_page: Optional[int] = None
+        items: List[T], page: Optional[int] = None, per_page: Optional[int] = None
     ) -> PaginationResult[T]:
         """
         Applique la pagination à une liste Python.
@@ -139,11 +137,11 @@ class PaginationService:
 
         total = len(items)
         total_pages = (total + per_page - 1) // per_page
-        
+
         start_idx = (page - 1) * per_page
         end_idx = start_idx + per_page
         paginated_items = items[start_idx:end_idx]
-        
+
         return PaginationResult(paginated_items, total, page, per_page, total_pages)
 
 
@@ -158,26 +156,28 @@ def paginated_response(func):
             return agents
     """
     from functools import wraps
+
     from flask import request
-    
+
     def decorator(wrapped_func):
         @wraps(wrapped_func)
         def wrapper(*args, **kwargs):
             result = wrapped_func(*args, **kwargs)
-            
+
             # Si le résultat est déjà un PaginationResult, le retourner tel quel
             if isinstance(result, PaginationResult):
                 return result.to_dict()
-            
+
             # Sinon, paginer le résultat
             page, per_page = PaginationService.get_pagination_params()
-            
+
             # Convertir en liste si ce n'est pas déjà le cas
             if not isinstance(result, list):
                 result = [result]
-            
+
             paginated = PaginationService.paginate_list(result, page, per_page)
             return paginated.to_dict()
-        
+
         return wrapper
+
     return decorator

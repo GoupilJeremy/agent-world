@@ -10,7 +10,7 @@ pour toutes les intégrations externes.
 """
 
 from .oauth_service import OAuthService, OAuthStateStore
-from .oauth_types import OAuthProviderConfig, OAuthTokenData, OAuthState
+from .oauth_types import OAuthProviderConfig, OAuthState, OAuthTokenData
 
 __all__ = [
     "OAuthService",

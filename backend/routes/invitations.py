@@ -9,20 +9,26 @@ Ce module contient tous les endpoints REST pour la gestion des invitations
 d'utilisateurs pour rejoindre des projets.
 """
 
-from flask import request, current_app
+from flask import current_app, request
 from flask_restful import Resource, reqparse
 
 from ..models.invitation import Invitation, InvitationStatus
 from ..models.project import Project
 from ..models.user import User
-from ..services.invitation_service import InvitationService, InvitationError
+from ..services.invitation_service import InvitationError, InvitationService
 
 # Initialize parser
 parser = reqparse.RequestParser()
-parser.add_argument("project_id", type=int, required=True, help="Project ID is required")
+parser.add_argument(
+    "project_id", type=int, required=True, help="Project ID is required"
+)
 parser.add_argument("email", type=str, required=True, help="Email is required")
-parser.add_argument("role", type=str, default="member", help="Role to assign (default: member)")
-parser.add_argument("expires_in_days", type=int, default=7, help="Expiration in days (default: 7)")
+parser.add_argument(
+    "role", type=str, default="member", help="Role to assign (default: member)"
+)
+parser.add_argument(
+    "expires_in_days", type=int, default=7, help="Expiration in days (default: 7)"
+)
 
 
 class InvitationListResource(Resource):
@@ -263,7 +269,9 @@ class InvitationRevokeResource(Resource):
         revoked_by = 1  # User ID 1 (admin) pour les tests
 
         try:
-            invitation = self.invitation_service.revoke_invitation(invitation_id, revoked_by)
+            invitation = self.invitation_service.revoke_invitation(
+                invitation_id, revoked_by
+            )
             return invitation.to_dict(), 200
 
         except InvitationError as e:

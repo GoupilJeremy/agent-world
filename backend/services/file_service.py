@@ -406,9 +406,7 @@ class FileService:
         self._run_cleanup_after_write()
         return existing, None
 
-    def get_file_by_agent_name(
-        self, agent_id: int, logical_name: str
-    ) -> GeneratedFile:
+    def get_file_by_agent_name(self, agent_id: int, logical_name: str) -> GeneratedFile:
         """Trusted lookup used by non-HTTP integrations such as the CLI."""
 
         normalized_agent_id = self._identifier(agent_id, "agent_id")
@@ -1071,9 +1069,7 @@ class FileService:
                     }
                 )
                 if not restored:
-                    raise FileConflictError(
-                        "Cleanup staging could not be compensated"
-                    )
+                    raise FileConflictError("Cleanup staging could not be compensated")
                 return
             staged_current = (current_path, quarantine)
 

@@ -30,12 +30,14 @@ class EncryptedString(TypeDecorator):
         if value is None:
             return None
         from ..services.encryption_service import get_encryption_service
+
         return get_encryption_service().encrypt(value)
 
     def process_result_value(self, value, dialect):  # type: ignore[override]
         if value is None:
             return None
         from ..services.encryption_service import get_encryption_service
+
         return get_encryption_service().decrypt(value)
 
 

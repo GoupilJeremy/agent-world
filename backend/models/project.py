@@ -78,7 +78,9 @@ class Project(BaseModel):
         self.is_shared = is_shared
 
     def __repr__(self) -> str:
-        return f"<Project(id={self.id}, name={self.name}, created_by={self.created_by})>"
+        return (
+            f"<Project(id={self.id}, name={self.name}, created_by={self.created_by})>"
+        )
 
     def to_dict(self) -> dict:
         """Convert project to dictionary for API responses."""

@@ -83,8 +83,9 @@ def role_permissions(role_name: str) -> List[str]:
 def required_permission(permission: str):
     def decorator(function):
         def wrapper(*args, **kwargs):
-            from ..services.auth_service import AuthenticationError
             from flask import current_app, request
+
+            from ..services.auth_service import AuthenticationError
 
             auth_service = current_app.extensions["auth_service"]
             user = auth_service.authenticate_authorization_header(
@@ -95,5 +96,7 @@ def required_permission(permission: str):
             if not has_permission(user, permission):
                 raise PermissionDeniedError("Permission denied")
             return function(*args, user=user, **kwargs)
+
         return wrapper
+
     return decorator

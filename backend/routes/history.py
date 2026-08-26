@@ -27,41 +27,84 @@ from ..models.execution import ExecutionStatus
 # Initialize parsers for request parsing
 history_parser = reqparse.RequestParser()
 history_parser.add_argument(
-    "action_type", type=str, required=False, help="Filter by action type (create, update, delete)"
+    "action_type",
+    type=str,
+    required=False,
+    help="Filter by action type (create, update, delete)",
 )
-history_parser.add_argument("author_id", type=int, required=False, help="Filter by author ID")
-history_parser.add_argument("start_date", type=str, required=False, help="Start date (ISO format)")
-history_parser.add_argument("end_date", type=str, required=False, help="End date (ISO format)")
-history_parser.add_argument("limit", type=int, default=100, required=False, help="Limit results")
-history_parser.add_argument("offset", type=int, default=0, required=False, help="Offset for pagination")
+history_parser.add_argument(
+    "author_id", type=int, required=False, help="Filter by author ID"
+)
+history_parser.add_argument(
+    "start_date", type=str, required=False, help="Start date (ISO format)"
+)
+history_parser.add_argument(
+    "end_date", type=str, required=False, help="End date (ISO format)"
+)
+history_parser.add_argument(
+    "limit", type=int, default=100, required=False, help="Limit results"
+)
+history_parser.add_argument(
+    "offset", type=int, default=0, required=False, help="Offset for pagination"
+)
 
 execution_parser = reqparse.RequestParser()
-execution_parser.add_argument("status", type=str, required=False, help="Filter by execution status")
-execution_parser.add_argument("start_date", type=str, required=False, help="Start date (ISO format)")
-execution_parser.add_argument("end_date", type=str, required=False, help="End date (ISO format)")
-execution_parser.add_argument("limit", type=int, default=100, required=False, help="Limit results")
-execution_parser.add_argument("offset", type=int, default=0, required=False, help="Offset for pagination")
+execution_parser.add_argument(
+    "status", type=str, required=False, help="Filter by execution status"
+)
+execution_parser.add_argument(
+    "start_date", type=str, required=False, help="Start date (ISO format)"
+)
+execution_parser.add_argument(
+    "end_date", type=str, required=False, help="End date (ISO format)"
+)
+execution_parser.add_argument(
+    "limit", type=int, default=100, required=False, help="Limit results"
+)
+execution_parser.add_argument(
+    "offset", type=int, default=0, required=False, help="Offset for pagination"
+)
 
 search_parser = reqparse.RequestParser()
-search_parser.add_argument("query", type=str, required=True, help="Search query is required")
-search_parser.add_argument("action_type", type=str, required=False, help="Filter by action type")
-search_parser.add_argument("start_date", type=str, required=False, help="Start date (ISO format)")
-search_parser.add_argument("end_date", type=str, required=False, help="End date (ISO format)")
-search_parser.add_argument("limit", type=int, default=50, required=False, help="Limit results")
-search_parser.add_argument("offset", type=int, default=0, required=False, help="Offset for pagination")
+search_parser.add_argument(
+    "query", type=str, required=True, help="Search query is required"
+)
+search_parser.add_argument(
+    "action_type", type=str, required=False, help="Filter by action type"
+)
+search_parser.add_argument(
+    "start_date", type=str, required=False, help="Start date (ISO format)"
+)
+search_parser.add_argument(
+    "end_date", type=str, required=False, help="End date (ISO format)"
+)
+search_parser.add_argument(
+    "limit", type=int, default=50, required=False, help="Limit results"
+)
+search_parser.add_argument(
+    "offset", type=int, default=0, required=False, help="Offset for pagination"
+)
 
 snapshot_parser = reqparse.RequestParser()
 snapshot_parser.add_argument("reason", type=str, help="Reason for the snapshot")
 
 restore_parser = reqparse.RequestParser()
-restore_parser.add_argument("version_id", type=str, required=True, help="Version ID to restore")
+restore_parser.add_argument(
+    "version_id", type=str, required=True, help="Version ID to restore"
+)
 
 compare_parser = reqparse.RequestParser()
-compare_parser.add_argument("version_id_1", type=str, required=True, help="First version ID")
-compare_parser.add_argument("version_id_2", type=str, required=True, help="Second version ID")
+compare_parser.add_argument(
+    "version_id_1", type=str, required=True, help="First version ID"
+)
+compare_parser.add_argument(
+    "version_id_2", type=str, required=True, help="Second version ID"
+)
 
 export_parser = reqparse.RequestParser()
-export_parser.add_argument("format", type=str, default="json", help="Export format (json or csv)")
+export_parser.add_argument(
+    "format", type=str, default="json", help="Export format (json or csv)"
+)
 export_parser.add_argument("start_date", type=str, help="Start date (ISO format)")
 export_parser.add_argument("end_date", type=str, help="End date (ISO format)")
 
@@ -365,7 +408,9 @@ class ExecutionHistoryResource(Resource):
 
         execution = Execution.get_by_id(execution_id)
         if not execution or execution.agent_id != agent_id:
-            return {"error": f"Execution with ID {execution_id} not found for agent {agent_id}"}, 404
+            return {
+                "error": f"Execution with ID {execution_id} not found for agent {agent_id}"
+            }, 404
 
         return execution.to_dict(), 200
 
@@ -840,53 +885,37 @@ class AgentStatisticsResource(Resource):
 def register_history_resources(api):
     """Register history resources with the Flask-RESTful API."""
     # Agent History (US-025)
+    api.add_resource(AgentHistoryListResource, "/agents/<int:agent_id>/history")
     api.add_resource(
-        AgentHistoryListResource,
-        "/agents/<int:agent_id>/history"
-    )
-    api.add_resource(
-        AgentHistoryResource,
-        "/agents/<int:agent_id>/history/<int:history_id>"
+        AgentHistoryResource, "/agents/<int:agent_id>/history/<int:history_id>"
     )
 
     # Execution History (US-026)
+    api.add_resource(ExecutionHistoryListResource, "/agents/<int:agent_id>/executions")
     api.add_resource(
-        ExecutionHistoryListResource,
-        "/agents/<int:agent_id>/executions"
-    )
-    api.add_resource(
-        ExecutionHistoryResource,
-        "/agents/<int:agent_id>/executions/<int:execution_id>"
+        ExecutionHistoryResource, "/agents/<int:agent_id>/executions/<int:execution_id>"
     )
 
     # Version Management (US-027, US-028)
-    api.add_resource(
-        AgentVersionsListResource,
-        "/agents/<int:agent_id>/versions"
-    )
+    api.add_resource(AgentVersionsListResource, "/agents/<int:agent_id>/versions")
     api.add_resource(
         AgentVersionRestoreResource,
-        "/agents/<int:agent_id>/versions/<string:version_id>/restore"
+        "/agents/<int:agent_id>/versions/<string:version_id>/restore",
     )
     api.add_resource(
         AgentVersionsCompareResource,
-        "/agents/<int:agent_id>/versions/<string:version_id_1>/compare/<string:version_id_2>"
+        "/agents/<int:agent_id>/versions/<string:version_id_1>/compare/<string:version_id_2>",
     )
 
     # Export (US-029)
     api.add_resource(
-        AgentHistoryExportResource,
-        "/agents/<int:agent_id>/history/export"
+        AgentHistoryExportResource, "/agents/<int:agent_id>/history/export"
     )
 
     # Search (US-030)
     api.add_resource(
-        AgentHistorySearchResource,
-        "/agents/<int:agent_id>/history/search"
+        AgentHistorySearchResource, "/agents/<int:agent_id>/history/search"
     )
 
     # Statistics (US-032)
-    api.add_resource(
-        AgentStatisticsResource,
-        "/agents/<int:agent_id>/statistics"
-    )
+    api.add_resource(AgentStatisticsResource, "/agents/<int:agent_id>/statistics")

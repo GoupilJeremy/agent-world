@@ -23,7 +23,11 @@ class AuditService:
     ) -> AuditLog:
         user_agent = None
         if getattr(request, "user_agent", None) is not None:
-            user_agent = request.user_agent.string if hasattr(request.user_agent, "string") else str(request.user_agent)
+            user_agent = (
+                request.user_agent.string
+                if hasattr(request.user_agent, "string")
+                else str(request.user_agent)
+            )
         return AuditLog.create(
             actor_id=actor.id if actor else None,
             action=action,
@@ -42,6 +46,7 @@ def audit(action: str, resource_type: Optional[str] = None):
     def decorator(function):
         def wrapper(*args, **kwargs):
             from flask import request
+
             result = function(*args, **kwargs)
             user = kwargs.get("user")
             audit_service.record(
@@ -52,5 +57,7 @@ def audit(action: str, resource_type: Optional[str] = None):
                 meta={"route": request.path},
             )
             return result
+
         return wrapper
+
     return decorator

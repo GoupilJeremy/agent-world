@@ -40,7 +40,9 @@ class Role(BaseModel):
         }
 
     @classmethod
-    def create(cls, name: str, permissions: Optional[List[str]] = None, **kwargs) -> "Role":
+    def create(
+        cls, name: str, permissions: Optional[List[str]] = None, **kwargs
+    ) -> "Role":
         role = cls(name=name, permissions=permissions or [], **kwargs)
         db.session.add(role)
         db.session.commit()

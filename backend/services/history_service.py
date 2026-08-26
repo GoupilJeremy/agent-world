@@ -15,8 +15,8 @@ Il permet de :
 - Rechercher dans l'historique
 """
 
-import uuid
 import logging
+import uuid
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
@@ -143,15 +143,16 @@ class HistoryService:
 
         total = query.count()
 
-        entries = query.order_by(
-            self.agent_history_model.timestamp.desc()
-        ).offset(offset).limit(limit).all()
+        entries = (
+            query.order_by(self.agent_history_model.timestamp.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
 
         return [entry.to_dict() for entry in entries], total
 
-    def get_agent_history_by_version(
-        self, version_id: str
-    ) -> Optional[Dict[str, Any]]:
+    def get_agent_history_by_version(self, version_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a specific history entry by its version ID.
 
@@ -253,9 +254,12 @@ class HistoryService:
 
         total = query.count()
 
-        executions = query.order_by(
-            Execution.created_at.desc()
-        ).offset(offset).limit(limit).all()
+        executions = (
+            query.order_by(Execution.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
 
         return [exec.to_dict() for exec in executions], total
 
@@ -387,24 +391,30 @@ class HistoryService:
         Returns:
             List of version data as dicts
         """
-        history_entries = self.agent_history_model.query.filter(
-            self.agent_history_model.agent_id == agent_id,
-            self.agent_history_model.version_id.isnot(None),
-        ).order_by(
-            self.agent_history_model.timestamp.desc()
-        ).offset(offset).limit(limit).all()
+        history_entries = (
+            self.agent_history_model.query.filter(
+                self.agent_history_model.agent_id == agent_id,
+                self.agent_history_model.version_id.isnot(None),
+            )
+            .order_by(self.agent_history_model.timestamp.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
 
         versions = []
         for entry in history_entries:
-            versions.append({
-                "version_id": entry.version_id,
-                "agent_id": entry.agent_id,
-                "action_type": entry.action_type.value,
-                "timestamp": entry.timestamp.isoformat(),
-                "author_id": entry.author_id,
-                "change_data": entry.change_data,
-                "is_restored": entry.is_restored,
-            })
+            versions.append(
+                {
+                    "version_id": entry.version_id,
+                    "agent_id": entry.agent_id,
+                    "action_type": entry.action_type.value,
+                    "timestamp": entry.timestamp.isoformat(),
+                    "author_id": entry.author_id,
+                    "change_data": entry.change_data,
+                    "is_restored": entry.is_restored,
+                }
+            )
 
         return versions
 
@@ -441,8 +451,12 @@ class HistoryService:
             }
 
         # Get the data for each version
-        data_1 = entry_1.change_data.get("new_values", entry_1.change_data.get("old_values", {}))
-        data_2 = entry_2.change_data.get("new_values", entry_2.change_data.get("old_values", {}))
+        data_1 = entry_1.change_data.get(
+            "new_values", entry_1.change_data.get("old_values", {})
+        )
+        data_2 = entry_2.change_data.get(
+            "new_values", entry_2.change_data.get("old_values", {})
+        )
 
         # Find differences
         differences: Dict[str, Dict[str, Any]] = {}
@@ -545,16 +559,27 @@ class HistoryService:
             }
         elif format_type == "csv":
             # Convert to CSV format (array of arrays)
-            csv_data = [["id", "agent_id", "action_type", "timestamp", "author_id", "change_data"]]
+            csv_data = [
+                [
+                    "id",
+                    "agent_id",
+                    "action_type",
+                    "timestamp",
+                    "author_id",
+                    "change_data",
+                ]
+            ]
             for entry in entries:
-                csv_data.append([
-                    entry.get("id"),
-                    entry.get("agent_id"),
-                    entry.get("action_type"),
-                    entry.get("timestamp"),
-                    entry.get("author_id"),
-                    str(entry.get("change_data")),
-                ])
+                csv_data.append(
+                    [
+                        entry.get("id"),
+                        entry.get("agent_id"),
+                        entry.get("action_type"),
+                        entry.get("timestamp"),
+                        entry.get("author_id"),
+                        str(entry.get("change_data")),
+                    ]
+                )
 
             return {
                 "format": "csv",
@@ -643,9 +668,12 @@ class HistoryService:
 
         total = query_builder.count()
 
-        results = query_builder.order_by(
-            self.agent_history_model.timestamp.desc()
-        ).offset(offset).limit(limit).all()
+        results = (
+            query_builder.order_by(self.agent_history_model.timestamp.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
 
         return [result.to_dict() for result in results], total
 
@@ -733,22 +761,23 @@ class HistoryService:
     ) -> Optional[Any]:
         """
         Create a notification for an execution failure.
-        
+
         This method integrates with the NotificationService to send
         notifications when executions fail.
-        
+
         Args:
             user_id: ID of the user to notify
             agent_id: ID of the agent that failed
             execution_id: ID of the failed execution
             error_message: The error message
             send_immediately: Whether to send immediately
-            
+
         Returns:
             The created notification, or None if failed
         """
         try:
             from .notification_service import notification_service
+
             return notification_service.create_execution_failure_notification(
                 user_id=user_id,
                 agent_id=agent_id,
@@ -769,19 +798,20 @@ class HistoryService:
     ) -> Optional[Any]:
         """
         Create a notification for a successful execution.
-        
+
         Args:
             user_id: ID of the user to notify
             agent_id: ID of the agent
             execution_id: ID of the execution
             duration: Execution duration in seconds
             send_immediately: Whether to send immediately
-            
+
         Returns:
             The created notification, or None if failed
         """
         try:
             from .notification_service import notification_service
+
             return notification_service.create_execution_success_notification(
                 user_id=user_id,
                 agent_id=agent_id,
@@ -801,18 +831,19 @@ class HistoryService:
     ) -> Optional[Any]:
         """
         Create a notification for an agent modification.
-        
+
         Args:
             user_id: ID of the user to notify
             agent_id: ID of the agent
             action: The action performed (created, updated, deleted)
             send_immediately: Whether to send immediately
-            
+
         Returns:
             The created notification, or None if failed
         """
         try:
             from .notification_service import notification_service
+
             return notification_service.create_agent_modification_notification(
                 user_id=user_id,
                 agent_id=agent_id,

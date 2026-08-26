@@ -75,7 +75,7 @@ Examples:
 
     # Add template commands
     add_template_commands(subparsers)
-    
+
     # Add collaboration commands
     collaboration_handler = CollaborationCLIHandler()
     collaboration_handler.add_commands(subparsers)
@@ -322,9 +322,16 @@ class AgentWorldCLI:
 
         # Route to the appropriate command handler
         command = parsed_args.command
-        
+
         # Handle collaboration commands
-        if command in ["invite", "invitations", "accept-invite", "revoke-invite", "create-project", "list-projects"]:
+        if command in [
+            "invite",
+            "invitations",
+            "accept-invite",
+            "revoke-invite",
+            "create-project",
+            "list-projects",
+        ]:
             self.collaboration_handler.verbose = self.verbose
             self.collaboration_handler.format = self.format
             if hasattr(parsed_args, "handler"):
@@ -332,14 +339,14 @@ class AgentWorldCLI:
             else:
                 print(f"❌ Unknown collaboration command: {command}")
                 return 1
-        
+
         # Handle template subcommands
         if command == "template":
             self.template_handler.verbose = self.verbose
             self.template_handler.format = self.format
             template_command = parsed_args.template_command
             template_handler_name = f"handle_template_{template_command}"
-            
+
             if hasattr(self.template_handler, template_handler_name):
                 handler: Callable[[argparse.Namespace], int] = getattr(
                     self.template_handler, template_handler_name
@@ -348,11 +355,13 @@ class AgentWorldCLI:
             else:
                 # Check for nested commands (versions)
                 if hasattr(parsed_args, "versions_command"):
-                    versions_handler_name = f"handle_template_versions_{parsed_args.versions_command}"
+                    versions_handler_name = (
+                        f"handle_template_versions_{parsed_args.versions_command}"
+                    )
                     if hasattr(self.template_handler, versions_handler_name):
                         handler = getattr(self.template_handler, versions_handler_name)
                         return handler(parsed_args)
-                
+
                 print(f"❌ Unknown template command: {template_command}")
                 return 1
 

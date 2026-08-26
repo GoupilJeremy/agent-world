@@ -18,9 +18,15 @@ class GdprService:
         return {
             "user": user.to_dict(),
             "agents": [agent.to_dict() for agent in getattr(user, "agents", [])],
-            "projects": [project.to_dict() for project in getattr(user, "projects", [])],
-            "executions": [execution.to_dict() for execution in getattr(user, "executions", [])],
-            "agent_histories": [h.to_dict() for h in AgentHistory.get_by_author(user.id)],
+            "projects": [
+                project.to_dict() for project in getattr(user, "projects", [])
+            ],
+            "executions": [
+                execution.to_dict() for execution in getattr(user, "executions", [])
+            ],
+            "agent_histories": [
+                h.to_dict() for h in AgentHistory.get_by_author(user.id)
+            ],
             "audit_logs": [log.to_dict() for log in AuditLog.get_by_actor(user.id)],
             "exported_at": datetime.utcnow().isoformat(),
         }

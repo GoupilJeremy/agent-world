@@ -31,13 +31,26 @@ class DBOptimizationService:
     # Index recommandés pour chaque table
     RECOMMENDED_INDEXES = {
         "agents": [
-            {"columns": ["name"], "unique": True, "reason": "Recherche fréquente par nom"},
-            {"columns": ["is_active"], "reason": "Filtre fréquent sur les agents actifs"},
-            {"columns": ["created_at"], "reason": "Tri et pagination par date de création"},
+            {
+                "columns": ["name"],
+                "unique": True,
+                "reason": "Recherche fréquente par nom",
+            },
+            {
+                "columns": ["is_active"],
+                "reason": "Filtre fréquent sur les agents actifs",
+            },
+            {
+                "columns": ["created_at"],
+                "reason": "Tri et pagination par date de création",
+            },
             {"columns": ["created_by"], "reason": "Filtre par utilisateur créateur"},
             {"columns": ["project_id"], "reason": "Filtre par projet"},
             {"columns": ["model"], "reason": "Filtre par modèle IA"},
-            {"columns": ["is_active", "created_at"], "reason": "Recherche combinée active + date"},
+            {
+                "columns": ["is_active", "created_at"],
+                "reason": "Recherche combinée active + date",
+            },
         ],
         "executions": [
             {"columns": ["agent_id"], "reason": "Filtre fréquent par agent"},
@@ -46,19 +59,37 @@ class DBOptimizationService:
             {"columns": ["executed_by"], "reason": "Filtre par utilisateur exécutant"},
             {"columns": ["workflow_id"], "reason": "Filtre par workflow"},
             {"columns": ["model_used"], "reason": "Filtre par modèle utilisé"},
-            {"columns": ["agent_id", "created_at"], "reason": "Recherche combinée agent + date"},
-            {"columns": ["status", "created_at"], "reason": "Recherche combinée statut + date"},
+            {
+                "columns": ["agent_id", "created_at"],
+                "reason": "Recherche combinée agent + date",
+            },
+            {
+                "columns": ["status", "created_at"],
+                "reason": "Recherche combinée statut + date",
+            },
             {"columns": ["started_at"], "reason": "Tri par date de démarrage"},
             {"columns": ["completed_at"], "reason": "Tri par date de complétion"},
         ],
         "projects": [
-            {"columns": ["name"], "unique": True, "reason": "Recherche par nom de projet"},
+            {
+                "columns": ["name"],
+                "unique": True,
+                "reason": "Recherche par nom de projet",
+            },
             {"columns": ["created_by"], "reason": "Filtre par créateur"},
             {"columns": ["created_at"], "reason": "Tri par date de création"},
         ],
         "users": [
-            {"columns": ["email"], "unique": True, "reason": "Authentification par email"},
-            {"columns": ["username"], "unique": True, "reason": "Authentification par username"},
+            {
+                "columns": ["email"],
+                "unique": True,
+                "reason": "Authentification par email",
+            },
+            {
+                "columns": ["username"],
+                "unique": True,
+                "reason": "Authentification par username",
+            },
             {"columns": ["created_at"], "reason": "Tri par date de création"},
         ],
         "workflows": [
@@ -72,7 +103,10 @@ class DBOptimizationService:
             {"columns": ["execution_id"], "reason": "Filtre par exécution"},
             {"columns": ["created_at"], "reason": "Tri par date de création"},
             {"columns": ["file_format"], "reason": "Filtre par format de fichier"},
-            {"columns": ["is_temporary"], "reason": "Filtre sur les fichiers temporaires"},
+            {
+                "columns": ["is_temporary"],
+                "reason": "Filtre sur les fichiers temporaires",
+            },
         ],
         "agent_history": [
             {"columns": ["agent_id"], "reason": "Filtre par agent"},
@@ -81,7 +115,11 @@ class DBOptimizationService:
             {"columns": ["author_id"], "reason": "Filtre par auteur"},
         ],
         "templates": [
-            {"columns": ["name"], "unique": True, "reason": "Recherche par nom de template"},
+            {
+                "columns": ["name"],
+                "unique": True,
+                "reason": "Recherche par nom de template",
+            },
             {"columns": ["category"], "reason": "Filtre par catégorie"},
             {"columns": ["created_by"], "reason": "Filtre par créateur"},
             {"columns": ["created_at"], "reason": "Tri par date de création"},
@@ -110,7 +148,8 @@ class DBOptimizationService:
                 # PostgreSQL
                 if self._engine.dialect.name == "postgresql":
                     result = conn.execute(
-                        text("""
+                        text(
+                            """
                         SELECT
                             i.relname as index_name,
                             a.attname as column_name,
@@ -125,14 +164,18 @@ class DBOptimizationService:
                         WHERE t.relname = :table_name
                         AND idx.indisprimary = false
                         ORDER BY i.relname, a.attnum
-                        """)
+                        """
+                        )
                         .execution_options(autocommit=False)
                         .bindparams(table_name=table_name)
                     )
                     indexes = []
                     current_index = None
                     for row in result:
-                        if current_index is None or current_index["index_name"] != row.index_name:
+                        if (
+                            current_index is None
+                            or current_index["index_name"] != row.index_name
+                        ):
                             current_index = {
                                 "name": row.index_name,
                                 "columns": [],
@@ -147,8 +190,9 @@ class DBOptimizationService:
                 # SQLite
                 elif self._engine.dialect.name == "sqlite":
                     result = conn.execute(
-                        text("SELECT name, sql FROM sqlite_master WHERE type='index' AND tbl_name=:table_name")
-                        .bindparams(table_name=table_name)
+                        text(
+                            "SELECT name, sql FROM sqlite_master WHERE type='index' AND tbl_name=:table_name"
+                        ).bindparams(table_name=table_name)
                     )
                     return [
                         {
@@ -159,14 +203,18 @@ class DBOptimizationService:
                     ]
 
                 else:
-                    logger.warning(f"⚠️ Unsupported database dialect: {self._engine.dialect.name}")
+                    logger.warning(
+                        f"⚠️ Unsupported database dialect: {self._engine.dialect.name}"
+                    )
                     return []
 
         except Exception as e:
             logger.error(f"❌ Error getting indexes for table {table_name}: {e}")
             return []
 
-    def get_missing_indexes(self, table_name: Optional[str] = None) -> Dict[str, List[Dict[str, Any]]]:
+    def get_missing_indexes(
+        self, table_name: Optional[str] = None
+    ) -> Dict[str, List[Dict[str, Any]]]:
         """
         Identifie les index manquants pour les tables.
 
@@ -178,7 +226,9 @@ class DBOptimizationService:
         """
         if table_name is not None:
             self._validate_table_name(table_name)
-        tables_to_check = [table_name] if table_name else self.RECOMMENDED_INDEXES.keys()
+        tables_to_check = (
+            [table_name] if table_name else self.RECOMMENDED_INDEXES.keys()
+        )
         missing_indexes = {}
 
         for table in tables_to_check:
@@ -212,7 +262,7 @@ class DBOptimizationService:
         table_name: str,
         columns: List[str],
         unique: bool = False,
-        index_name: Optional[str] = None
+        index_name: Optional[str] = None,
     ) -> str:
         """
         Génère la requête SQL pour créer un index.
@@ -236,13 +286,15 @@ class DBOptimizationService:
         unique_str = "UNIQUE" if unique else ""
 
         if self._engine.dialect.name == "postgresql":
-            return f'CREATE {unique_str} INDEX {index_name} ON {table_name} ({columns_str})'
+            return f"CREATE {unique_str} INDEX {index_name} ON {table_name} ({columns_str})"
         elif self._engine.dialect.name == "sqlite":
-            return f'CREATE {unique_str} INDEX IF NOT EXISTS {index_name} ON {table_name} ({columns_str})'
+            return f"CREATE {unique_str} INDEX IF NOT EXISTS {index_name} ON {table_name} ({columns_str})"
         else:
-            return f'CREATE {unique_str} INDEX {index_name} ON {table_name} ({columns_str})'
+            return f"CREATE {unique_str} INDEX {index_name} ON {table_name} ({columns_str})"
 
-    def create_missing_indexes(self, table_name: Optional[str] = None) -> Dict[str, List[str]]:
+    def create_missing_indexes(
+        self, table_name: Optional[str] = None
+    ) -> Dict[str, List[str]]:
         """
         Crée les index manquants pour les tables.
 
@@ -270,8 +322,10 @@ class DBOptimizationService:
                     created.append(sql)
                     logger.info(f"✅ Created index: {sql}")
                 except Exception as e:
-                    logger.error(f"❌ Failed to create index on {table}({idx_config['columns']}): {e}")
-            
+                    logger.error(
+                        f"❌ Failed to create index on {table}({idx_config['columns']}): {e}"
+                    )
+
             if created:
                 created_indexes[table] = created
 
@@ -292,11 +346,14 @@ class DBOptimizationService:
             try:
                 with self._engine.connect() as conn:
                     # Activer pg_stat_statements si nécessaire
-                    conn.execute(text("CREATE EXTENSION IF NOT EXISTS pg_stat_statements"))
+                    conn.execute(
+                        text("CREATE EXTENSION IF NOT EXISTS pg_stat_statements")
+                    )
                     conn.commit()
 
                     result = conn.execute(
-                        text("""
+                        text(
+                            """
                         SELECT
                             query,
                             calls,
@@ -309,22 +366,26 @@ class DBOptimizationService:
                         WHERE mean_exec_time > :min_duration
                         ORDER BY mean_exec_time DESC
                         LIMIT 20
-                        """)
-                        .bindparams(min_duration=min_duration_ms)
+                        """
+                        ).bindparams(min_duration=min_duration_ms)
                     )
 
                     slow_queries = []
                     for row in result:
-                        slow_queries.append({
-                            "query": row.query,
-                            "calls": row.calls,
-                            "total_time_ms": row.total_exec_time,
-                            "mean_time_ms": row.mean_exec_time,
-                            "rows": row.rows,
-                            "blocks_hit": row.shared_blks_hit,
-                            "blocks_read": row.shared_blks_read,
-                            "recommendations": self._generate_query_recommendations(row.query),
-                        })
+                        slow_queries.append(
+                            {
+                                "query": row.query,
+                                "calls": row.calls,
+                                "total_time_ms": row.total_exec_time,
+                                "mean_time_ms": row.mean_exec_time,
+                                "rows": row.rows,
+                                "blocks_hit": row.shared_blks_hit,
+                                "blocks_read": row.shared_blks_read,
+                                "recommendations": self._generate_query_recommendations(
+                                    row.query
+                                ),
+                            }
+                        )
 
                     return slow_queries
 
@@ -333,7 +394,9 @@ class DBOptimizationService:
                 return []
 
         else:
-            logger.warning("⚠️ Slow query analysis not supported for this database dialect")
+            logger.warning(
+                "⚠️ Slow query analysis not supported for this database dialect"
+            )
             return []
 
     def _generate_query_recommendations(self, query: str) -> List[str]:
@@ -352,22 +415,30 @@ class DBOptimizationService:
         # Vérifier les patterns courants
         if "where" in query_lower and "order by" in query_lower:
             if "index" not in query_lower:
-                recommendations.append("Add an index on the columns used in WHERE and ORDER BY clauses")
+                recommendations.append(
+                    "Add an index on the columns used in WHERE and ORDER BY clauses"
+                )
 
         if "join" in query_lower:
             recommendations.append("Ensure join columns are indexed")
 
         if "like" in query_lower:
-            recommendations.append("Consider using a full-text search index for LIKE patterns")
+            recommendations.append(
+                "Consider using a full-text search index for LIKE patterns"
+            )
 
         if "select *" in query_lower:
             recommendations.append("Avoid SELECT * - specify only needed columns")
 
         if "offset" in query_lower and "limit" in query_lower:
-            recommendations.append("For large offsets, consider using keyset pagination instead")
+            recommendations.append(
+                "For large offsets, consider using keyset pagination instead"
+            )
 
         if "count(*)" in query_lower:
-            recommendations.append("For large tables, consider storing counts in a separate table")
+            recommendations.append(
+                "For large tables, consider storing counts in a separate table"
+            )
 
         return recommendations
 
@@ -400,7 +471,8 @@ class DBOptimizationService:
                 with self._engine.connect() as conn:
                     # Taille de la table
                     size_result = conn.execute(
-                        text("""
+                        text(
+                            """
                         SELECT
                             pg_size_pretty(pg_total_relation_size(:table)) as total_size,
                             pg_size_pretty(pg_table_size(:table)) as table_size,
@@ -410,8 +482,8 @@ class DBOptimizationService:
                             pg_indexes_size(:table) as indexes_bytes
                         FROM pg_stat_user_tables
                         WHERE relname = :table
-                        """)
-                        .bindparams(table=table_name)
+                        """
+                        ).bindparams(table=table_name)
                     ).first()
 
                     # Nombre de lignes
@@ -421,7 +493,8 @@ class DBOptimizationService:
 
                     # Statistiques d'utilisation
                     stats_result = conn.execute(
-                        text("""
+                        text(
+                            """
                         SELECT
                             n_live_tup as live_rows,
                             n_dead_tup as dead_rows,
@@ -430,8 +503,8 @@ class DBOptimizationService:
                             last_autoanalyze
                         FROM pg_stat_user_tables
                         WHERE relname = :table
-                        """)
-                        .bindparams(table=table_name)
+                        """
+                        ).bindparams(table=table_name)
                     ).first()
 
                     return {
@@ -439,10 +512,18 @@ class DBOptimizationService:
                         "size": {
                             "total": size_result.total_size if size_result else "N/A",
                             "table": size_result.table_size if size_result else "N/A",
-                            "indexes": size_result.indexes_size if size_result else "N/A",
-                            "total_bytes": size_result.total_bytes if size_result else 0,
-                            "table_bytes": size_result.table_bytes if size_result else 0,
-                            "indexes_bytes": size_result.indexes_bytes if size_result else 0,
+                            "indexes": (
+                                size_result.indexes_size if size_result else "N/A"
+                            ),
+                            "total_bytes": (
+                                size_result.total_bytes if size_result else 0
+                            ),
+                            "table_bytes": (
+                                size_result.table_bytes if size_result else 0
+                            ),
+                            "indexes_bytes": (
+                                size_result.indexes_bytes if size_result else 0
+                            ),
                         },
                         "rows": {
                             "total": count_result.row_count if count_result else 0,
@@ -450,10 +531,16 @@ class DBOptimizationService:
                             "dead": stats_result.dead_rows if stats_result else 0,
                         },
                         "maintenance": {
-                            "last_vacuum": stats_result.last_vacuum if stats_result else None,
-                            "last_analyze": stats_result.last_analyze if stats_result else None,
-                            "last_autoanalyze": stats_result.last_autoanalyze if stats_result else None,
-                        }
+                            "last_vacuum": (
+                                stats_result.last_vacuum if stats_result else None
+                            ),
+                            "last_analyze": (
+                                stats_result.last_analyze if stats_result else None
+                            ),
+                            "last_autoanalyze": (
+                                stats_result.last_autoanalyze if stats_result else None
+                            ),
+                        },
                     }
 
             elif self._engine.dialect.name == "sqlite":
@@ -466,11 +553,13 @@ class DBOptimizationService:
                         "table": table_name,
                         "rows": {
                             "total": count_result.row_count if count_result else 0,
-                        }
+                        },
                     }
 
             else:
-                logger.warning(f"⚠️ Table statistics not fully supported for {self._engine.dialect.name}")
+                logger.warning(
+                    f"⚠️ Table statistics not fully supported for {self._engine.dialect.name}"
+                )
                 return {"table": table_name}
 
         except Exception as e:
@@ -524,16 +613,20 @@ class DBOptimizationService:
             )
 
         # Ajouter des recommandations générales
-        report["recommendations"].extend([
-            "Add indexes on frequently filtered and sorted columns",
-            "Consider using connection pooling for better performance",
-            "Regularly run VACUUM and ANALYZE on PostgreSQL tables",
-            "Monitor query performance with pg_stat_statements (PostgreSQL)",
-        ])
+        report["recommendations"].extend(
+            [
+                "Add indexes on frequently filtered and sorted columns",
+                "Consider using connection pooling for better performance",
+                "Regularly run VACUUM and ANALYZE on PostgreSQL tables",
+                "Monitor query performance with pg_stat_statements (PostgreSQL)",
+            ]
+        )
 
         return report
 
-    def create_optimization_migration(self, output_file: str = "migrations/optimize_db.py") -> bool:
+    def create_optimization_migration(
+        self, output_file: str = "migrations/optimize_db.py"
+    ) -> bool:
         """
         Crée un fichier de migration pour optimiser la base de données.
 
@@ -545,7 +638,7 @@ class DBOptimizationService:
         """
         try:
             missing_indexes = self.get_missing_indexes()
-            
+
             if not missing_indexes:
                 logger.info("✅ No missing indexes to create")
                 return False
@@ -570,11 +663,11 @@ def upgrade():
                     index_sql = self.generate_create_index_sql(
                         table_name, columns, unique, index_name=index_name
                     )
-                    migration_content += f'''    # {table_name} - {idx_config['reason']}
+                    migration_content += f"""    # {table_name} - {idx_config['reason']}
     op.create_index(
         '{index_sql}'
     )
-'''
+"""
 
             migration_content += '''
 
@@ -587,16 +680,17 @@ def downgrade():
                 for idx_config in indexes:
                     columns = idx_config["columns"]
                     index_name = f"idx_{table_name}_{'_'.join(columns)}"
-                    migration_content += f'''    op.drop_index({index_name!r}, table_name={table_name!r})
-'''
+                    migration_content += f"""    op.drop_index({index_name!r}, table_name={table_name!r})
+"""
 
-            migration_content += '''
-'''
+            migration_content += """
+"""
 
             # Écrire le fichier
             import os
+
             os.makedirs(os.path.dirname(output_file), exist_ok=True)
-            with open(output_file, 'w') as f:
+            with open(output_file, "w") as f:
                 f.write(migration_content)
 
             logger.info(f"✅ Created optimization migration: {output_file}")

@@ -30,12 +30,14 @@ class TestNotificationModel(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        self.app = create_app({"TESTING": True, "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"})
+        self.app = create_app(
+            {"TESTING": True, "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"}
+        )
         self.app_context = self.app.app_context()
         self.app_context.push()
-        
+
         db.create_all()
-        
+
         # Create test user
         self.user = User.create(
             username="testuser",
@@ -59,10 +61,12 @@ class TestNotificationModel(unittest.TestCase):
             message="Test execution failed",
             extra_data={"agent_id": 1, "execution_id": 100},
         )
-        
+
         self.assertIsNotNone(notification.id)
         self.assertEqual(notification.user_id, self.user.id)
-        self.assertEqual(notification.notification_type, NotificationType.EXECUTION_FAILURE)
+        self.assertEqual(
+            notification.notification_type, NotificationType.EXECUTION_FAILURE
+        )
         self.assertEqual(notification.channel, NotificationChannel.EMAIL)
         self.assertEqual(notification.title, "Test Execution Failure")
         self.assertEqual(notification.message, "Test execution failed")
@@ -83,7 +87,7 @@ class TestNotificationModel(unittest.TestCase):
             title="Test Success",
             message="Test execution succeeded",
         )
-        
+
         retrieved = HistoryNotification.get_by_id(notification.id)
         self.assertIsNotNone(retrieved)
         self.assertEqual(retrieved.id, notification.id)
@@ -98,7 +102,7 @@ class TestNotificationModel(unittest.TestCase):
             title="Test 1",
             message="Message 1",
         )
-        
+
         user2 = User.create(
             username="testuser2",
             email="test2@agentworld.ai",
@@ -111,7 +115,7 @@ class TestNotificationModel(unittest.TestCase):
             title="Test 2",
             message="Message 2",
         )
-        
+
         user_notifications = HistoryNotification.get_by_user(self.user.id)
         self.assertEqual(len(user_notifications), 1)
         self.assertEqual(user_notifications[0].id, notification1.id)
@@ -126,7 +130,7 @@ class TestNotificationModel(unittest.TestCase):
             title="Unread",
             message="Unread message",
         )
-        
+
         notification2 = HistoryNotification.create(
             user_id=self.user.id,
             notification_type=NotificationType.AGENT_CREATED,
@@ -135,7 +139,7 @@ class TestNotificationModel(unittest.TestCase):
             message="Read message",
         )
         notification2.mark_as_read()
-        
+
         unread = HistoryNotification.get_unread_by_user(self.user.id)
         self.assertEqual(len(unread), 1)
         self.assertEqual(unread[0].id, notification1.id)
@@ -149,7 +153,7 @@ class TestNotificationModel(unittest.TestCase):
             title="Pending",
             message="Pending message",
         )
-        
+
         notification2 = HistoryNotification.create(
             user_id=self.user.id,
             notification_type=NotificationType.EXECUTION_SUCCESS,
@@ -158,7 +162,7 @@ class TestNotificationModel(unittest.TestCase):
             message="Sent message",
         )
         notification2.mark_as_sent()
-        
+
         pending = HistoryNotification.get_pending()
         self.assertEqual(len(pending), 1)
         self.assertEqual(pending[0].id, notification1.id)
@@ -172,12 +176,12 @@ class TestNotificationModel(unittest.TestCase):
             title="Test",
             message="Test message",
         )
-        
+
         self.assertFalse(notification.is_sent)
         self.assertIsNone(notification.sent_at)
-        
+
         notification.mark_as_sent()
-        
+
         # Refresh from database
         db.session.refresh(notification)
         self.assertTrue(notification.is_sent)
@@ -192,11 +196,11 @@ class TestNotificationModel(unittest.TestCase):
             title="Test",
             message="Test message",
         )
-        
+
         self.assertIsNone(notification.read_at)
-        
+
         notification.mark_as_read()
-        
+
         # Refresh from database
         db.session.refresh(notification)
         self.assertIsNotNone(notification.read_at)
@@ -210,12 +214,12 @@ class TestNotificationModel(unittest.TestCase):
             title="Test",
             message="Test message",
         )
-        
+
         self.assertEqual(notification.send_attempts, 0)
-        
+
         notification.increment_attempts()
         notification.increment_attempts()
-        
+
         # Refresh from database
         db.session.refresh(notification)
         self.assertEqual(notification.send_attempts, 2)
@@ -229,11 +233,11 @@ class TestNotificationModel(unittest.TestCase):
             title="Test",
             message="Test message",
         )
-        
+
         self.assertTrue(notification.is_active)
-        
+
         notification.deactivate()
-        
+
         # Refresh from database
         db.session.refresh(notification)
         self.assertFalse(notification.is_active)
@@ -248,9 +252,9 @@ class TestNotificationModel(unittest.TestCase):
             message="Test message",
             extra_data={"agent_id": 1},
         )
-        
+
         result = notification.to_dict()
-        
+
         self.assertIn("id", result)
         self.assertIn("user_id", result)
         self.assertIn("notification_type", result)
@@ -271,9 +275,9 @@ class TestNotificationModel(unittest.TestCase):
             title="Test",
             message="Test message",
         )
-        
+
         result = notification.to_dict_minimal()
-        
+
         self.assertIn("id", result)
         self.assertIn("notification_type", result)
         self.assertIn("channel", result)
@@ -287,12 +291,14 @@ class TestNotificationService(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        self.app = create_app({"TESTING": True, "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"})
+        self.app = create_app(
+            {"TESTING": True, "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"}
+        )
         self.app_context = self.app.app_context()
         self.app_context.push()
-        
+
         db.create_all()
-        
+
         # Create test user
         self.user = User.create(
             username="testuser",
@@ -316,10 +322,12 @@ class TestNotificationService(unittest.TestCase):
             extra_data={"agent_id": 1, "execution_id": 100},
             send_immediately=False,  # Don't actually send
         )
-        
+
         self.assertIsNotNone(notification.id)
         self.assertEqual(notification.user_id, self.user.id)
-        self.assertEqual(notification.notification_type, NotificationType.EXECUTION_FAILURE)
+        self.assertEqual(
+            notification.notification_type, NotificationType.EXECUTION_FAILURE
+        )
 
     def test_create_execution_failure_notification(self):
         """Test creating execution failure notification."""
@@ -329,9 +337,11 @@ class TestNotificationService(unittest.TestCase):
             execution_id=100,
             error_message="Test error",
         )
-        
+
         self.assertIsNotNone(notification)
-        self.assertEqual(notification.notification_type, NotificationType.EXECUTION_FAILURE)
+        self.assertEqual(
+            notification.notification_type, NotificationType.EXECUTION_FAILURE
+        )
         self.assertIn("agent_id", notification.extra_data)
         self.assertIn("execution_id", notification.extra_data)
         self.assertIn("error", notification.extra_data)
@@ -344,9 +354,11 @@ class TestNotificationService(unittest.TestCase):
             execution_id=100,
             duration=15.5,
         )
-        
+
         self.assertIsNotNone(notification)
-        self.assertEqual(notification.notification_type, NotificationType.EXECUTION_SUCCESS)
+        self.assertEqual(
+            notification.notification_type, NotificationType.EXECUTION_SUCCESS
+        )
         self.assertIn("agent_id", notification.extra_data)
         self.assertIn("execution_id", notification.extra_data)
         self.assertIn("duration", notification.extra_data)
@@ -359,14 +371,20 @@ class TestNotificationService(unittest.TestCase):
                 agent_id=1,
                 action=action,
             )
-            
+
             self.assertIsNotNone(notification)
             if action == "created":
-                self.assertEqual(notification.notification_type, NotificationType.AGENT_CREATED)
+                self.assertEqual(
+                    notification.notification_type, NotificationType.AGENT_CREATED
+                )
             elif action == "updated":
-                self.assertEqual(notification.notification_type, NotificationType.AGENT_UPDATED)
+                self.assertEqual(
+                    notification.notification_type, NotificationType.AGENT_UPDATED
+                )
             elif action == "deleted":
-                self.assertEqual(notification.notification_type, NotificationType.AGENT_DELETED)
+                self.assertEqual(
+                    notification.notification_type, NotificationType.AGENT_DELETED
+                )
 
     def test_set_user_preferences(self):
         """Test setting user preferences."""
@@ -377,9 +395,9 @@ class TestNotificationService(unittest.TestCase):
             discord_notifications=False,
             important_events_only=True,
         )
-        
+
         notification_service.set_user_preferences(preferences)
-        
+
         retrieved = notification_service.get_user_preferences(self.user.id)
         self.assertIsNotNone(retrieved)
         self.assertEqual(retrieved.user_id, self.user.id)
@@ -390,7 +408,9 @@ class TestNotificationService(unittest.TestCase):
 
     def test_get_user_preferences_default(self):
         """Test getting default user preferences."""
-        preferences = notification_service.get_user_preferences(999)  # Non-existent user
+        preferences = notification_service.get_user_preferences(
+            999
+        )  # Non-existent user
         self.assertIsNone(preferences)
 
 

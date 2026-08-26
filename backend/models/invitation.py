@@ -10,14 +10,15 @@ Les invitations sont valides pendant 7 jours par défaut.
 """
 
 from datetime import datetime, timedelta
-from typing import Optional
 from enum import Enum
+from typing import Optional
 
 from .base import BaseModel, db
 
 
 class InvitationStatus(str, Enum):
     """Status possible d'une invitation."""
+
     PENDING = "pending"
     ACCEPTED = "accepted"
     EXPIRED = "expired"
@@ -49,22 +50,24 @@ class Invitation(BaseModel):
     token = db.Column(db.String(255), nullable=False, unique=True)
     role = db.Column(db.String(50), nullable=False, default="member")
     status = db.Column(
-        db.Enum(InvitationStatus),
-        nullable=False,
-        default=InvitationStatus.PENDING
+        db.Enum(InvitationStatus), nullable=False, default=InvitationStatus.PENDING
     )
     created_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     expires_at = db.Column(
         db.DateTime,
         nullable=False,
-        default=lambda: datetime.utcnow() + timedelta(days=7)
+        default=lambda: datetime.utcnow() + timedelta(days=7),
     )
     accepted_at = db.Column(db.DateTime, nullable=True)
 
     # Relationships
     project = db.relationship("Project", backref=db.backref("invitations", lazy=True))
-    creator = db.relationship("User", foreign_keys=[created_by], backref=db.backref("created_invitations", lazy=True))
+    creator = db.relationship(
+        "User",
+        foreign_keys=[created_by],
+        backref=db.backref("created_invitations", lazy=True),
+    )
 
     def __init__(
         self,
@@ -194,13 +197,14 @@ class Invitation(BaseModel):
     def get_pending_by_email(cls, email: str) -> list["Invitation"]:
         """Get all pending invitations for an email address."""
         return (
-            cls.query
-            .filter_by(email=email, status=InvitationStatus.PENDING)
+            cls.query.filter_by(email=email, status=InvitationStatus.PENDING)
             .filter(datetime.utcnow() <= cls.expires_at)
             .all()
         )
 
     @classmethod
-    def get_by_email_and_project(cls, email: str, project_id: int) -> Optional["Invitation"]:
+    def get_by_email_and_project(
+        cls, email: str, project_id: int
+    ) -> Optional["Invitation"]:
         """Get an invitation by email and project ID."""
         return cls.query.filter_by(email=email, project_id=project_id).first()

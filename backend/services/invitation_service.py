@@ -23,6 +23,7 @@ from .email_service import EmailService
 
 class InvitationError(Exception):
     """Exception levée en cas d'erreur liée aux invitations."""
+
     pass
 
 
@@ -140,7 +141,9 @@ class InvitationService:
 
         # Récupérer le projet et le créateur
         project = Project.get_by_id(invitation.project_id)
-        creator = User.get_by_id(invitation.created_by) if invitation.created_by else None
+        creator = (
+            User.get_by_id(invitation.created_by) if invitation.created_by else None
+        )
 
         # Construire le sujet et le contenu de l'email
         subject = f"Invitation à rejoindre le projet {project.name}"
