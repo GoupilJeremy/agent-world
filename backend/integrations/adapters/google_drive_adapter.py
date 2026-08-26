@@ -16,13 +16,12 @@ Requirements:
 """
 
 import base64
-import json
 import logging
 import mimetypes
 import secrets
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
-from urllib.parse import urlencode, urlparse
+from urllib.parse import urlencode
 
 import requests
 
@@ -45,7 +44,7 @@ from ..integration_types import (
 logger = logging.getLogger(__name__)
 
 # Importer le décorateur depuis le module parent
-from . import register_adapter
+from . import register_adapter  # noqa: E402
 
 
 @register_adapter
@@ -301,7 +300,8 @@ class GoogleDriveIntegrationAdapter(BaseIntegrationAdapter):
             "response_type": "code",
             "scope": " ".join(self.oauth_config.scope),
             "access_type": "offline",  # Pour obtenir un refresh token
-            "prompt": "consent",  # Pour forcer l'autorisation et obtenir un refresh token
+            # Pour forcer l'autorisation et obtenir un refresh token
+            "prompt": "consent",
             "state": state,
         }
 
@@ -535,7 +535,8 @@ class GoogleDriveIntegrationAdapter(BaseIntegrationAdapter):
             page_token = payload.get("page_token")
             fields = payload.get(
                 "fields",
-                "files(id, name, mimeType, size, createdTime, modifiedTime, parents, webViewLink)",
+                "files(id, name, mimeType, size, "
+                "createdTime, modifiedTime, parents, webViewLink)",
             )
             order_by = payload.get("order_by", "modifiedTime desc")
 
@@ -693,9 +694,6 @@ class GoogleDriveIntegrationAdapter(BaseIntegrationAdapter):
 
             if response is not None:
                 # Le response est le contenu binaire du fichier
-                import io
-
-                file_content = response
                 if isinstance(response, bytes):
                     content = response
                 elif isinstance(response, str):
@@ -760,11 +758,18 @@ class GoogleDriveIntegrationAdapter(BaseIntegrationAdapter):
             page_size = payload.get("page_size", 100)
             page_token = payload.get("page_token")
 
-            # Rechercher uniquement les dossiers (mimeType = application/vnd.google-apps.folder)
+            # Rechercher uniquement les dossiers (mimeType =
+            # application/vnd.google-apps.folder)
             params = {
-                "q": f"'{parent_id}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false",
+                "q": (
+                    f"'{parent_id}' in parents and "
+                    "mimeType='application/vnd.google-apps.folder' and trashed=false"
+                ),
                 "pageSize": page_size,
-                "fields": "nextPageToken, files(id, name, mimeType, createdTime, modifiedTime)",
+                "fields": (
+                    "nextPageToken, files(id, name, mimeType, "
+                    "createdTime, modifiedTime)"
+                ),
             }
 
             if page_token:
@@ -886,7 +891,10 @@ class GoogleDriveIntegrationAdapter(BaseIntegrationAdapter):
             if overwrite:
                 existing_file_id = payload.get("file_id")
                 if existing_file_id:
-                    url = f"{self.UPLOAD_API_BASE}/files/{existing_file_id}?uploadType=media"
+                    url = (
+                        f"{self.UPLOAD_API_BASE}/files/{existing_file_id}"
+                        "?uploadType=media"
+                    )
                     metadata = {}  # Pas besoin de metadata pour l'update
 
             response = self._make_request(
@@ -1243,11 +1251,14 @@ class GoogleDriveIntegrationAdapter(BaseIntegrationAdapter):
         """Retourne les scopes OAuth2 requis pour Google Drive."""
         return [
             "https://www.googleapis.com/auth/drive",  # Accès complet à Drive
-            "https://www.googleapis.com/auth/drive.file",  # Accès aux fichiers créés par l'app
+            # Accès aux fichiers créés par l'app
+            "https://www.googleapis.com/auth/drive.file",
             "https://www.googleapis.com/auth/drive.metadata",  # Métadonnées seulement
             "https://www.googleapis.com/auth/drive.readonly",  # Lecture seule
-            "https://www.googleapis.com/auth/drive.apps",  # Accès aux données de l'app dans Drive
-            "https://www.googleapis.com/auth/drive.scripts",  # Accès aux scripts Apps
+            # Accès aux données de l'app dans Drive
+            "https://www.googleapis.com/auth/drive.apps",
+            # Accès aux scripts Apps
+            "https://www.googleapis.com/auth/drive.scripts",
         ]
 
     def get_configuration_schema(self) -> Dict[str, Any]:
@@ -1276,24 +1287,32 @@ class GoogleDriveIntegrationAdapter(BaseIntegrationAdapter):
                         },
                         "auto_organize": {
                             "type": "boolean",
-                            "description": "Organiser automatiquement les fichiers par date",
+                            "description": (
+                                "Organiser automatiquement les fichiers par date"
+                            ),
                             "default": False,
                         },
                         "date_format": {
                             "type": "string",
-                            "description": "Format des dossiers de date (ex: YYYY/MM/DD)",
+                            "description": (
+                                "Format des dossiers de date (ex: YYYY/MM/DD)"
+                            ),
                             "default": "YYYY/MM",
                         },
                         "max_file_size_mb": {
                             "type": "number",
-                            "description": "Taille maximale des fichiers à uploader (en Mo)",
+                            "description": (
+                                "Taille maximale des fichiers à uploader (en Mo)"
+                            ),
                             "default": 50,
                             "minimum": 1,
                             "maximum": 1024,
                         },
                         "share_uploaded_files": {
                             "type": "boolean",
-                            "description": "Partager automatiquement les fichiers uploadés",
+                            "description": (
+                                "Partager automatiquement les fichiers uploadés"
+                            ),
                             "default": False,
                         },
                     },

@@ -7,11 +7,8 @@ US-058: Compression des fichiers générés pour économiser de l'espace
 Épic 8: Performance et Scalabilité
 """
 
-import os
-
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, current_app, request
 from flask_restful import Resource, reqparse
-from werkzeug.datastructures import FileStorage
 
 from ..services.compression_service import (
     CompressionError,

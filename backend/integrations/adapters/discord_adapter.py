@@ -14,7 +14,6 @@ Requirements:
     - requests-oauthlib: Pour OAuth2 (optionnel)
 """
 
-import json
 import logging
 import secrets
 from datetime import datetime, timedelta
@@ -42,7 +41,7 @@ from ..integration_types import (
 logger = logging.getLogger(__name__)
 
 # Importer le décorateur depuis le module parent
-from . import register_adapter
+from . import register_adapter  # noqa: E402
 
 
 @register_adapter
@@ -72,7 +71,10 @@ class DiscordIntegrationAdapter(BaseIntegrationAdapter):
     # Configuration de l'adapter
     type = IntegrationType.DISCORD
     name = "Discord"
-    description = "Intégration avec Discord pour envoyer des messages, notifications et interagir avec les serveurs"
+    description = (
+        "Intégration avec Discord pour envoyer des messages, "
+        "notifications et interagir avec les serveurs"
+    )
     auth_type = AuthType.OAUTH2
     icon = "discord"
     color = "#5865F2"
@@ -366,13 +368,9 @@ class DiscordIntegrationAdapter(BaseIntegrationAdapter):
             access_token = token_data.get("access_token")
             refresh_token = token_data.get("refresh_token")
             expires_in = token_data.get("expires_in", 3600)
-            token_type = token_data.get("token_type", "Bearer")
 
             if not access_token:
                 raise ValueError("No access token received from Discord")
-
-            # Discord retourne aussi un scope
-            scope = token_data.get("scope", "")
 
             # Calculer l'expiration
             token_expiry = datetime.utcnow() + timedelta(seconds=expires_in)
@@ -681,7 +679,7 @@ class DiscordIntegrationAdapter(BaseIntegrationAdapter):
 
             # L'API Discord pour supprimer un message utilise DELETE
             # Mais elle ne retourne pas de corps, juste un 204
-            result = self._make_request(
+            self._make_request(
                 "DELETE",
                 f"channels/{channel_id}/messages/{message_id}",
             )
@@ -1128,7 +1126,8 @@ class DiscordIntegrationAdapter(BaseIntegrationAdapter):
             # L'API Discord attend l'emoji URL-encoded
             result = self._make_request(
                 "PUT",
-                f"channels/{channel_id}/messages/{message_id}/reactions/{emoji_encoded}/@me",
+                f"channels/{channel_id}/messages/{message_id}/reactions/"
+                f"{emoji_encoded}/@me",
             )
 
             return IntegrationResult(
@@ -1161,7 +1160,8 @@ class DiscordIntegrationAdapter(BaseIntegrationAdapter):
 
             result = self._make_request(
                 "DELETE",
-                f"channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_target}",
+                f"channels/{channel_id}/messages/{message_id}/reactions/"
+                f"{emoji}/{user_target}",
             )
 
             return IntegrationResult(
@@ -1203,7 +1203,10 @@ class DiscordIntegrationAdapter(BaseIntegrationAdapter):
                 command_data["options"] = options
 
             # L'API des commandes slash utilise une URL différente
-            slack_url = f"https://discord.com/api/v{self.api_version}/applications/{application_id}/commands"
+            slack_url = (
+                f"https://discord.com/api/v{self.api_version}/applications/"
+                f"{application_id}/commands"
+            )
 
             headers = self._get_auth_headers()
 
@@ -1247,7 +1250,10 @@ class DiscordIntegrationAdapter(BaseIntegrationAdapter):
                     error="application_id is required",
                 )
 
-            slack_url = f"https://discord.com/api/v{self.api_version}/applications/{application_id}/commands"
+            slack_url = (
+                f"https://discord.com/api/v{self.api_version}/applications/"
+                f"{application_id}/commands"
+            )
 
             headers = self._get_auth_headers()
 
@@ -1295,7 +1301,10 @@ class DiscordIntegrationAdapter(BaseIntegrationAdapter):
                     error="application_id and command_id are required",
                 )
 
-            slack_url = f"https://discord.com/api/v{self.api_version}/applications/{application_id}/commands/{command_id}"
+            slack_url = (
+                f"https://discord.com/api/v{self.api_version}/applications/"
+                f"{application_id}/commands/{command_id}"
+            )
 
             headers = self._get_auth_headers()
 
@@ -1493,7 +1502,9 @@ class DiscordIntegrationAdapter(BaseIntegrationAdapter):
                     "properties": {
                         "default_channel_id": {
                             "type": "string",
-                            "description": "ID du salon par défaut pour les notifications",
+                            "description": (
+                                "ID du salon par défaut pour les notifications"
+                            ),
                             "default": "",
                         },
                         "command_prefix": {
@@ -1508,12 +1519,16 @@ class DiscordIntegrationAdapter(BaseIntegrationAdapter):
                         },
                         "embed_color": {
                             "type": "string",
-                            "description": "Couleur par défaut des embeds (hexadecimal)",
+                            "description": (
+                                "Couleur par défaut des embeds (hexadecimal)"
+                            ),
                             "default": "#5865F2",
                         },
                         "application_id": {
                             "type": "string",
-                            "description": "ID de l'application Discord pour les commandes slash",
+                            "description": (
+                                "ID de l'application Discord pour les commandes slash"
+                            ),
                             "default": "",
                         },
                     },

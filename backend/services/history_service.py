@@ -25,7 +25,6 @@ from ..models.agent import Agent
 from ..models.agent_history import ActionType, AgentHistory
 from ..models.base import db
 from ..models.execution import Execution, ExecutionStatus
-from ..models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -554,7 +553,10 @@ class HistoryService:
             return {
                 "format": "json",
                 "data": entries,
-                "filename": f"agent_{agent_id}_history_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json",
+                "filename": (
+                    f"agent_{agent_id}_history_"
+                    f"{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
+                ),
                 "total_entries": total,
             }
         elif format_type == "csv":
@@ -584,7 +586,10 @@ class HistoryService:
             return {
                 "format": "csv",
                 "data": csv_data,
-                "filename": f"agent_{agent_id}_history_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv",
+                "filename": (
+                    f"agent_{agent_id}_history_"
+                    f"{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
+                ),
                 "total_entries": total,
             }
         else:

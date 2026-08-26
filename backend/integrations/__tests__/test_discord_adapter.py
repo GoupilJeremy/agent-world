@@ -75,7 +75,8 @@ class TestDiscordIntegrationAdapter:
         assert discord_adapter.name == "Discord"
         assert (
             discord_adapter.description
-            == "Intégration avec Discord pour envoyer des messages, notifications et interagir avec les serveurs"
+            == "Intégration avec Discord pour envoyer des messages, "
+            "notifications et interagir avec les serveurs"
         )
         assert discord_adapter.auth_type.value == "oauth2"
         assert discord_adapter.color == "#5865F2"

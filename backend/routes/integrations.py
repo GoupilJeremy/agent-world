@@ -12,10 +12,23 @@ avec des services externes (GitHub, Slack, Discord, etc.).
 import logging
 from datetime import datetime
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Callable
 
 from flask import Blueprint, current_app, jsonify, request
 from flask_restful import Api, Resource
+
+from ..integrations.base_adapter import (
+    AuthenticationError,
+    ConnectionError,
+    IntegrationAdapterError,
+)
+from ..integrations.integration_types import (
+    IntegrationAction,
+    IntegrationCredentials,
+    IntegrationStatus,
+    IntegrationType,
+)
+from ..integrations.webhooks.webhook_types import WebhookEvent, WebhookPayload
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +37,18 @@ integrations_bp = Blueprint("integrations", __name__, url_prefix="/api/integrati
 
 # API Flask-RESTful
 integrations_api = Api(integrations_bp)
+
+
+def _get_integration_manager():
+    return current_app.extensions["integration_manager"]
+
+
+def _get_oauth_service():
+    return current_app.extensions["oauth_service"]
+
+
+def _get_webhook_service():
+    return current_app.extensions["webhook_service"]
 
 
 def get_integration_manager():
@@ -618,9 +643,6 @@ class WebhookIncomingResource(Resource):
             body=body,
             query_params=query_params,
         )
-
-        # Trouver l'ID du webhook (peut être dans les headers ou query params)
-        webhook_id = headers.get("X-Webhook-ID") or query_params.get("webhook_id")
 
         # Traiter le webhook
         response = webhook_service.handle_incoming_webhook(payload)

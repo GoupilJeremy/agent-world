@@ -5,7 +5,7 @@
 Unit tests for the SlackIntegrationAdapter class.
 """
 
-from unittest.mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -75,7 +75,8 @@ class TestSlackIntegrationAdapter:
         assert slack_adapter.name == "Slack"
         assert (
             slack_adapter.description
-            == "Intégration avec Slack pour envoyer des messages, notifications et interagir avec les équipes"
+            == "Intégration avec Slack pour envoyer des messages, "
+            "notifications et interagir avec les équipes"
         )
         assert slack_adapter.auth_type.value == "oauth2"
         assert slack_adapter.color == "#4A154B"

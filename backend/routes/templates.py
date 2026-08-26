@@ -9,15 +9,11 @@ Ce module contient tous les endpoints REST pour la gestion des templates d'agent
 Il implémente les opérations CRUD et les fonctionnalités de recherche.
 """
 
-import json
-from typing import Any, Dict, List, Optional
-
-from flask import current_app, request
+from flask import request
 from flask_restful import Resource, reqparse
 
 from ..models.base import db
 from ..models.template import Template, TemplateVersion
-from ..models.user import User
 
 # Initialize parser for request parsing
 parser = reqparse.RequestParser()
@@ -982,7 +978,7 @@ class TemplateShareResource(Resource):
                 if expires_in_days:
                     expires_at = datetime.utcnow() + timedelta(days=expires_in_days)
 
-                token = ShareToken.create(
+                ShareToken.create(
                     template_id=template_id,
                     permission_level=token_permission,
                     created_by=template.created_by,
@@ -1001,7 +997,7 @@ class TemplateShareResource(Resource):
 
 
 # Import datetime for use in resources
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta  # noqa: E402
 
 
 def register_resources(api):

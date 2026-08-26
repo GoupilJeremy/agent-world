@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from ..adapters.github_adapter import GitHubIntegrationAdapter
-from ..base_adapter import ActionNotSupportedError, AuthenticationError
+from ..base_adapter import ActionNotSupportedError
 from ..integration_types import (
     IntegrationAction,
     IntegrationConfig,

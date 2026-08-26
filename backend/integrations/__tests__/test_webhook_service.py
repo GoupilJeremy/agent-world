@@ -5,7 +5,6 @@
 Unit tests for the WebhookService class.
 """
 
-from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -269,7 +268,7 @@ class TestWebhookServiceEmitEvents:
             events=["agent.created", "agent.updated"],
         )
 
-        sub2 = webhook_service.create_subscription(
+        webhook_service.create_subscription(
             name="Workflow Events",
             url="https://example.com/workflow-events",
             events=["workflow.started"],
@@ -300,7 +299,7 @@ class TestWebhookServiceEmitEvents:
     def test_emit_event_to_all_subscriptions_with_wildcard(self, webhook_service):
         """Test emitting an event to all subscriptions with wildcard."""
         # Create a subscription with wildcard
-        sub = webhook_service.create_subscription(
+        webhook_service.create_subscription(
             name="All Events",
             url="https://example.com/all-events",
             events=["*"],  # Wildcard for all events
@@ -496,7 +495,10 @@ class TestWebhookServiceSignatureVerification:
         payload = WebhookPayload(
             body={"test": "data"},
             headers={
-                "X-Hub-Signature-256": "sha256=5257c8e2e079762f73326a3593042c4250a00152af637066313450161c8f657c"
+                "X-Hub-Signature-256": (
+                    "sha256=5257c8e2e079762f73326a3593042c4250a00152"
+                    "af637066313450161c8f657c"
+                )
             },
         )
 

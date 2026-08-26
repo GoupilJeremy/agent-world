@@ -6,8 +6,6 @@ US-058: Compression des fichiers générés pour économiser de l'espace
 """
 
 import gzip
-import os
-import shutil
 import tempfile
 import zipfile
 from pathlib import Path

@@ -15,7 +15,7 @@ Il permet de :
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple
 
 from .adapters import ADAPTER_REGISTRY, BaseIntegrationAdapter
 
@@ -35,7 +35,7 @@ try:
 except ImportError:
     pass
 
-from .base_adapter import AuthenticationError, ConnectionError, IntegrationAdapterError
+from .base_adapter import IntegrationAdapterError
 from .integration_types import (
     IntegrationAction,
     IntegrationConfig,
@@ -45,7 +45,7 @@ from .integration_types import (
     IntegrationType,
 )
 from .oauth.oauth_service import OAuthService
-from .oauth.oauth_types import OAuthProvider, OAuthTokenData
+from .oauth.oauth_types import OAuthProvider
 from .webhooks.webhook_service import WebhookService
 from .webhooks.webhook_types import WebhookEvent
 
@@ -137,7 +137,8 @@ class IntegrationManager:
         self._configurations[integration_id] = config
 
         logger.info(
-            f"Created integration: {name} (ID: {integration_id}, Type: {integration_type.value})"
+            f"Created integration: {name} (ID: {integration_id}, "
+            f"Type: {integration_type.value})"
         )
 
         return config
@@ -271,7 +272,8 @@ class IntegrationManager:
                 else:
                     config.status = IntegrationStatus.ERROR
                     logger.warning(
-                        f"Failed to activate integration {integration_id}: {test_result.error}"
+                        f"Failed to activate integration {integration_id}: "
+                        f"{test_result.error}"
                     )
             except Exception as e:
                 config.status = IntegrationStatus.ERROR
@@ -744,7 +746,3 @@ class IntegrationManager:
         self._configurations.clear()
         self.oauth_service.cleanup()
         self.webhook_service.cleanup()
-
-
-# Importer datetime au niveau module
-from datetime import datetime

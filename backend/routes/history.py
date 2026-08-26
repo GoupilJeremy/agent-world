@@ -348,8 +348,6 @@ class ExecutionHistoryListResource(Resource):
         if not agent:
             return {"error": f"Agent with ID {agent_id} not found"}, 404
 
-        args = request.args
-
         status = _parse_execution_status(request.args.get("status"))
         start_date = _parse_datetime(request.args.get("start_date"))
         end_date = _parse_datetime(request.args.get("end_date"))
@@ -409,7 +407,10 @@ class ExecutionHistoryResource(Resource):
         execution = Execution.get_by_id(execution_id)
         if not execution or execution.agent_id != agent_id:
             return {
-                "error": f"Execution with ID {execution_id} not found for agent {agent_id}"
+                "error": (
+                    f"Execution with ID {execution_id} not found for "
+                    f"agent {agent_id}"
+                )
             }, 404
 
         return execution.to_dict(), 200
@@ -904,7 +905,8 @@ def register_history_resources(api):
     )
     api.add_resource(
         AgentVersionsCompareResource,
-        "/agents/<int:agent_id>/versions/<string:version_id_1>/compare/<string:version_id_2>",
+        "/agents/<int:agent_id>/versions/<string:version_id_1>"
+        "/compare/<string:version_id_2>",
     )
 
     # Export (US-029)

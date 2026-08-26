@@ -8,9 +8,7 @@ Notifications Routes for Agent World API.
 Ce module contient tous les endpoints REST pour la gestion des notifications.
 """
 
-from typing import Any, Optional
-
-from flask import current_app, request
+from flask import request
 from flask_restful import Resource, reqparse
 
 from ..models.base import db
@@ -221,7 +219,8 @@ class NotificationCreateResource(Resource):
                     type: integer
                   notification_type:
                     type: string
-                    enum: [execution_failure, execution_success, agent_created, agent_updated, agent_deleted, version_restored, template_created]
+                    enum: [execution_failure, execution_success, agent_created,
+                      agent_updated, agent_deleted, version_restored, template_created]
                   channel:
                     type: string
                     enum: [email, slack, discord]

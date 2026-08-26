@@ -24,7 +24,6 @@ from typing import Any, Callable, Dict, List, Optional
 
 from ..config.settings import Config
 from ..models.agent import Agent
-from ..models.template import Template, TemplateVersion
 from ..services.agent_service import AgentService
 from ..services.file_naming import generate_filename, normalize_extension
 from ..services.output_manager import OutputConfigurationError, OutputManager

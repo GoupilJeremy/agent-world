@@ -37,20 +37,21 @@ def register_adapter(adapter_class: type) -> type:
     return adapter_class
 
 
-from .discord_adapter import DiscordIntegrationAdapter  # noqa: F401
+from .discord_adapter import DiscordIntegrationAdapter  # noqa: F401, E402
 
 # Importer les adapters (ils s'enregistrent automatiquement via @register_adapter)
 # Import direct pour enregistrer les adapters dans le registre
-from .github_adapter import GitHubIntegrationAdapter  # noqa: F401
-from .google_drive_adapter import GoogleDriveIntegrationAdapter  # noqa: F401
-from .notion_adapter import NotionIntegrationAdapter  # noqa: F401
-from .slack_adapter import SlackIntegrationAdapter  # noqa: F401
-from .trello_adapter import TrelloIntegrationAdapter  # noqa: F401
+from .github_adapter import GitHubIntegrationAdapter  # noqa: F401, E402
+from .google_drive_adapter import GoogleDriveIntegrationAdapter  # noqa: F401, E402
+from .notion_adapter import NotionIntegrationAdapter  # noqa: F401, E402
+from .slack_adapter import SlackIntegrationAdapter  # noqa: F401, E402
+from .trello_adapter import TrelloIntegrationAdapter  # noqa: F401, E402
 
 
 # Import lazy pour éviter les dépendances circulaires supplémentaires
 def __getattr__(name):
-    # Ces adapters sont déjà importés ci-dessus, mais on garde la fonction pour compatibilité
+    # Ces adapters sont déjà importés ci-dessus, mais on garde la
+    # fonction pour compatibilité
     if name == "GitHubIntegrationAdapter":
         return GitHubIntegrationAdapter
     if name == "SlackIntegrationAdapter":

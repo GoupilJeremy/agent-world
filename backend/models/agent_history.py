@@ -6,7 +6,7 @@
 Agent History Model for Agent World.
 
 Ce modèle représente l'historique des modifications apportées aux agents IA.
-Il permet de tracer toutes les actions (création, mise à jour, suppression) 
+Il permet de tracer toutes les actions (création, mise à jour, suppression)
 sur un agent, avec les valeurs avant/après et les métadonnées associées.
 """
 

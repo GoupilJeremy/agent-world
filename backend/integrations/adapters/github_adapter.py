@@ -15,7 +15,6 @@ Requirements:
 """
 
 import base64
-import json
 import logging
 import secrets
 from datetime import datetime, timedelta
@@ -45,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 # Importer le décorateur depuis le module parent
 # On utilise un import direct pour éviter les problèmes circulaires
-from . import register_adapter
+from . import register_adapter  # noqa: E402
 
 
 @register_adapter
@@ -402,7 +401,6 @@ class GitHubIntegrationAdapter(BaseIntegrationAdapter):
         """Liste les repositories de l'utilisateur."""
         try:
             # Par défaut, lister tous les repos de l'utilisateur
-            user = payload.get("user", "")
             visibility = payload.get("visibility", "all")  # all, public, private
             sort = payload.get("sort", "updated")
             direction = payload.get("direction", "desc")
@@ -513,7 +511,10 @@ class GitHubIntegrationAdapter(BaseIntegrationAdapter):
                     error="owner, repo, pr_number, and body are required",
                 )
 
-            url = f"https://api.github.com/repos/{owner}/{repo_name}/issues/{pr_number}/comments"
+            url = (
+                f"https://api.github.com/repos/{owner}/{repo_name}/issues/"
+                f"{pr_number}/comments"
+            )
             comment_data = {"body": body}
 
             response = self._make_request("POST", url, json=comment_data)
@@ -582,7 +583,10 @@ class GitHubIntegrationAdapter(BaseIntegrationAdapter):
                     error="owner, repo, issue_number, and body are required",
                 )
 
-            url = f"https://api.github.com/repos/{owner}/{repo_name}/issues/{issue_number}/comments"
+            url = (
+                f"https://api.github.com/repos/{owner}/{repo_name}/issues/"
+                f"{issue_number}/comments"
+            )
             comment_data = {"body": body}
 
             response = self._make_request("POST", url, json=comment_data)
@@ -805,7 +809,9 @@ class GitHubIntegrationAdapter(BaseIntegrationAdapter):
                         },
                         "auto_create_pr": {
                             "type": "boolean",
-                            "description": "Créer automatiquement des PR pour les modifications",
+                            "description": (
+                                "Créer automatiquement des PR pour les modifications"
+                            ),
                             "default": False,
                         },
                         "notify_on_comment": {

@@ -16,7 +16,7 @@ intégrations externes. Il fournit des méthodes pour :
 
 import logging
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests

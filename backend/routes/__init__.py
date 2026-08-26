@@ -20,7 +20,8 @@ from .templates import register_resources as register_template_resources
 agents_bp = Blueprint("agents", __name__, url_prefix="/api/agents")
 
 
-# Importer le blueprint des intégrations de manière lazy pour éviter les dépendances circulaires
+# Importer le blueprint des intégrations de manière lazy pour éviter
+# les dépendances circulaires
 def _get_integrations_bp():
     from .integrations import integrations_bp
 

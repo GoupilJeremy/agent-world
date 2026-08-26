@@ -9,13 +9,11 @@ US-058: Compression des fichiers générés pour économiser de l'espace
 """
 
 import gzip
-import io
-import os
 import shutil
 import zipfile
 from datetime import datetime
 from pathlib import Path
-from typing import Any, BinaryIO, Optional, Union
+from typing import Any, Optional, Union
 
 
 class CompressionError(Exception):
@@ -212,7 +210,8 @@ class CompressionService:
 
         Raises:
             CompressionError: Si la compression échoue
-            UnsupportedCompressionFormatError: Si le format n'est pas supporté pour les dossiers
+            UnsupportedCompressionFormatError: Si le format n'est pas
+            supporté pour les dossiers
         """
         if not self.enabled:
             return Path(source_dir)

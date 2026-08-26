@@ -12,7 +12,7 @@ Ce module contient les endpoints pour :
 - Obtenir des rapports d'optimisation
 """
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, request
 from flask_restful import Resource
 
 from ..services.agent_cache_service import get_agent_cache_service

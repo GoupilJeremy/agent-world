@@ -13,10 +13,8 @@ Requirements:
     - requests: Pour les requêtes HTTP
 """
 
-import json
 import logging
 import secrets
-from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlencode
 
@@ -41,7 +39,7 @@ from ..integration_types import (
 logger = logging.getLogger(__name__)
 
 # Importer le décorateur depuis le module parent
-from . import register_adapter
+from . import register_adapter  # noqa: E402
 
 
 @register_adapter
@@ -62,7 +60,8 @@ class TrelloIntegrationAdapter(BaseIntegrationAdapter):
         - OAuth2 (recommandé)
         - API Key + Token (méthode plus simple)
 
-    Documentation Trello API: https://developer.atlassian.com/cloud/trello/rest/api-group-actions/
+    Documentation Trello API:
+    https://developer.atlassian.com/cloud/trello/rest/api-group-actions/
     """
 
     # Configuration de l'adapter
@@ -1517,7 +1516,10 @@ class TrelloIntegrationAdapter(BaseIntegrationAdapter):
                         },
                         "auto_create_cards": {
                             "type": "boolean",
-                            "description": "Créer automatiquement des cartes pour les nouvelles tâches",
+                            "description": (
+                                "Créer automatiquement des cartes pour les "
+                                "nouvelles tâches"
+                            ),
                             "default": True,
                         },
                         "card_template": {
@@ -1532,14 +1534,19 @@ class TrelloIntegrationAdapter(BaseIntegrationAdapter):
                                 },
                                 "due_days": {
                                     "type": "number",
-                                    "description": "Nombre de jours pour la date d'échéance par défaut",
+                                    "description": (
+                                        "Nombre de jours pour la date "
+                                        "d'échéance par défaut"
+                                    ),
                                     "default": 7,
                                 },
                             },
                         },
                         "notify_on_create": {
                             "type": "boolean",
-                            "description": "Notifier les membres quand une carte est créée",
+                            "description": (
+                                "Notifier les membres quand une carte est créée"
+                            ),
                             "default": True,
                         },
                     },

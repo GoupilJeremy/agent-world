@@ -11,8 +11,7 @@ pour toutes les intégrations externes.
 """
 
 from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional
 
 from .integration_types import (
     AuthType,

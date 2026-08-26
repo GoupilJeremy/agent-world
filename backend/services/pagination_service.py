@@ -157,8 +157,6 @@ def paginated_response(func):
     """
     from functools import wraps
 
-    from flask import request
-
     def decorator(wrapped_func):
         @wraps(wrapped_func)
         def wrapper(*args, **kwargs):

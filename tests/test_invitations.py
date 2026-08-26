@@ -637,7 +637,7 @@ class TestInvitationAPI:
             assert len(data) == 2
 
     def test_get_project_invitations_not_found(self, client):
-        """Test the GET /api/projects/<project_id>/invitations endpoint with non-existent project."""
+        """Test GET /api/projects/<project_id>/invitations with non-existent project."""
         response = client.get("/api/projects/99999/invitations")
 
         assert response.status_code == 404

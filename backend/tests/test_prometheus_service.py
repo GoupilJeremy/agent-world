@@ -185,7 +185,7 @@ class TestPrometheusServiceMiddleware:
         """Test le tracking des requêtes après traitement."""
         # Simuler une requête complète
         with test_app.test_client() as client:
-            response = client.get("/test")
+            client.get("/test")
 
         # La requête doit avoir été trackée
 

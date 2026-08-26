@@ -16,7 +16,7 @@ avec une stratégie d'invalidation basée sur :
 import hashlib
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, Optional
 
 from .cache_service import get_cache_service
@@ -220,7 +220,7 @@ class AgentCacheService:
             return 0
 
         # Invalider les résultats d'exécution
-        pattern_result = f"agent:result:*"
+        pattern_result = "agent:result:*"
         # Invalider les métadonnées
         pattern_metadata = f"agent:metadata:{agent_id}"
 
@@ -229,9 +229,10 @@ class AgentCacheService:
         # Invalider les résultats
         for key in self._cache.client.scan_iter(pattern_result):
             key_str = key.decode() if isinstance(key, bytes) else key
-            if f"agent:result:" in key_str:
+            if "agent:result:" in key_str:
                 # Vérifier si la clé correspond à cet agent
-                # (Les clés de résultat contiennent le hash de l'input, pas l'agent_id directement)
+                # (Les clés de résultat contiennent le hash de l'input,
+                # pas l'agent_id directement)
                 # On invalide tout pour simplifier
                 self._cache.client.delete(key)
                 count += 1

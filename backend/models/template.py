@@ -6,7 +6,8 @@
 Template Model for Agent World.
 
 Ce modèle représente un template d'agent IA réutilisable dans la base de données.
-Un template peut être utilisé pour créer de nouveaux agents avec une configuration pré-établie.
+Un template peut être utilisé pour créer de nouveaux agents avec une
+configuration pré-établie.
 """
 
 from datetime import datetime
@@ -196,7 +197,9 @@ class Template(BaseModel):
 
         # Escape the tag for JSON (in case it contains special characters)
         escaped_tag = json.dumps(tag)[1:-1]  # Remove quotes
-        return cls.query.filter(Template.tags.like(f'%"{escaped_tag}"%')).all()  # type: ignore[arg-type]
+        return cls.query.filter(
+            Template.tags.like(f'%"{escaped_tag}"%')
+        ).all()  # type: ignore[arg-type]
 
     @classmethod
     def search(
@@ -241,7 +244,9 @@ class Template(BaseModel):
                 import json
 
                 escaped_tag = json.dumps(tag)[1:-1]
-                search_query = search_query.filter(Template.tags.like(f'%"{escaped_tag}"%'))  # type: ignore[arg-type]
+                search_query = search_query.filter(
+                    Template.tags.like(f'%"{escaped_tag}"%')
+                )  # type: ignore[arg-type]
 
         if is_public is not None:
             search_query = search_query.filter_by(is_public=is_public)

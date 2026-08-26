@@ -17,14 +17,14 @@ import hmac
 import json
 import logging
 import secrets
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from datetime import datetime
+from typing import Any, Callable, Dict, List, Optional
 
 import requests
 
 from ..integration_types import IntegrationConfig, IntegrationType
 from .webhook_types import (
     WebhookEvent,
-    WebhookEventType,
     WebhookPayload,
     WebhookResponse,
     WebhookStatus,
@@ -92,7 +92,8 @@ class WebhookService:
         webhook_id = secrets.token_urlsafe(16)
 
         subscription = WebhookSubscription(
-            id=webhook_id,  # Utiliser le webhook_id comme ID pour les abonnements en mémoire
+            # Utiliser le webhook_id comme ID pour les abonnements en mémoire
+            id=webhook_id,
             name=name,
             url=url,
             events=events,
@@ -660,7 +661,3 @@ class WebhookService:
         self._incoming_handlers.clear()
         self._outgoing_handlers.clear()
         self._webhook_secrets.clear()
-
-
-# Importer datetime au niveau module pour l'utiliser dans les méthodes
-from datetime import datetime

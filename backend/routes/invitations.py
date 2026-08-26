@@ -12,9 +12,8 @@ d'utilisateurs pour rejoindre des projets.
 from flask import current_app, request
 from flask_restful import Resource, reqparse
 
-from ..models.invitation import Invitation, InvitationStatus
+from ..models.invitation import Invitation
 from ..models.project import Project
-from ..models.user import User
 from ..services.invitation_service import InvitationError, InvitationService
 
 # Initialize parser

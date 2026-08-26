@@ -11,8 +11,7 @@ Il supporte plusieurs canaux : email, Slack, Discord.
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
 from ..models.history_notification import (
     HistoryNotification,
@@ -207,7 +206,6 @@ class NotificationService:
         """Send notification via email."""
         # Import here to avoid circular dependencies
         try:
-            import smtplib
             from email.mime.text import MIMEText
         except ImportError:
             logger.error("Email dependencies not available")
@@ -254,20 +252,13 @@ class NotificationService:
             return False
 
         try:
-            import requests
-
-            payload = {
-                "text": f"*{notification.title}*\n{notification.message}",
-                "username": "Agent World Bot",
-                "icon_emoji": ":robot_face:",
-            }
-
             # In a real implementation:
             # response = requests.post(config.webhook_url, json=payload)
             # response.raise_for_status()
 
             logger.info(
-                f"Slack notification would be sent to {config.webhook_url}: {notification.title}"
+                f"Slack notification would be sent to {config.webhook_url}: "
+                f"{notification.title}"
             )
             notification.mark_as_sent()
             return True
@@ -284,19 +275,13 @@ class NotificationService:
             return False
 
         try:
-            import requests
-
-            payload = {
-                "content": f"**{notification.title}**\n{notification.message}",
-                "username": "Agent World Bot",
-            }
-
             # In a real implementation:
             # response = requests.post(config.webhook_url, json=payload)
             # response.raise_for_status()
 
             logger.info(
-                f"Discord notification would be sent to {config.webhook_url}: {notification.title}"
+                f"Discord notification would be sent to {config.webhook_url}: "
+                f"{notification.title}"
             )
             notification.mark_as_sent()
             return True
@@ -357,7 +342,10 @@ class NotificationService:
             user_id=user_id,
             notification_type=NotificationType.EXECUTION_FAILURE,
             title=f"Agent {agent_id} - Exécution échouée",
-            message=f"L'exécution {execution_id} de l'agent {agent_id} a échoué: {error_message}",
+            message=(
+                f"L'exécution {execution_id} de l'agent {agent_id} "
+                f"a échoué: {error_message}"
+            ),
             extra_data={
                 "agent_id": agent_id,
                 "execution_id": execution_id,
@@ -391,7 +379,10 @@ class NotificationService:
             user_id=user_id,
             notification_type=NotificationType.EXECUTION_SUCCESS,
             title=f"Agent {agent_id} - Exécution réussie",
-            message=f"L'exécution {execution_id} de l'agent {agent_id} a réussi en {duration:.2f}s",
+            message=(
+                f"L'exécution {execution_id} de l'agent {agent_id} "
+                f"a réussi en {duration:.2f}s"
+            ),
             extra_data={
                 "agent_id": agent_id,
                 "execution_id": execution_id,

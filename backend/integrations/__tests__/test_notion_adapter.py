@@ -70,7 +70,8 @@ class TestNotionIntegrationAdapter:
         assert notion_adapter.name == "Notion"
         assert (
             notion_adapter.description
-            == "Intégration avec Notion pour synchroniser des bases de données et créer des pages"
+            == "Intégration avec Notion pour synchroniser des bases de données "
+            "et créer des pages"
         )
         assert notion_adapter.auth_type.value == "oauth2"
         assert "create_page" in notion_adapter.supported_actions

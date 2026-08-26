@@ -14,7 +14,6 @@ Requirements:
     - notion-client: Bibliothèque officielle Notion (optionnelle)
 """
 
-import json
 import logging
 import secrets
 from datetime import datetime, timedelta
@@ -42,7 +41,7 @@ from ..integration_types import (
 logger = logging.getLogger(__name__)
 
 # Importer le décorateur depuis le module parent
-from . import register_adapter
+from . import register_adapter  # noqa: E402
 
 
 @register_adapter
@@ -67,7 +66,10 @@ class NotionIntegrationAdapter(BaseIntegrationAdapter):
     # Configuration de l'adapter
     type = IntegrationType.NOTION
     name = "Notion"
-    description = "Intégration avec Notion pour synchroniser des bases de données et créer des pages"
+    description = (
+        "Intégration avec Notion pour synchroniser des bases de données "
+        "et créer des pages"
+    )
     auth_type = AuthType.OAUTH2
     icon = "notion"
     color = "#000000"
@@ -150,7 +152,8 @@ class NotionIntegrationAdapter(BaseIntegrationAdapter):
 
         credentials = self.config.credentials
 
-        # Notion accepte soit un access_token (OAuth2) soit un api_key (Integration Token)
+        # Notion accepte soit un access_token (OAuth2) soit un api_key
+        # (Integration Token)
         if credentials.access_token:
             return {"Authorization": f"Bearer {credentials.access_token}"}
         elif credentials.api_key:
@@ -299,7 +302,8 @@ class NotionIntegrationAdapter(BaseIntegrationAdapter):
                 "redirect_uri": self.oauth_config.redirect_uri,
             }
 
-            # Notion nécessite l'authentification Basic Auth avec client_id:client_secret
+            # Notion nécessite l'authentification Basic Auth avec
+            # client_id:client_secret
             auth = (self.oauth_config.client_id, self.oauth_config.client_secret)
 
             headers = {
@@ -741,7 +745,8 @@ class NotionIntegrationAdapter(BaseIntegrationAdapter):
             return IntegrationResult(success=False, error=str(e))
 
     def _delete_page(self, payload: Dict[str, Any]) -> IntegrationResult:
-        """Supprime une page (larchive en réalité, car Notion ne permet pas la suppression définitive)."""
+        """Supprime une page (larchive en réalité, car Notion ne permet pas
+        la suppression définitive)."""
         try:
             page_id = payload.get("page_id")
 
@@ -955,7 +960,8 @@ class NotionIntegrationAdapter(BaseIntegrationAdapter):
                 for item in agent_data:
                     try:
                         # Vérifier si la page existe déjà (simplifié)
-                        # Dans une implémentation réelle, on utiliserait une propriété unique
+                        # Dans une implémentation réelle, on utiliserait une
+                        # propriété unique
                         # pour identifier les pages existantes
 
                         # Pour cet exemple, on crée une nouvelle page
@@ -1096,7 +1102,8 @@ class NotionIntegrationAdapter(BaseIntegrationAdapter):
             return id
 
         # Les IDs Notion sont des UUID sans les tirets, ou avec un préfixe
-        # Exemple: "123e4567-e89b-12d3-a456-426614174000" ou "123e4567e89b12d3a456426614174000"
+        # Exemple: "123e4567-e89b-12d3-a456-426614174000" ou
+        # "123e4567e89b12d3a456426614174000"
 
         # Si la longueur correspond à un UUID sans tirets (32 caractères)
         if len(id) == 32:
@@ -1151,13 +1158,17 @@ class NotionIntegrationAdapter(BaseIntegrationAdapter):
                         },
                         "sync_interval_minutes": {
                             "type": "number",
-                            "description": "Intervalle de synchronisation automatique (en minutes)",
+                            "description": (
+                                "Intervalle de synchronisation automatique (en minutes)"
+                            ),
                             "default": 60,
                             "minimum": 1,
                         },
                         "map_agent_properties": {
                             "type": "object",
-                            "description": "Mappage des propriétés de l'agent vers Notion",
+                            "description": (
+                                "Mappage des propriétés de l'agent vers Notion"
+                            ),
                             "default": {},
                         },
                     },

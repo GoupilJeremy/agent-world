@@ -13,10 +13,10 @@ import hashlib
 import json
 import logging
 from functools import wraps
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional
 
 import redis
-from flask import current_app, request
+from flask import request
 
 logger = logging.getLogger(__name__)
 
@@ -298,8 +298,6 @@ class CacheConfig:
         def clear_cache():
             """Endpoint pour vider le cache (admin only)."""
             from flask import jsonify
-
-            from ..services.auth_service import get_current_user
 
             # Vérifier l'authentification et les permissions
             # (À implémenter dans Épic 10 - Sécurité)

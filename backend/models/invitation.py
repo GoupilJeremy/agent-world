@@ -100,7 +100,10 @@ class Invitation(BaseModel):
         self.expires_at = expires_at or (datetime.utcnow() + timedelta(days=7))
 
     def __repr__(self) -> str:
-        return f"<Invitation(id={self.id}, email={self.email}, project_id={self.project_id}, status={self.status})>"
+        return (
+            f"<Invitation(id={self.id}, email={self.email}, "
+            f"project_id={self.project_id}, status={self.status})>"
+        )
 
     @property
     def is_expired(self) -> bool:

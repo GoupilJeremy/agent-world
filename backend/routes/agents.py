@@ -16,10 +16,10 @@ from flask_restful import Resource, reqparse
 
 from ..models.agent import Agent
 from ..models.base import db
-from ..services.cache_service import cache_response, get_cache_service, invalidate_cache
+from ..services.cache_service import cache_response, invalidate_cache
 from ..services.file_naming import generate_filename, normalize_extension
 from ..services.file_service import FileServiceError, FileValidationError
-from ..services.pagination_service import PaginationResult, PaginationService
+from ..services.pagination_service import PaginationService
 
 # Initialize parser for request parsing
 parser = reqparse.RequestParser()

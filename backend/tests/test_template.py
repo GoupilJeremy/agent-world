@@ -9,10 +9,7 @@ Ce module contient tous les tests pour les fonctionnalités de templates.
 """
 
 import json
-import os
-import tempfile
 import unittest
-from datetime import datetime
 
 from ..app import create_app
 from ..config.settings import TestingConfig
@@ -331,7 +328,6 @@ class TemplateVersionModelTestCase(unittest.TestCase):
     def test_get_latest_version(self):
         """Test getting the latest version."""
         import time
-        from datetime import datetime, timedelta
 
         with self.app.app_context():
             template = Template.create(name="Versioned Template")

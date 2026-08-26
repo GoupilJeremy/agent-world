@@ -11,9 +11,7 @@ Il est intégré au parser principal dans main.py.
 
 import argparse
 import json
-import sys
-import time
-from typing import Any, Dict, List, Optional
+from typing import List
 
 from ..models.template import Template, TemplateVersion
 
@@ -802,12 +800,9 @@ class TemplateCLIHandler:
     def handle_template_versions_restore(self, args: argparse.Namespace) -> int:
         """Handle the template versions restore command."""
         try:
-            from datetime import datetime
-
             from flask import has_app_context
 
             from ..app import app
-            from ..models.base import db
 
             if not has_app_context():
                 with app.app_context():
@@ -898,7 +893,8 @@ class TemplateCLIHandler:
             print("No templates to display")
             return
         print(
-            f"\n{'ID':<5} {'Name':<25} {'Version':<10} {'Category':<15} {'Official':<10} {'Public':<10}"
+            f"\n{'ID':<5} {'Name':<25} {'Version':<10} "
+            f"{'Category':<15} {'Official':<10} {'Public':<10}"
         )
         print("-" * 80)
         for template in templates:

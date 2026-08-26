@@ -15,6 +15,7 @@ from typing import Optional
 
 from flask import current_app
 
+from ..models.base import db
 from ..models.invitation import Invitation, InvitationStatus
 from ..models.project import Project
 from ..models.user import User
@@ -99,7 +100,8 @@ class InvitationService:
         existing = Invitation.get_by_email_and_project(email, project_id)
         if existing and existing.is_pending:
             raise InvitationError(
-                f"Une invitation pendante existe déjà pour {email} sur le projet {project_id}"
+                f"Une invitation pendante existe déjà pour {email} "
+                f"sur le projet {project_id}"
             )
 
         # Générer un token unique
@@ -135,15 +137,13 @@ class InvitationService:
         """
         if not self.email_service:
             current_app.logger.warning(
-                "Aucun service d'email configuré. L'invitation ne sera pas envoyée par email."
+                "Aucun service d'email configuré. L'invitation ne sera "
+                "pas envoyée par email."
             )
             return False
 
-        # Récupérer le projet et le créateur
+        # Récupérer le projet
         project = Project.get_by_id(invitation.project_id)
-        creator = (
-            User.get_by_id(invitation.created_by) if invitation.created_by else None
-        )
 
         # Construire le sujet et le contenu de l'email
         subject = f"Invitation à rejoindre le projet {project.name}"
@@ -234,7 +234,8 @@ L'équipe Agent World
             L'invitation révoquée
 
         Raises:
-            InvitationError: Si l'invitation n'existe pas ou n'appartient pas à l'utilisateur
+            InvitationError: Si l'invitation n'existe pas ou n'appartient
+            pas à l'utilisateur
         """
         invitation = Invitation.get_by_id(invitation_id)
 
@@ -246,7 +247,8 @@ L'équipe Agent World
             revoker = User.get_by_id(revoked_by)
             if not revoker or not revoker.is_admin:
                 raise InvitationError(
-                    "Seul le créateur de l'invitation ou un administrateur peut la révoquer"
+                    "Seul le créateur de l'invitation ou un administrateur "
+                    "peut la révoquer"
                 )
 
         invitation.revoke()

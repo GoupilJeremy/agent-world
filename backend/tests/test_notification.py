@@ -7,7 +7,6 @@ Tests for historical notifications functionality.
 """
 
 import unittest
-from datetime import datetime
 
 from backend.app import create_app
 from backend.models.base import db
@@ -18,8 +17,6 @@ from backend.models.history_notification import (
 )
 from backend.models.user import User
 from backend.services.notification_service import (
-    NotificationConfig,
-    NotificationService,
     UserNotificationPreferences,
     notification_service,
 )
@@ -108,7 +105,7 @@ class TestNotificationModel(unittest.TestCase):
             email="test2@agentworld.ai",
             password_hash="hashed_password",
         )
-        notification2 = HistoryNotification.create(
+        HistoryNotification.create(
             user_id=user2.id,
             notification_type=NotificationType.AGENT_UPDATED,
             channel=NotificationChannel.SLACK,

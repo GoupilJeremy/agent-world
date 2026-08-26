@@ -14,11 +14,10 @@ Ce module contient les commandes CLI pour :
 
 import argparse
 import json
-from typing import Any, Dict, List, Optional
+from typing import List
 
-from ..models.invitation import Invitation, InvitationStatus
+from ..models.invitation import Invitation
 from ..models.project import Project
-from ..models.user import User
 from ..services.invitation_service import InvitationError, InvitationService
 
 
@@ -233,7 +232,7 @@ class CollaborationCLIHandler:
                 user_id=user_id,
             )
 
-            print(f"✅ Invitation accepted!")
+            print("✅ Invitation accepted!")
             print(f"   Project ID: {invitation.project_id}")
             print(f"   Role: {invitation.role}")
 
@@ -262,7 +261,7 @@ class CollaborationCLIHandler:
                 revoked_by=revoked_by,
             )
 
-            print(f"✅ Invitation revoked")
+            print("✅ Invitation revoked")
             self.print_invitation(invitation)
             return 0
 
@@ -351,7 +350,8 @@ class CollaborationCLIHandler:
             print(f"\n🎫 Invitations ({len(invitations)})")
             print("=" * 80)
             print(
-                f"{'ID':<5} {'Project':<8} {'Email':<25} {'Role':<10} {'Status':<12} {'Token':<20}"
+                f"{'ID':<5} {'Project':<8} {'Email':<25} "
+                f"{'Role':<10} {'Status':<12} {'Token':<20}"
             )
             print("-" * 80)
             for inv in invitations:
@@ -359,7 +359,8 @@ class CollaborationCLIHandler:
                     inv.token[:8] + "..." if len(inv.token) > 8 else inv.token
                 )
                 print(
-                    f"{inv.id:<5} {inv.project_id:<8} {inv.email:<25} {inv.role:<10} {inv.status.value:<12} {token_display:<20}"
+                    f"{inv.id:<5} {inv.project_id:<8} {inv.email:<25} "
+                    f"{inv.role:<10} {inv.status.value:<12} {token_display:<20}"
                 )
 
     def print_project(self, project: Project) -> None:
@@ -388,5 +389,6 @@ class CollaborationCLIHandler:
             print("-" * 80)
             for p in projects:
                 print(
-                    f"{p.id:<5} {p.name:<25} {p.created_by:<10} {str(p.is_public):<8} {str(p.is_shared):<8}"
+                    f"{p.id:<5} {p.name:<25} {p.created_by:<10} "
+                    f"{str(p.is_public):<8} {str(p.is_shared):<8}"
                 )

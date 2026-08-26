@@ -14,7 +14,6 @@ Requirements:
     - requests-oauthlib: Pour OAuth2 (optionnel)
 """
 
-import json
 import logging
 import secrets
 from datetime import datetime, timedelta
@@ -42,7 +41,7 @@ from ..integration_types import (
 logger = logging.getLogger(__name__)
 
 # Importer le décorateur depuis le module parent
-from . import register_adapter
+from . import register_adapter  # noqa: E402
 
 
 @register_adapter
@@ -68,7 +67,10 @@ class SlackIntegrationAdapter(BaseIntegrationAdapter):
     # Configuration de l'adapter
     type = IntegrationType.SLACK
     name = "Slack"
-    description = "Intégration avec Slack pour envoyer des messages, notifications et interagir avec les équipes"
+    description = (
+        "Intégration avec Slack pour envoyer des messages, "
+        "notifications et interagir avec les équipes"
+    )
     auth_type = AuthType.OAUTH2
     icon = "slack"
     color = "#4A154B"
@@ -366,7 +368,8 @@ class SlackIntegrationAdapter(BaseIntegrationAdapter):
             # Utiliser le bot token si disponible
             token_to_use = bot_token or access_token
 
-            # Calculer l'expiration (Slack tokens n'expirent pas toujours, mais on utilise expires_in si fourni)
+            # Calculer l'expiration (Slack tokens n'expirent pas toujours,
+            # mais on utilise expires_in si fourni)
             token_expiry = None
             if expires_in:
                 token_expiry = datetime.utcnow() + timedelta(seconds=expires_in)
@@ -394,7 +397,8 @@ class SlackIntegrationAdapter(BaseIntegrationAdapter):
             IntegrationCredentials avec les nouveaux tokens
 
         Raises:
-            NotImplementedError: Si Slack ne supporte pas le refresh pour ce type de token
+            NotImplementedError: Si Slack ne supporte pas le refresh pour
+            ce type de token
             ValueError: Si le rafraîchissement échoue
         """
         try:

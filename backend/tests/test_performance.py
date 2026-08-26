@@ -1,6 +1,6 @@
 # 🧪 Agent World - Performance Tests
 # Version: 0.4.2 (Épic 8 - Performance)
-# Description: Tests pour les fonctionnalités de performance (cache, pagination, optimisation BDD)
+# Description: Tests pour les fonctionnalités de performance
 
 """
 Performance Tests for Agent World.
@@ -13,7 +13,6 @@ Ce module contient les tests pour :
 """
 
 import json
-import time
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -23,7 +22,6 @@ from backend.config import TestingConfig
 from backend.models.agent import Agent
 from backend.models.base import db
 from backend.services.agent_cache_service import (
-    AgentCacheService,
     get_agent_cache_service,
 )
 from backend.services.cache_service import (
@@ -33,7 +31,6 @@ from backend.services.cache_service import (
     invalidate_cache,
 )
 from backend.services.db_optimization_service import (
-    DBOptimizationService,
     get_db_optimization_service,
 )
 from backend.services.pagination_service import PaginationResult, PaginationService
@@ -405,21 +402,17 @@ class TestPerformanceMetrics:
         """Test que le cache améliore les temps de réponse."""
         with app.app_context():
             # Créer un agent
-            agent = Agent.create(
+            Agent.create(
                 name="performance_test_agent",
                 description="Test de performance",
                 model="mistral-tiny",
             )
 
             # Premier appel (sans cache)
-            start_time = time.time()
             response1 = app.test_client().get("/api/agents")
-            time1 = time.time() - start_time
 
             # Deuxième appel (avec cache potentiel)
-            start_time = time.time()
             response2 = app.test_client().get("/api/agents")
-            time2 = time.time() - start_time
 
             # Les deux réponses doivent être valides
             assert response1.status_code == 200
